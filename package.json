@@ -1,0 +1,15 @@
+{
+  "name": "fxos-sharing",
+  "description": "FxOS sharing dependencies.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com/fxos/sharing.git"
+  },
+  "author": "FxOS Developers <dev-gaia@lists.mozilla.com>",
+  "license": "MPL",
+  "dependencies": {
+    "fxos-build": "0.3.x",
+    "gulp": "3.8.x"
+  }
+}

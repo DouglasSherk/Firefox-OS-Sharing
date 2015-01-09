@@ -1,0 +1,36 @@
+{
+  "name": "Sharing",
+  "description": "FxOS Sharing",
+  "type": "certified",
+  "launch_path": "/index.html",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/fxos/"
+  },
+  "permissions": {
+    "webapps-manage": {
+      "description": "For installing apps"
+    },
+    "device-storage:apps": {
+      "description": "For installing apps",
+      "access": "readwrite"
+    },
+    "settings": {
+      "description": "For enabling/disabling broadcasting",
+      "access": "readwrite"
+    },
+    "tcp-socket": {
+      "description": "For serving apps to other devices"
+    },
+    "wifi-manage": {
+      "description": "For connecting to other devices to share apps"
+    },
+    "systemXHR": {
+      "description": "For getting data from connected devices"
+    },
+    "browser": {}
+  },
+  "icons": {
+    "128": "/icons/icon_128.png"
+  }
+}

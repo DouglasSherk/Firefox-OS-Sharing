@@ -1,0 +1,54 @@
+#proximity-apps a {
+  width: 100%;
+  height: 3.4rem;
+  padding: 0.3rem;
+
+  position: relative;
+  display: flex;
+
+  line-height: 3.4rem;
+  align-items: center;
+}
+
+#proximity-apps a:nth-child(odd) {
+}
+
+gaia-list li {
+  height: 3.4rem;
+
+  padding: 0.5rem;
+  width: 100%;
+
+  display: flex;
+
+  font-style: italic;
+  font-weight: 300;
+}
+
+gaia-list li:first-child::before {
+  content: none;
+}
+
+gaia-list li::before {
+  top: 0px;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+
+  position: absolute;
+
+  content: "";
+  background: #ddd;
+}
+
+gaia-list li > * {
+  height: 2.4rem;
+}
+
+gaia-list li > :first-child {
+  flex: 8;
+}
+
+gaia-list li > :nth-child(2) {
+  flex: 2;
+}

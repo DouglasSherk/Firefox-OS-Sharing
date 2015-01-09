@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+  font-size: 10px;
+  font-family: "FiraSans";
+}
+
+body.loading {
+  background: url(/img/gears.svg) 50% 50%;
+}

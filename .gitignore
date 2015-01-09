@@ -1,0 +1,8 @@
+gulpfile.js
+.editorconfig
+.jshintrc
+dist/
+node_modules/
+app/components/*
+!app/components/p2p
+.DS_Store
