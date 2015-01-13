@@ -19,6 +19,18 @@ var BinaryUtils = {
 
   arrayBufferToString: function(arrayBuffer) {
     return String.fromCharCode.apply(null, new Uint8Array(arrayBuffer));
+  },
+
+  blobToArrayBuffer: function(blob, callback) {
+    var fileReader = new FileReader();
+    fileReader.onload = function() {
+      if (typeof callback === 'function') {
+        callback(fileReader.result);
+      }
+    };
+    fileReader.readAsArrayBuffer(blob);
+
+    return fileReader.result;
   }
 };
 
@@ -28,12 +40,64 @@ return BinaryUtils;
 
 },{}],2:[function(require,module,exports){
 /*jshint esnext:true*/
+/*exported EventTarget*/
+'use strict';
+
+module.exports = window.EventTarget = (function() {
+
+function EventTarget(object) {
+  if (typeof object !== 'object') {
+    return;
+  }
+
+  for (var property in object) {
+    this[property] = object[property];
+  }
+}
+
+EventTarget.prototype.constructor = EventTarget;
+
+EventTarget.prototype.dispatchEvent = function(name, data) {
+  var events    = this._events || {};
+  var listeners = events[name] || [];
+  listeners.forEach((listener) => {
+    listener.call(this, data);
+  });
+};
+
+EventTarget.prototype.addEventListener = function(name, listener) {
+  var events    = this._events = this._events || {};
+  var listeners = events[name] = events[name] || [];
+  if (listeners.find(fn => fn === listener)) {
+    return;
+  }
+
+  listeners.push(listener);
+};
+
+EventTarget.prototype.removeEventListener = function(name, listener) {
+  var events    = this._events || {};
+  var listeners = events[name] || [];
+  for (var i = listeners.length - 1; i >= 0; i--) {
+    if (listeners[i] === listener) {
+      listeners.splice(i, 1);
+      return;
+    }
+  }
+};
+
+return EventTarget;
+
+})();
+
+},{}],3:[function(require,module,exports){
+/*jshint esnext:true*/
 /*exported HTTPRequest*/
 'use strict';
 
 module.exports = window.HTTPRequest = (function() {
 
-var Listenable  = require('./listenable');
+var EventTarget = require('./event-target');
 var BinaryUtils = require('./binary-utils');
 
 const CRLF = '\r\n';
@@ -50,18 +114,16 @@ function HTTPRequest(requestData) {
   }
 }
 
-Listenable(HTTPRequest.prototype);
+HTTPRequest.prototype = new EventTarget();
 
 HTTPRequest.prototype.constructor = HTTPRequest;
 
 function parseRequestData(requestData) {
-  if (requestData instanceof ArrayBuffer) {
-    requestData = BinaryUtils.arrayBufferToString(requestData);
-  }
-
   if (!requestData) {
     return null;
   }
+
+  requestData = BinaryUtils.arrayBufferToString(requestData);
 
   var requestParts = requestData.split(CRLF + CRLF);
 
@@ -235,18 +297,19 @@ return HTTPRequest;
 
 })();
 
-},{"./binary-utils":1,"./listenable":7}],3:[function(require,module,exports){
+},{"./binary-utils":1,"./event-target":2}],4:[function(require,module,exports){
 /*jshint esnext:true*/
 /*exported HTTPResponse*/
 'use strict';
 
 module.exports = window.HTTPResponse = (function() {
 
-var Listenable  = require('./listenable');
+var EventTarget = require('./event-target');
 var BinaryUtils = require('./binary-utils');
 var HTTPStatus  = require('./http-status');
 
 const CRLF = '\r\n';
+const BUFFER_SIZE = 64 * 1024;
 
 function HTTPResponse(socket, timeout) {
   this.socket  = socket;
@@ -263,31 +326,49 @@ function HTTPResponse(socket, timeout) {
   }
 }
 
-Listenable(HTTPResponse.prototype);
+HTTPResponse.prototype = new EventTarget();
 
 HTTPResponse.prototype.constructor = HTTPResponse;
 
 HTTPResponse.prototype.send = function(body, status) {
-  var response = createResponse(body, status, this.headers);
-  if (this.socket.binaryType === 'arraybuffer') {
-    response = BinaryUtils.stringToArrayBuffer(response);
-  }
+  return createResponse(body, status, this.headers, (response) => {
+    var offset = 0;
+    var remaining = response.byteLength;
 
-  this.socket.send(response);
+    var sendNextPart = () => {
+      var length = Math.min(remaining, BUFFER_SIZE);
 
-  clearTimeout(this.timeoutHandler);
-  this.emit('complete');
+      var bufferFull = this.socket.send(response, offset, length);
+
+      offset += length;
+      remaining -= length;
+
+      if (remaining > 0) {
+        if (!bufferFull) {
+          sendNextPart();
+        }
+      }
+      
+      else {
+        clearTimeout(this.timeoutHandler);
+
+        this.socket.close();
+        this.dispatchEvent('complete');
+      }
+    };
+
+    this.socket.ondrain = sendNextPart;
+
+    sendNextPart();
+  });
 };
 
 HTTPResponse.prototype.sendFile = function(fileOrPath, status) {
   if (fileOrPath instanceof File) {
-    var fileReader = new FileReader();
-    fileReader.onload = () => {
-      var body = BinaryUtils.arrayBufferToString(fileReader.result);
-      this.send(body, status);
-    };
+    BinaryUtils.blobToArrayBuffer(fileOrPath, (arrayBuffer) => {
+      this.send(arrayBuffer, status);
+    });
 
-    fileReader.readAsArrayBuffer(fileOrPath);
     return;
   }
 
@@ -295,8 +376,7 @@ HTTPResponse.prototype.sendFile = function(fileOrPath, status) {
   xhr.open('GET', fileOrPath, true);
   xhr.responseType = 'arraybuffer';
   xhr.onload = () => {
-    var body = BinaryUtils.arrayBufferToString(xhr.response);
-    this.send(body, status);
+    this.send(xhr.response, status);
   };
 
   xhr.send(null);
@@ -312,28 +392,34 @@ function createResponseHeader(status, headers) {
   return header;
 }
 
-function createResponse(body, status, headers) {
+function createResponse(body, status, headers, callback) {
   body    = body    || '';
   status  = status  || 200;
   headers = headers || {};
 
-  headers['Content-Length'] = body.length;
+  headers['Content-Length'] = body.length || body.byteLength;
 
-  return createResponseHeader(status, headers) + CRLF + body;
+  var response = new Blob([
+    createResponseHeader(status, headers),
+    CRLF,
+    body
+  ]);
+
+  return BinaryUtils.blobToArrayBuffer(response, callback);
 }
 
 return HTTPResponse;
 
 })();
 
-},{"./binary-utils":1,"./http-status":5,"./listenable":7}],4:[function(require,module,exports){
+},{"./binary-utils":1,"./event-target":2,"./http-status":6}],5:[function(require,module,exports){
 /*jshint esnext:true*/
 /*exported HTTPServer*/
 'use strict';
 
 module.exports = window.HTTPServer = (function() {
 
-var Listenable   = require('./listenable');
+var EventTarget  = require('./event-target');
 var HTTPRequest  = require('./http-request');
 var HTTPResponse = require('./http-response');
 var IPUtils      = require('./ip-utils');
@@ -356,7 +442,7 @@ function HTTPServer(port, options) {
 
 HTTPServer.HTTP_VERSION = 'HTTP/1.1';
 
-Listenable(HTTPServer.prototype);
+HTTPServer.prototype = new EventTarget();
 
 HTTPServer.prototype.constructor = HTTPServer;
 
@@ -370,7 +456,7 @@ HTTPServer.prototype.start = function() {
   console.log('Starting HTTP server on port ' + this.port);
 
   var socket = navigator.mozTCPSocket.listen(this.port, {
-    binaryType: 'string' // 'arraybuffer'
+    binaryType: 'arraybuffer'
   });
 
   socket.onconnect = (connectEvent) => {
@@ -383,7 +469,7 @@ HTTPServer.prototype.start = function() {
 
       var response = new HTTPResponse(connectEvent, this.timeout);
 
-      this.emit('request', {
+      this.dispatchEvent('request', {
         request: request,
         response: response
       });
@@ -410,7 +496,7 @@ return HTTPServer;
 
 })();
 
-},{"./http-request":2,"./http-response":3,"./ip-utils":6,"./listenable":7}],5:[function(require,module,exports){
+},{"./event-target":2,"./http-request":3,"./http-response":4,"./ip-utils":7}],6:[function(require,module,exports){
 /*jshint esnext:true*/
 /*exported HTTPStatus*/
 'use strict';
@@ -482,7 +568,7 @@ return HTTPStatus;
 
 })();
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*jshint esnext:true*/
 /*exported IPUtils*/
 'use strict';
@@ -551,47 +637,5 @@ return IPUtils;
 
 })();
 
-},{}],7:[function(require,module,exports){
-/*jshint esnext:true*/
-/*exported Listenable*/
-'use strict';
-
-module.exports = window.Listenable = (function() {
-
-function Listenable(object) {
-  object.emit = function(name, data) {
-    var events    = this._events || {};
-    var listeners = events[name] || [];
-    listeners.forEach((listener) => {
-      listener.call(this, data);
-    });
-  };
-
-  object.addEventListener = function(name, listener) {
-    var events    = this._events = this._events || {};
-    var listeners = events[name] = events[name] || [];
-    if (listeners.find(fn => fn === listener)) {
-      return;
-    }
-
-    listeners.push(listener);
-  };
-
-  object.removeEventListener = function(name, listener) {
-    var events    = this._events || {};
-    var listeners = events[name] || [];
-    for (var i = listeners.length - 1; i >= 0; i--) {
-      if (listeners[i] === listener) {
-        listeners.splice(i, 1);
-        return;
-      }
-    }
-  };
-}
-
-return Listenable;
-
-})();
-
-},{}]},{},[4])(4)
+},{}]},{},[5])(5)
 });
