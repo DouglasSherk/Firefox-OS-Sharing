@@ -80,8 +80,8 @@ export default class P2pService {
     setTimeout(() => {
       this._peerAddress = 'asdf';
       this._appsUpdated([
-        {manifest: {name: 'spam', description: 'doo'}},
-        {manifest: {name: 'foo', description: 'too'}},
+        {manifest: {name: 'Sharing', description: 'doo'}},
+        {manifest: {name: 'HelloWorld', description: 'too'}},
         {manifest: {name: 'test', description: 'ham'}}]);
     }, 1000);
   }
@@ -141,6 +141,7 @@ export default class P2pService {
               console.log('processing as manifest request');
               var manifest = app.manifest;
               manifest.installs_allowed_from = ['*'];
+              manifest.package_path = '/download?app=' + appName;
               console.log(JSON.stringify(manifest));
               response.send(JSON.stringify(manifest));
             } else if (path === '/download') {
@@ -177,6 +178,8 @@ export default class P2pService {
     P2PHelper.addEventListener('disconnected', () => {
       console.log('disconnected!');
 
+      P2PHelper.startScan();
+
       this._connectedIp = null;
 
       var wifiP2pManager = navigator.mozWifiP2pManager;
@@ -194,12 +197,27 @@ export default class P2pService {
     P2PHelper.startScan();
   }
 
+  _connectToPeer(address) {
+    if (this._connectTimer) {
+      return;
+    }
+
+    this._peerAddress = address;
+    this._connectTimer = setTimeout(() => {
+      console.log('connecting to peer!');
+      this._connectTimer = null;
+
+      // XXX/drs: Suggestion from justindarc to improve stability.
+      P2PHelper.stopScan();
+      P2PHelper.connect(address);
+    }, 5000);
+  }
+
   _connectToFirstPeer(peers) {
     for (let i = 0; i < peers.length; i++) {
       let peer = peers[i];
       if (peer.connectionStatus !== 'connected') {
-        this._peerAddress = peer.address;
-        P2PHelper.connect(peer.address);
+        this._connectToPeer(peer.address);
       }
     }
   }
