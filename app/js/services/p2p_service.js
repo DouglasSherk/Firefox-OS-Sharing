@@ -5,7 +5,7 @@ import AppsService from 'js/services/apps_service';
 
 // Enable this if you want the device to pretend that it's connected to another
 // device and request its own apps.
-window.TEST_MODE = true;
+//window.TEST_MODE = true;
 
 export default class P2pService {
   constructor() {
@@ -88,10 +88,10 @@ export default class P2pService {
 
   downloadApp(appName) {
     var apps = this.appsService.flatten(this._proximityApps);
+    console.log('scanning in ' + JSON.stringify(apps));
     for (var i = 0; i < apps.length; i++) {
       var app = apps[i];
-      console.log(
-        'appName: ' + appName + ' / manifestName: ' + app.manifest.name);
+      console.log('found matching app: ' + JSON.stringify(app));
       if (appName === app.manifest.name) {
         this.appsService.installApp(app);
         break;
@@ -181,6 +181,7 @@ export default class P2pService {
       P2PHelper.startScan();
 
       this._connectedIp = null;
+      this._peerAddress = null;
 
       var wifiP2pManager = navigator.mozWifiP2pManager;
       var request = wifiP2pManager.getPeerList();
@@ -198,7 +199,7 @@ export default class P2pService {
   }
 
   _connectToPeer(address) {
-    if (this._connectTimer) {
+    if (this._connectTimer || this._peerAddress) {
       return;
     }
 
@@ -231,10 +232,12 @@ export default class P2pService {
   }
 
   _requestApps() {
+    console.log('1 connected ip is: ' + this._connectedIp);
     var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         var apps = JSON.parse(xhr.responseText);
+        console.log('2 connected ip is: ' + this._connectedIp);
         console.log('got : ' + xhr.responseText);
         this._appsUpdated(apps);
       }
@@ -245,16 +248,13 @@ export default class P2pService {
   }
 
   _appsUpdated(apps) {
+    console.log('3 connected ip is: ' + this._connectedIp);
     apps.forEach((_, index) => {
       var app = apps[index];
-
+      app.url = this._connectedIp;
       if (!app.type) {
         app.type = 'packaged';
       }
-
-      app.manifestURL =
-        this._connectedIp + '/manifest.webapp?name=' + app.manifest.name;
-      app.url = this._connectedIp + '/download?name=' + app.manifest.name;
     });
 
     this._proximityApps[this._peerAddress] = apps;

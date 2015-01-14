@@ -44,23 +44,16 @@ export default class AppsService {
   }
 
   installApp(appData) {
-    var manifest = appData.manifestURL;
+    console.log('AppsService::installApp(' + JSON.stringify(appData) + ')');
+    var manifestURL = appData.url + '/manifest?app=' + appData.manifest.name;
     var type = appData.type;
     var installReq;
     if (type === 'hosted') {
-      console.log('installing hosted app, ' + manifest);
-      installReq = navigator.mozApps.install(manifest, {
-        installMetaData: {
-          url: appData.url
-        }
-      });
+      console.log('installing hosted app, ' + manifestURL);
+      installReq = navigator.mozApps.install(manifestURL);
     } else if (type === 'packaged') {
-      console.log('installing packaged app, ' + manifest);
-      installReq = navigator.mozApps.installPackage(manifest, {
-        installMetaData: {
-          url: appData.url
-        }
-      });
+      console.log('installing packaged app, ' + manifestURL);
+      installReq = navigator.mozApps.installPackage(manifestURL);
     } else {
       throw new Error('Could not install app, unrecognized type: ' + type);
     }
