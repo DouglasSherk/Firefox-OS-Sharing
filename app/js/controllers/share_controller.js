@@ -30,9 +30,9 @@ export default class ShareController extends Controller {
     this.sharedAddonsView.init(this);
 
     this.appsService = new AppsService();
-
     this.p2pService = new P2pService();
-    this.p2pService.addBroadcastListener(this.broadcastChanged.bind(this));
+
+    this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
   }
 
   main() {
@@ -48,16 +48,20 @@ export default class ShareController extends Controller {
         document.body.appendChild(this.sharedAddonsView.el);
       });
     });
+
+    this.p2pService.addBroadcastListener(this._broadcastChangedWrapped);
   }
 
   teardown() {
     document.body.removeChild(this.shareSettingsView.el);
     document.body.removeChild(this.sharedAppsView.el);
     document.body.removeChild(this.sharedAddonsView.el);
+
+    this.p2pService.removeBroadcastListener(this._broadcastChangedWrapped);
   }
 
-  toggleBroadcasting() {
-    this.p2pService.broadcast = !this.p2pService.broadcast;
+  toggleBroadcasting(toggle) {
+    this.p2pService.broadcast = toggle;
   }
 
   broadcastChanged() {

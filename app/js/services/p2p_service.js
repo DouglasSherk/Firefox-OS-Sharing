@@ -71,12 +71,33 @@ export default class P2pService {
   }
 
   addBroadcastListener(callback) {
-    this._broadcastListeners.push(callback);
+    var existingCallback = this._broadcastListeners.find((listener) => {
+      return callback === listener;
+    });
+
+    if (!existingCallback) {
+      this._broadcastListeners.push(callback);
+    }
 
     // Trigger the callback immediately if we have a broadcast setting stored
     // already.
     if (this._broadcast !== undefined) {
       callback();
+    }
+  }
+
+  removeBroadcastListener(callback) {
+    var listenerIndex;
+    this._broadcastListeners.find((listener, index) => {
+      if (listener === callback) {
+        listenerIndex = index;
+      }
+
+      return listenerIndex !== undefined;
+    });
+
+    if (listenerIndex !== undefined) {
+      this._broadcastListeners.splice(listenerIndex, 1);
     }
   }
 

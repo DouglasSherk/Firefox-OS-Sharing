@@ -14,6 +14,8 @@ export default class ShareSettingsView extends View {
 
     setTimeout(() => {
       this.shareEnabledElt = document.getElementById('share-enabled');
+      this.shareEnabledElt.addEventListener(
+        'change', this._handleShareEnabledChange.bind(this));
 
       this.shareDescriptionElt = document.getElementById('share-description');
 
@@ -50,17 +52,15 @@ export default class ShareSettingsView extends View {
   displayBroadcast(enabled) {
     this.shareDescriptionElt.textContent = enabled ?
       'Sharing On' : 'Turn on to share apps';
-    this.shareEnabledElt.setChecked(!!enabled);
 
-    // We should only hook this after the first update since we don't want the
-    // initial automatic call to fool us into thinking that the user tapped the
-    // button.
-    this.shareEnabledElt.addEventListener(
-      'change', this._handleShareEnabledChange.bind(this));
+    // XXX/drs: We have to wait for this to load for some reason.
+    setTimeout(() => {
+      this.shareEnabledElt.setChecked(!!enabled);
+    }, 500);
   }
 
   _handleShareEnabledChange(e) {
-    this.controller.toggleBroadcasting();
+    this.controller.toggleBroadcasting(e.target.checked);
   }
 
   _handleRenameDevice(e) {
