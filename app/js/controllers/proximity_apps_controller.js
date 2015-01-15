@@ -23,10 +23,8 @@ export default class ProximityAppsController extends Controller {
     });
     this.proximityAddonsView.init(this);
 
-    this.appsService = new AppsService();
-
-    this.p2pService = new P2pService();
-    this.p2pService.addProximityListener(this.proximityChanged.bind(this));
+    P2pService.instance.addEventListener(
+      'proximity', this.proximityChanged.bind(this));
 
     this.installedApps = {};
 
@@ -41,7 +39,8 @@ export default class ProximityAppsController extends Controller {
     document.body.appendChild(this.proximityAppsView.el);
     document.body.appendChild(this.proximityAddonsView.el);
 
-    this.p2pService.addBroadcastListener(this._broadcastChangedWrapped);
+    P2pService.instance.addEventListener(
+      'broadcast', this._broadcastChangedWrapped);
   }
 
   teardown() {
@@ -49,23 +48,24 @@ export default class ProximityAppsController extends Controller {
     document.body.removeChild(this.proximityAppsView.el);
     document.body.removeChild(this.proximityAddonsView.el);
 
-    this.p2pService.removeBroadcastListener(this._broadcastChangedWrapped);
+    P2pService.instance.removeEventListener(
+      'broadcast', this._broadcastChangedWrapped);
   }
 
   broadcastChanged() {
-    this.shareSummaryView.displayBroadcast(this.p2pService.broadcast);
+    this.shareSummaryView.displayBroadcast(P2pService.instance.broadcast);
   }
 
   proximityChanged() {
     this.proximityAppsView.render(
-      this.appsService.flatten(this.p2pService.proximityApps));
+      AppsService.instance.flatten(P2pService.instance.proximityApps));
     this.proximityAddonsView.render(
-      this.appsService.flatten(this.p2pService.proximityAddons));
+      AppsService.instance.flatten(P2pService.instance.proximityAddons));
   }
 
   handleClick(e) {
     var appName = e.target.dataset.app;
-    this.p2pService.downloadApp(appName);
+    P2pService.instance.downloadApp(appName);
   }
 
   openSharePanel() {

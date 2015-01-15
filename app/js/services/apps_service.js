@@ -1,4 +1,25 @@
-export default class AppsService {
+import { Service } from 'components/fxos-mvc/dist/mvc';
+
+var singletonGuard = {};
+var instance;
+
+export default class AppsService extends Service {
+  constructor(guard) {
+    if (guard !== singletonGuard) {
+      console.error('Cannot create singleton class');
+      return;
+    }
+
+    super();
+  }
+
+  static get instance() {
+    if (!instance) {
+      instance = new this(singletonGuard);
+    }
+    return instance;
+  }
+
   getInstalledApps() {
     return this._getAppsSubset((app) => {
       return app.manifest.role !== 'system' &&

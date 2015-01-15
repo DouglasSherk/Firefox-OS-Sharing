@@ -29,27 +29,25 @@ export default class ShareController extends Controller {
     });
     this.sharedAddonsView.init(this);
 
-    this.appsService = new AppsService();
-    this.p2pService = new P2pService();
-
     this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
   }
 
   main() {
-    this.appsService.getInstalledApps().then((apps) => {
+    AppsService.instance.getInstalledApps().then((apps) => {
       this.shareSettingsView.render();
       document.body.appendChild(this.shareSettingsView.el);
 
       this.sharedAppsView.render(apps);
       document.body.appendChild(this.sharedAppsView.el);
 
-      this.appsService.getInstalledAddons().then((addons) => {
+      AppsService.instance.getInstalledAddons().then((addons) => {
         this.sharedAddonsView.render(addons);
         document.body.appendChild(this.sharedAddonsView.el);
       });
     });
 
-    this.p2pService.addBroadcastListener(this._broadcastChangedWrapped);
+    P2pService.instance.addEventListener(
+      'broadcast', this._broadcastChangedWrapped);
   }
 
   teardown() {
@@ -57,15 +55,16 @@ export default class ShareController extends Controller {
     document.body.removeChild(this.sharedAppsView.el);
     document.body.removeChild(this.sharedAddonsView.el);
 
-    this.p2pService.removeBroadcastListener(this._broadcastChangedWrapped);
+    P2pService.instance.removeEventListener(
+      'broadcast', this._broadcastChangedWrapped);
   }
 
   toggleBroadcasting(toggle) {
-    this.p2pService.broadcast = toggle;
+    P2pService.instance.broadcast = toggle;
   }
 
   broadcastChanged() {
-    var broadcast = this.p2pService.broadcast;
+    var broadcast = P2pService.instance.broadcast;
     this.shareSettingsView.displayBroadcast(broadcast);
     this.sharedAppsView.toggle(!broadcast);
     this.sharedAddonsView.toggle(!broadcast);

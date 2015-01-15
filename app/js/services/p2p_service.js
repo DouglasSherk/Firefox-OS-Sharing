@@ -1,31 +1,33 @@
 import /* global HTTPServer */ 'components/p2p/fxos-web-server';
 import /* global P2PHelper */ 'components/p2p/p2p_helper';
 
+import { Service } from 'components/fxos-mvc/dist/mvc';
+
 import AppsService from 'js/services/apps_service';
 
 // Enable this if you want the device to pretend that it's connected to another
 // device and request its own apps.
 //window.TEST_MODE = true;
 
-export default class P2pService {
-  constructor() {
-    if (window.P2pService) {
-      return window.P2pService;
+var singletonGuard = {};
+var instance;
+
+export default class P2pService extends Service {
+  constructor(guard) {
+    if (guard !== singletonGuard) {
+      console.error('Cannot create singleton class');
+      return;
     }
-    window.P2pService = this;
+
+    super();
 
     this._peerName = null;
     this._connectedIp = window.TEST_MODE ? 'http://127.0.0.1:8080' : null;
 
-    this._broadcastListeners = [];
-    this._proximityListeners = [];
-
     this._proximityApps = {};
     this._proximityAddons = {};
 
-    this.appsService = new AppsService();
-
-    this.appsService.getInstalledApps().then((apps) => {
+    AppsService.instance.getInstalledApps().then((apps) => {
       this._installedApps = apps;
     });
 
@@ -37,9 +39,7 @@ export default class P2pService {
         } else {
           this._deactivateHttpServer();
         }
-        this._broadcastListeners.forEach((callback) => {
-          callback();
-        });
+        this._dispatchEvent('broadcast');
       });
 
       var broadcastSetting = navigator.mozSettings.createLock().get(
@@ -52,9 +52,7 @@ export default class P2pService {
         } else {
           this._deactivateHttpServer();
         }
-        this._broadcastListeners.forEach((callback) => {
-          callback();
-        });
+        this._dispatchEvent('broadcast');
         resolve();
       };
 
@@ -68,43 +66,6 @@ export default class P2pService {
 
     window.addEventListener(
       'beforeunload', this._deactivateHttpServer.bind(this));
-  }
-
-  addBroadcastListener(callback) {
-    var existingCallback = this._broadcastListeners.find((listener) => {
-      return callback === listener;
-    });
-
-    if (!existingCallback) {
-      this._broadcastListeners.push(callback);
-    }
-
-    // Trigger the callback immediately if we have a broadcast setting stored
-    // already.
-    if (this._broadcast !== undefined) {
-      setTimeout(() => {
-        callback();
-      });
-    }
-  }
-
-  removeBroadcastListener(callback) {
-    var listenerIndex;
-    this._broadcastListeners.find((listener, index) => {
-      if (listener === callback) {
-        listenerIndex = index;
-      }
-
-      return listenerIndex !== undefined;
-    });
-
-    if (listenerIndex !== undefined) {
-      this._broadcastListeners.splice(listenerIndex, 1);
-    }
-  }
-
-  addProximityListener(callback) {
-    this._proximityListeners.push(callback);
 
     setTimeout(() => {
       this._peerName = 'asdf';
@@ -112,17 +73,24 @@ export default class P2pService {
         {manifest: {name: 'Sharing', description: 'doo'}, owner: 'Doug'},
         {manifest: {name: 'HelloWorld', description: 'too'}, owner: 'Ham'},
         {manifest: {name: 'test', description: 'ham'}, owner: 'Hurr'}]);
-    }, 1000);
+    }, 3000);
+  }
+
+  static get instance() {
+    if (!instance) {
+      instance = new this(singletonGuard);
+    }
+    return instance;
   }
 
   downloadApp(appName) {
-    var apps = this.appsService.flatten(this._proximityApps);
+    var apps = AppsService.instance.flatten(this._proximityApps);
     console.log('scanning in ' + JSON.stringify(apps));
     for (var i = 0; i < apps.length; i++) {
       var app = apps[i];
       console.log('found matching app: ' + JSON.stringify(app));
       if (appName === app.manifest.name) {
-        this.appsService.installApp(app);
+        AppsService.instance.installApp(app);
         break;
       }
     }
@@ -181,7 +149,7 @@ export default class P2pService {
           }
         });
       } else {
-        response.send(this.appsService.pretty(this._installedApps));
+        response.send(AppsService.instance.pretty(this._installedApps));
       }
     });
     this.httpServer.start();
@@ -288,8 +256,6 @@ export default class P2pService {
     });
 
     this._proximityApps[this._peerName] = apps;
-    this._proximityListeners.forEach((callback) => {
-      callback();
-    });
+    this._dispatchEvent('proximity');
   }
 }
