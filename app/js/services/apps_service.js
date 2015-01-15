@@ -1,12 +1,28 @@
 export default class AppsService {
   getInstalledApps() {
     return new Promise((resolve, reject) => {
-      this.installedApps = {};
+      if (this.installedApps) {
+        resolve(this.installedApps);
+        return;
+      }
+
+      this.installedApps = [];
+
       var req = navigator.mozApps.mgmt.getAll();
 
       req.onsuccess = () => {
-        var apps = req.result;
-        resolve(apps);
+        var result = req.result;
+
+        // Strip out apps that we shouldn't share.
+        for (var index in result) {
+          var app = result[index];
+          if (app.manifest.role !== 'system' &&
+              app.manifest.type !== 'certified') {
+            this.installedApps.push(app);
+          }
+        }
+
+        resolve(this.installedApps);
       };
 
       req.onerror = e => {

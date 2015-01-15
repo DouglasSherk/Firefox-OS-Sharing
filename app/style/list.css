@@ -43,8 +43,15 @@ gaia-list li h3, gaia-list li h4 {
 }
 
 gaia-list li h4 {
+  max-width: 13rem;
+
   font-size: 1rem;
+
+  overflow: hidden;
+  white-space: nowrap;
+
   color: #777;
+  text-overflow: ellipsis;
 }
 
 gaia-list li:first-child::before {

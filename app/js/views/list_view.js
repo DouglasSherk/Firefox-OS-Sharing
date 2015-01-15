@@ -20,7 +20,7 @@ export default class ListView extends View {
       <li tabindex="0">
         <div>
           <h3>${app.manifest.name}</h3>
-          <h4>${app.owner}</h4>
+          <h4>${app.owner || app.manifest.description}</h4>
         </div>
         ${this._control(app)}
       </li>`;
