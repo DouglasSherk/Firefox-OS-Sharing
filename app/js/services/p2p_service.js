@@ -178,6 +178,8 @@ export default class P2pService {
     P2PHelper.addEventListener('disconnected', () => {
       console.log('disconnected!');
 
+      // XXX/drs: Suggestion from justindarc to improve stability.
+      P2PHelper.disconnect();
       P2PHelper.startScan();
 
       this._connectedIp = null;
@@ -215,11 +217,9 @@ export default class P2pService {
   }
 
   _connectToFirstPeer(peers) {
-    for (let i = 0; i < peers.length; i++) {
-      let peer = peers[i];
-      if (peer.connectionStatus !== 'connected') {
-        this._connectToPeer(peer.address);
-      }
+    for (var i = 0; i < peers.length; i++) {
+      var peer = peers[i];
+      this._connectToPeer(peer.address);
     }
   }
 
