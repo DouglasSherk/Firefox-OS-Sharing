@@ -33,26 +33,15 @@ export default class P2pService extends Service {
 
     this._initialized = new Promise((resolve, reject) => {
       navigator.mozSettings.addObserver('lightsaber.p2p_broadcast', (e) => {
-        this._broadcast = e.settingValue;
-        if (this._broadcast) {
-          this._activateHttpServer();
-        } else {
-          this._deactivateHttpServer();
-        }
-        this._dispatchEvent('broadcast');
+        this._broadcastLoaded(e.settingValue);
       });
 
       var broadcastSetting = navigator.mozSettings.createLock().get(
         'lightsaber.p2p_broadcast', false);
 
       broadcastSetting.onsuccess = () => {
-        this._broadcast = broadcastSetting.result['lightsaber.p2p_broadcast'];
-        if (this._broadcast) {
-          this._activateHttpServer();
-        } else {
-          this._deactivateHttpServer();
-        }
-        this._dispatchEvent('broadcast');
+        this._broadcastLoaded(
+          broadcastSetting.result['lightsaber.p2p_broadcast']);
         resolve();
       };
 
@@ -81,6 +70,16 @@ export default class P2pService extends Service {
       instance = new this(singletonGuard);
     }
     return instance;
+  }
+
+  _broadcastLoaded(val) {
+    this._broadcast = val;
+    if (this._broadcast) {
+      this._activateHttpServer();
+    } else {
+      this._deactivateHttpServer();
+    }
+    this._dispatchEvent('broadcast');
   }
 
   downloadApp(appName) {

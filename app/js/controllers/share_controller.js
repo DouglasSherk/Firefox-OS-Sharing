@@ -47,7 +47,7 @@ export default class ShareController extends Controller {
     });
 
     P2pService.instance.addEventListener(
-      'broadcast', this._broadcastChangedWrapped);
+      'broadcast', this._broadcastChangedWrapped, true);
   }
 
   teardown() {

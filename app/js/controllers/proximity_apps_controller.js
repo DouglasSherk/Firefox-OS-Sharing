@@ -40,7 +40,7 @@ export default class ProximityAppsController extends Controller {
     document.body.appendChild(this.proximityAddonsView.el);
 
     P2pService.instance.addEventListener(
-      'broadcast', this._broadcastChangedWrapped);
+      'broadcast', this._broadcastChangedWrapped, true);
   }
 
   teardown() {
