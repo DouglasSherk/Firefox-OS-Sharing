@@ -26,10 +26,11 @@ export default class ProximityAppsController extends Controller {
     this.appsService = new AppsService();
 
     this.p2pService = new P2pService();
-    this.p2pService.addBroadcastListener(this.broadcastChanged.bind(this));
     this.p2pService.addProximityListener(this.proximityChanged.bind(this));
 
     this.installedApps = {};
+
+    this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
   }
 
   main() {
@@ -39,12 +40,16 @@ export default class ProximityAppsController extends Controller {
     this.proximityChanged();
     document.body.appendChild(this.proximityAppsView.el);
     document.body.appendChild(this.proximityAddonsView.el);
+
+    this.p2pService.addBroadcastListener(this._broadcastChangedWrapped);
   }
 
   teardown() {
     document.body.removeChild(this.shareSummaryView.el);
     document.body.removeChild(this.proximityAppsView.el);
     document.body.removeChild(this.proximityAddonsView.el);
+
+    this.p2pService.removeBroadcastListener(this._broadcastChangedWrapped);
   }
 
   broadcastChanged() {

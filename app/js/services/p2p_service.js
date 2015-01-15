@@ -82,7 +82,9 @@ export default class P2pService {
     // Trigger the callback immediately if we have a broadcast setting stored
     // already.
     if (this._broadcast !== undefined) {
-      callback();
+      setTimeout(() => {
+        callback();
+      });
     }
   }
 
