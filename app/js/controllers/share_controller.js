@@ -48,4 +48,8 @@ export default class ShareController extends Controller {
   broadcastChanged() {
     this.shareSettingsView.displayBroadcast(this.p2pService.broadcast);
   }
+
+  handleRenameDevice() {
+    window.location.hash = 'device_name';
+  }
 }

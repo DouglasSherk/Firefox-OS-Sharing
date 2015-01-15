@@ -13,6 +13,8 @@
     "gaia-list": "gaia-components/gaia-list",
     "gaia-button": "gaia-components/gaia-button",
     "gaia-fonts": "gaia-components/gaia-fonts",
-    "gaia-icons": "gaia-components/gaia-icons"
+    "gaia-icons": "gaia-components/gaia-icons",
+    "gaia-confirm": " gaia-components/gaia-confirm",
+    "gaia-component-utils": "gaia-components/gaia-component-utils"
   }
 }

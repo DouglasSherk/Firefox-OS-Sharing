@@ -17,6 +17,10 @@ export default class ShareSettingsView extends View {
         'click', this._handleClick.bind(this));
 
       this.shareDescriptionElt = document.getElementById('share-description');
+
+      this.renameDeviceBtn = this.$('.rename-device');
+      this.renameDeviceBtn.addEventListener(
+        'click', this._handleRenameDevice.bind(this));
     });
   }
 
@@ -52,5 +56,9 @@ export default class ShareSettingsView extends View {
 
   _handleClick(e) {
     this.controller.toggleBroadcasting();
+  }
+
+  _handleRenameDevice(e) {
+    this.controller.handleRenameDevice();
   }
 }
