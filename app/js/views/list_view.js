@@ -1,7 +1,6 @@
 import { View } from 'components/fxos-mvc/dist/mvc';
 
 import 'components/gaia-list/gaia-list';
-import 'components/gaia-button/gaia-button';
 
 export default class ListView extends View {
   constructor(id, title, type) {
@@ -44,9 +43,9 @@ export default class ListView extends View {
       return `<input class="control" type="checkbox"></input>`;
     } else if (this.type === 'download') {
       var string = `
-      <gaia-button data-app="${app.manifest.name}" class="control">
+      <a data-app="${app.manifest.name}" class="control">
         Download
-      </gaia-button>`;
+      </a>`;
       return string;
     }
   }
