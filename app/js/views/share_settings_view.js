@@ -31,7 +31,7 @@ export default class ShareSettingsView extends View {
           <h3>Share My Apps</h3>
           <h4 id="share-description">Turn on to share apps</h4>
         </div>
-        <input type="checkbox" id="share-enabled"></input>
+        <gaia-switch id="share-enabled"></gaia-switch>
       </li>
       <li>
         <div>
@@ -51,7 +51,7 @@ export default class ShareSettingsView extends View {
   displayBroadcast(enabled) {
     this.shareDescriptionElt.textContent = enabled ?
       'Sharing On' : 'Turn on to share apps';
-    this.shareEnabledElt.checked = !!enabled;
+    this.shareEnabledElt.setChecked(!!enabled);
   }
 
   _handleClick(e) {

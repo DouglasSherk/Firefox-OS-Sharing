@@ -80,7 +80,7 @@ gaia-list li > :first-child {
 }
 
 gaia-list li > :nth-child(2) {
-  flex: 2;
+  flex: 1;
 }
 
 gaia-list li a {

@@ -1,6 +1,7 @@
 import { View } from 'components/fxos-mvc/dist/mvc';
 
 import 'components/gaia-list/gaia-list';
+import 'components/gaia-switch/gaia-switch';
 
 export default class ListView extends View {
   constructor(id, title, type) {
@@ -41,7 +42,7 @@ export default class ListView extends View {
 
   _control(app) {
     if (this.type === 'toggle') {
-      return `<input class="control" type="checkbox"></input>`;
+      return `<gaia-switch class="control"></gaia-switch>`;
     } else if (this.type === 'download') {
       var string = `
       <a data-app="${app.manifest.name}" class="control">
