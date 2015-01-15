@@ -14,7 +14,7 @@
     "gaia-button": "gaia-components/gaia-button",
     "gaia-fonts": "gaia-components/gaia-fonts",
     "gaia-icons": "gaia-components/gaia-icons",
-    "gaia-confirm": " gaia-components/gaia-confirm",
-    "gaia-component-utils": "gaia-components/gaia-component-utils"
+    "gaia-text-input": "gaia-components/gaia-text-input#b475913456e4",
+    "gaia-dialog": " gaia-components/gaia-dialog"
   }
 }

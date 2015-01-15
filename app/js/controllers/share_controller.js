@@ -6,8 +6,12 @@ import AppsService from 'js/services/apps_service';
 import ShareSettingsView from 'js/views/share_settings_view';
 import ListView from 'js/views/list_view';
 
+import DeviceNameController from 'js/controllers/device_name_controller';
+
 export default class ShareController extends Controller {
   constructor() {
+    this.deviceNameController = new DeviceNameController();
+
     this.shareSettingsView = new ShareSettingsView();
     this.shareSettingsView.init(this);
     this.sharedAppsView = new ListView('shared-apps', 'My apps', 'toggle');
@@ -50,6 +54,6 @@ export default class ShareController extends Controller {
   }
 
   handleRenameDevice() {
-    window.location.hash = 'device_name';
+    this.deviceNameController.main();
   }
 }

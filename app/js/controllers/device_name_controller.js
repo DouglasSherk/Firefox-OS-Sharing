@@ -10,9 +10,9 @@ export default class DeviceNameController extends Controller {
   main() {
     this.view.render();
     document.body.appendChild(this.view.el);
-  }
 
-  teardown() {
-    document.body.removeChild(this.view.el);
+    setTimeout(() => {
+      this.view.open();
+    });
   }
 }
