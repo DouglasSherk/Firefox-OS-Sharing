@@ -10,8 +10,9 @@ export default class ShareController extends Controller {
   constructor() {
     this.shareSettingsView = new ShareSettingsView();
     this.shareSettingsView.init(this);
-    this.sharedAppsView = new ListView('shared-apps', 'My apps');
-    this.sharedAddonsView = new ListView('shared-addons', 'My addons');
+    this.sharedAppsView = new ListView('shared-apps', 'My apps', 'toggle');
+    this.sharedAddonsView =
+      new ListView('shared-addons', 'My addons', 'toggle');
 
     this.appsService = new AppsService();
 

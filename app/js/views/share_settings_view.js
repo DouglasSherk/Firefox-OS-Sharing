@@ -1,5 +1,7 @@
 import { View } from 'components/fxos-mvc/dist/mvc';
 
+import 'components/gaia-button/gaia-button';
+
 export default class ShareSettingsView extends View {
   constructor() {
     this.el = document.createElement('gaia-list');
@@ -33,6 +35,9 @@ export default class ShareSettingsView extends View {
           <h4 id="device-name">Doug Phone</h4>
         </div>
         <i class="forward-light"></i>
+      </li>
+      <li>
+        <gaia-button class="rename-device">Rename Device</gaia-button>
       </li>
     `;
 

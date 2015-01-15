@@ -7,6 +7,7 @@ export default class ListView extends View {
     this.el = document.createElement('gaia-list');
     this.title = title;
     this.el.id = id;
+    this.el.classList.add('app-list');
     this.type = type;
   }
 
