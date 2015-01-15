@@ -14,7 +14,7 @@ export default class P2pService {
     }
     window.P2pService = this;
 
-    this._peerAddress = null;
+    this._peerName = null;
     this._connectedIp = window.TEST_MODE ? 'http://127.0.0.1:8080' : null;
 
     this._broadcastListeners = [];
@@ -72,17 +72,23 @@ export default class P2pService {
 
   addBroadcastListener(callback) {
     this._broadcastListeners.push(callback);
+
+    // Trigger the callback immediately if we have a broadcast setting stored
+    // already.
+    if (this._broadcast !== undefined) {
+      callback();
+    }
   }
 
   addProximityListener(callback) {
     this._proximityListeners.push(callback);
 
     setTimeout(() => {
-      this._peerAddress = 'asdf';
+      this._peerName = 'asdf';
       this._appsUpdated([
-        {manifest: {name: 'Sharing', description: 'doo'}},
-        {manifest: {name: 'HelloWorld', description: 'too'}},
-        {manifest: {name: 'test', description: 'ham'}}]);
+        {manifest: {name: 'Sharing', description: 'doo'}, owner: 'Doug'},
+        {manifest: {name: 'HelloWorld', description: 'too'}, owner: 'Ham'},
+        {manifest: {name: 'test', description: 'ham'}, owner: 'Hurr'}]);
     }, 1000);
   }
 
@@ -131,7 +137,7 @@ export default class P2pService {
 
       var path = request.path;
       if (path !== '/') {
-        var appName = request.params.name;
+        var appName = request.params.app;
         this._installedApps.forEach((app) => {
           if (app.manifest.name === appName) {
             console.log('found a match');
@@ -166,6 +172,7 @@ export default class P2pService {
     P2PHelper.addEventListener('peerlistchange', (evt) => {
       if (!this._connectedIp) {
         this._connectToFirstPeer(evt.peerList);
+        console.log(evt.peerList);
       }
     });
 
@@ -183,7 +190,7 @@ export default class P2pService {
       P2PHelper.startScan();
 
       this._connectedIp = null;
-      this._peerAddress = null;
+      this._peerName = null;
 
       var wifiP2pManager = navigator.mozWifiP2pManager;
       var request = wifiP2pManager.getPeerList();
@@ -200,26 +207,26 @@ export default class P2pService {
     P2PHelper.startScan();
   }
 
-  _connectToPeer(address) {
-    if (this._connectTimer || this._peerAddress) {
+  _connectToPeer(peer) {
+    if (this._connectTimer) {
       return;
     }
 
-    this._peerAddress = address;
+    this._peerName = peer.name;
     this._connectTimer = setTimeout(() => {
       console.log('connecting to peer!');
       this._connectTimer = null;
 
       // XXX/drs: Suggestion from justindarc to improve stability.
       P2PHelper.stopScan();
-      P2PHelper.connect(address);
+      P2PHelper.connect(peer.address);
     }, 5000);
   }
 
   _connectToFirstPeer(peers) {
     for (var i = 0; i < peers.length; i++) {
       var peer = peers[i];
-      this._connectToPeer(peer.address);
+      this._connectToPeer(peer);
     }
   }
 
@@ -257,7 +264,7 @@ export default class P2pService {
       }
     });
 
-    this._proximityApps[this._peerAddress] = apps;
+    this._proximityApps[this._peerName] = apps;
     this._proximityListeners.forEach((callback) => {
       callback();
     });

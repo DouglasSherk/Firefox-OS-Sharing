@@ -54,13 +54,32 @@ export default class AppsService {
     return JSON.stringify(prettyApps);
   }
 
-  flatten(addresses) {
+  // Flattens a collection of apps in the format:
+  // [
+  //   'owner1': [
+  //     { manifest: { name: 'app1', ... } },
+  //     { manifest: { name: 'app2', ... } }
+  //   ],
+  //   'owner2': [
+  //     { manifest: { name: 'app3', ... } },
+  //     { manifest: { name: 'app4', ... } }
+  //   ]
+  // ]
+  //
+  // Down to:
+  // [
+  //   { manifest: { name: 'app1', ... }, owner: 'owner1' },
+  //   { manifest: { name: 'app2', ... }, owner: 'owner1' },
+  //   { manifest: { name: 'app3', ... }, owner: 'owner2' },
+  //   ...
+  // ]
+  flatten(owners) {
     var flattenedApps = [];
-    for (var address in addresses) {
-      var apps = addresses[address];
+    for (var owner in owners) {
+      var apps = owners[owner];
       for (var i = 0; i < apps.length; i++) {
         var app = apps[i];
-        app.owner = address;
+        app.owner = owner;
         flattenedApps.push(app);
       }
     }
@@ -69,7 +88,8 @@ export default class AppsService {
 
   installApp(appData) {
     console.log('AppsService::installApp(' + JSON.stringify(appData) + ')');
-    var manifestURL = appData.url + '/manifest?app=' + appData.manifest.name;
+    var manifestURL =
+      appData.url + '/manifest.webapp?app=' + appData.manifest.name;
     var type = appData.type;
     var installReq;
     if (type === 'hosted') {
