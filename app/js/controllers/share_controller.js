@@ -28,8 +28,10 @@ export default class ShareController extends Controller {
       this.sharedAppsView.render(apps);
       document.body.appendChild(this.sharedAppsView.el);
 
-      this.sharedAddonsView.render(apps);
-      document.body.appendChild(this.sharedAddonsView.el);
+      this.appsService.getInstalledAddons().then((addons) => {
+        this.sharedAddonsView.render(addons);
+        document.body.appendChild(this.sharedAddonsView.el);
+      });
     });
   }
 

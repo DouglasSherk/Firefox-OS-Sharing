@@ -1,12 +1,21 @@
 export default class AppsService {
   getInstalledApps() {
-    return new Promise((resolve, reject) => {
-      if (this.installedApps) {
-        resolve(this.installedApps);
-        return;
-      }
+    return this._getAppsSubset((app) => {
+      return app.manifest.role !== 'system' &&
+             app.manifest.type !== 'certified' &&
+             !app.manifest.customizations;
+    });
+  }
 
-      this.installedApps = [];
+  getInstalledAddons() {
+    return this._getAppsSubset((app) => {
+      return !!app.manifest.customizations;
+    });
+  }
+
+  _getAppsSubset(subsetCallback) {
+    return new Promise((resolve, reject) => {
+      var installedApps = [];
 
       var req = navigator.mozApps.mgmt.getAll();
 
@@ -16,13 +25,12 @@ export default class AppsService {
         // Strip out apps that we shouldn't share.
         for (var index in result) {
           var app = result[index];
-          if (app.manifest.role !== 'system' &&
-              app.manifest.type !== 'certified') {
-            this.installedApps.push(app);
+          if (subsetCallback(app)) {
+            installedApps.push(app);
           }
         }
 
-        resolve(this.installedApps);
+        resolve(installedApps);
       };
 
       req.onerror = e => {
