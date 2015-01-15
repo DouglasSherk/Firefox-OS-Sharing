@@ -4,13 +4,16 @@ import 'components/gaia-list/gaia-list';
 import 'components/gaia-checkbox/gaia-checkbox';
 
 export default class ListView extends View {
-  constructor(id, title, type) {
+  constructor(options) {
     this.el = document.createElement('gaia-list');
-    this.title = title;
-    this.el.id = id;
+    this.el.id = options.id;
     this.el.classList.add('app-list');
-    this.el.setAttribute('disabled', '');
-    this.type = type;
+    if (options.disabled) {
+      this.el.setAttribute('disabled', true);
+    }
+
+    this.title = options.title;
+    this.type = options.type;
   }
 
   layout(template) {
