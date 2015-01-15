@@ -102,7 +102,8 @@ export default class AppsService {
       throw new Error('Could not install app, unrecognized type: ' + type);
     }
     installReq.onerror = function(err) {
-      console.log('install error', err);
+      console.error(err);
+      window.alert('Error installing app: ' + err.target.error.name);
     };
     installReq.onsuccess = () => {
       window.alert('package installed!');

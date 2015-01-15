@@ -1,7 +1,7 @@
 import { View } from 'components/fxos-mvc/dist/mvc';
 
 import 'components/gaia-list/gaia-list';
-import 'components/gaia-switch/gaia-switch';
+import 'components/gaia-checkbox/gaia-checkbox';
 
 export default class ListView extends View {
   constructor(id, title, type) {
@@ -9,6 +9,7 @@ export default class ListView extends View {
     this.title = title;
     this.el.id = id;
     this.el.classList.add('app-list');
+    this.el.setAttribute('disabled', '');
     this.type = type;
   }
 
@@ -40,9 +41,17 @@ export default class ListView extends View {
     });
   }
 
+  toggle(enable) {
+    if (enable) {
+      this.el.setAttribute('disabled', '');
+    } else {
+      this.el.removeAttribute('disabled');
+    }
+  }
+
   _control(app) {
     if (this.type === 'toggle') {
-      return `<gaia-switch class="control"></gaia-switch>`;
+      return `<gaia-checkbox class="control"></gaia-checkbox>`;
     } else if (this.type === 'download') {
       var string = `
       <a data-app="${app.manifest.name}" class="control">

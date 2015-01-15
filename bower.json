@@ -16,6 +16,7 @@
     "gaia-icons": "gaia-components/gaia-icons",
     "gaia-text-input": "gaia-components/gaia-text-input",
     "gaia-dialog": "gaia-components/gaia-dialog",
+    "gaia-checkbox": "gaia-components/gaia-checkbox",
     "gaia-switch": "gaia-components/gaia-switch"
   }
 }

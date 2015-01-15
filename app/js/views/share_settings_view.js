@@ -1,6 +1,7 @@
 import { View } from 'components/fxos-mvc/dist/mvc';
 
 import 'components/gaia-button/gaia-button';
+import 'components/gaia-switch/gaia-switch';
 
 export default class ShareSettingsView extends View {
   constructor() {
@@ -13,8 +14,6 @@ export default class ShareSettingsView extends View {
 
     setTimeout(() => {
       this.shareEnabledElt = document.getElementById('share-enabled');
-      this.shareEnabledElt.addEventListener(
-        'click', this._handleClick.bind(this));
 
       this.shareDescriptionElt = document.getElementById('share-description');
 
@@ -52,9 +51,15 @@ export default class ShareSettingsView extends View {
     this.shareDescriptionElt.textContent = enabled ?
       'Sharing On' : 'Turn on to share apps';
     this.shareEnabledElt.setChecked(!!enabled);
+
+    // We should only hook this after the first update since we don't want the
+    // initial automatic call to fool us into thinking that the user tapped the
+    // button.
+    this.shareEnabledElt.addEventListener(
+      'change', this._handleShareEnabledChange.bind(this));
   }
 
-  _handleClick(e) {
+  _handleShareEnabledChange(e) {
     this.controller.toggleBroadcasting();
   }
 

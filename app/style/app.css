@@ -11,3 +11,8 @@ body {
 body.loading {
   background: url(/img/gears.svg) 50% 50%;
 }
+
+[disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}

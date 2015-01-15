@@ -15,8 +15,10 @@ export default class ShareController extends Controller {
     this.shareSettingsView = new ShareSettingsView();
     this.shareSettingsView.init(this);
     this.sharedAppsView = new ListView('shared-apps', 'My apps', 'toggle');
+    this.sharedAppsView.init(this);
     this.sharedAddonsView =
       new ListView('shared-addons', 'My addons', 'toggle');
+    this.sharedAddonsView.init(this);
 
     this.appsService = new AppsService();
 
@@ -50,7 +52,10 @@ export default class ShareController extends Controller {
   }
 
   broadcastChanged() {
-    this.shareSettingsView.displayBroadcast(this.p2pService.broadcast);
+    var broadcast = this.p2pService.broadcast;
+    this.shareSettingsView.displayBroadcast(broadcast);
+    this.sharedAppsView.toggle(!broadcast);
+    this.sharedAddonsView.toggle(!broadcast);
   }
 
   handleRenameDevice() {
