@@ -162,7 +162,13 @@ export default class P2pService extends Service {
     P2PHelper.addEventListener('peerlistchange', (evt) => {
       if (!this._connectedIp) {
         this._connectToFirstPeer(evt.peerList);
-        console.log(evt.peerList);
+      }
+
+      for (var index in evt.peerList) {
+        var peer = evt.peerList[index];
+        if (!this._proximityApps[peer.name]) {
+          this._setProximityApps(peer.name, {});
+        }
       }
     });
 
@@ -254,7 +260,11 @@ export default class P2pService extends Service {
       }
     });
 
-    this._proximityApps[this._peerName] = apps;
+    this._setProximityApps(this._peerName, apps);
+  }
+
+  _setProximityApps(peer, apps) {
+    this._proximityApps[peer] = apps;
     this._dispatchEvent('proximity');
   }
 }

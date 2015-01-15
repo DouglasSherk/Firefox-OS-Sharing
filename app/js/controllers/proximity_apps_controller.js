@@ -12,13 +12,13 @@ export default class ProximityAppsController extends Controller {
     this.shareSummaryView.init(this);
     this.proximityAppsView = new ListView({
       id: 'proximity-apps',
-      title: 'Nearby apps',
+      title: 'Available apps',
       type: 'download'
     });
     this.proximityAppsView.init(this);
     this.proximityAddonsView = new ListView({
       id: 'proximity-addons',
-      title: 'Nearby addons',
+      title: 'Available addons',
       type: 'download'
     });
     this.proximityAddonsView.init(this);
