@@ -97,7 +97,7 @@ export default class AppsService extends Service {
   flatten(owners) {
     var flattenedApps = [];
     for (var owner in owners) {
-      var apps = owners[owner];
+      var apps = owners[owner].apps;
       for (var i = 0; i < apps.length; i++) {
         var app = apps[i];
         app.owner = owner;

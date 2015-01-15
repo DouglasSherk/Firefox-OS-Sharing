@@ -1,22 +1,21 @@
 import { Controller } from 'components/fxos-mvc/dist/mvc';
 
 import P2pService from 'js/services/p2p_service';
-import AppsService from 'js/services/apps_service';
 
 import ShareSummaryView from 'js/views/share_summary_view';
-import ListView from 'js/views/list_view';
+import HierarchicalListView from 'js/views/hierarchical_list_view';
 
 export default class ProximityAppsController extends Controller {
   constructor() {
     this.shareSummaryView = new ShareSummaryView();
     this.shareSummaryView.init(this);
-    this.proximityAppsView = new ListView({
+    this.proximityAppsView = new HierarchicalListView({
       id: 'proximity-apps',
       title: 'Available apps',
       type: 'download'
     });
     this.proximityAppsView.init(this);
-    this.proximityAddonsView = new ListView({
+    this.proximityAddonsView = new HierarchicalListView({
       id: 'proximity-addons',
       title: 'Available addons',
       type: 'download'
@@ -57,10 +56,8 @@ export default class ProximityAppsController extends Controller {
   }
 
   proximityChanged() {
-    this.proximityAppsView.render(
-      AppsService.instance.flatten(P2pService.instance.proximityApps));
-    this.proximityAddonsView.render(
-      AppsService.instance.flatten(P2pService.instance.proximityAddons));
+    this.proximityAppsView.render(P2pService.instance.proximityApps);
+    this.proximityAddonsView.render(P2pService.instance.proximityAddons);
   }
 
   handleClick(e) {
