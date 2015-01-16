@@ -2,20 +2,11 @@ import { View } from 'fxos-mvc/dist/mvc';
 
 import 'gaia-icons/gaia-icons';
 import 'gaia-text-input/gaia-text-input';
-import 'gaia-dialog/gaia-dialog-confirm';
+import 'gaia-dialog/gaia-dialog-prompt';
 
 export default class DeviceNameView extends View {
   template() {
-    // XXX/drs: gaia-text-input doesn't open the keyboard. Use a standard
-    // <input> element for now.
-    /*
-    <gaia-text-input id="device-name" placeholder="Device name">
-    </gaia-text-input>
-    */
-    var string = `
-      <gaia-dialog-confirm>
-        <input id="device-name-input" placeholder="Device name"></input>
-      </gaia-dialog-confirm>`;
+    var string = `<gaia-dialog-prompt></gaia-dialog-prompt>`;
     return string;
   }
 
@@ -23,20 +14,19 @@ export default class DeviceNameView extends View {
     super();
 
     setTimeout(() => {
-      this.dialogElt = this.$('gaia-dialog-confirm');
-      this.deviceNameElt = document.getElementById('device-name-input');
+      this.el = this.$('gaia-dialog-prompt');
     });
   }
 
   open() {
-    this.dialogElt.open();
+    this.el.open();
   }
 
   get value() {
-    return this.deviceNameElt.value;
+    return this.el.els.input.value;
   }
 
   set value(val) {
-    this.deviceNameElt.value = val;
+    this.el.els.input.value = val;
   }
 }

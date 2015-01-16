@@ -13,13 +13,30 @@ export default class DeviceNameController extends Controller {
     this.view.render();
     document.body.appendChild(this.view.el);
 
-    setTimeout(() => {
-      this.view.open();
+    this._updateDeviceNameWrapped = this._updateDeviceName.bind(this);
 
-      DeviceNameService.instance.getDeviceName().then((deviceName) => {
-        console.log('setting to ' + deviceName);
-        this.view.value = deviceName;
-      });
+    setTimeout(() => {
+      this.view.el.addEventListener('opened', this._handleOpened.bind(this));
+      this.view.el.addEventListener('closed', this._handleClosed.bind(this));
+
+      this.view.open();
     });
+  }
+
+  _handleOpened() {
+    console.log('adding listener');
+    DeviceNameService.instance.addEventListener(
+      'devicenamechange', this._updateDeviceNameWrapped, true);
+  }
+
+  _handleClosed() {
+    console.log('removing listener');
+    DeviceNameService.instance.removeEventListener(
+      'devicenamechange', this._updateDeviceNameWrapped);
+  }
+
+  _updateDeviceName(e) {
+    console.log('got deviceName: ' + JSON.stringify(e));
+    this.view.value = e.deviceName;
   }
 }

@@ -11,6 +11,21 @@ export default class DeviceNameService extends Service {
     }
 
     super();
+
+    navigator.mozSettings.addObserver('deviceinfo.product_model', (e) => {
+      this._updateDeviceName(e.settingValue);
+    });
+
+    var request =
+      navigator.mozSettings.createLock().get('deviceinfo.product_model');
+
+    request.onsuccess = () => {
+      this._updateDeviceName(request.result['deviceinfo.product_model']);
+    };
+
+    request.onerror = (e) => {
+      console.error('error getting deviceinfo.product_model: ' + e);
+    };
   }
 
   static get instance() {
@@ -20,23 +35,9 @@ export default class DeviceNameService extends Service {
     return instance;
   }
 
-  getDeviceName() {
-    return new Promise((resolve, reject) => {
-      var request =
-        navigator.mozSettings.createLock().get('deviceinfo.product_model');
-
-      request.onsuccess = () => {
-        resolve(request.result['deviceinfo.product_model']);
-      };
-
-      request.onerror = (e) => {
-        console.error('Error getting device product model: ' + e);
-        reject(e);
-      };
-    });
-  }
-
-  setDeviceName(name) {
-    navigator.mozSettings.createLock().set({'deviceinfo.product_model': name});
+  _updateDeviceName(deviceName) {
+    console.log('got deviceinfo.product_model');
+    this._deviceName = deviceName;
+    this._dispatchEvent('devicenamechange', {deviceName: deviceName});
   }
 }
