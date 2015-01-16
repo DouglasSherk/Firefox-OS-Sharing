@@ -1,8 +1,8 @@
-/* globals requirejs */
+/* globals require */
 
 window.COMPONENTS_BASE_URL = './components/';
 
-requirejs.config({
+require.config({
   paths: {
     'gaia-component': '../components/gaia-component/gaia-component',
     'gaia-dialog': '../components/gaia-dialog/gaia-dialog',

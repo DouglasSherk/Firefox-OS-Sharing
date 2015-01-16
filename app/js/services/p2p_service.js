@@ -225,9 +225,28 @@ export default class P2pService extends Service {
   }
 
   _connectToFirstPeer(peers) {
+    var connectToPeer;
+
     for (var i = 0; i < peers.length; i++) {
       var peer = peers[i];
-      this._connectToPeer(peer);
+      if (!this._proximityApps[peer.name]) {
+        connectToPeer = peer;
+      }
+    }
+
+    // We've already connected to every peer and queried them for their apps.
+    // Re-connect to the one that we were connected to the oldest time ago.
+    if (!connectToPeer) {
+      for (i = 0; i < peers.length; i++) {
+        var oldPeer = peers[i];
+        if (!connectToPeer || oldPeer.connectedTs < connectToPeer.connectedTs) {
+          connectToPeer = oldPeer;
+        }
+      }
+    }
+
+    if (connectToPeer) {
+      this._connectToPeer(connectToPeer);
     }
   }
 
@@ -266,10 +285,17 @@ export default class P2pService extends Service {
     });
 
     this._setProximityApps(this._peerName, apps);
+
+    P2PHelper.disconnect();
+    P2PHelper.startScan();
   }
 
   _setProximityApps(peerName, apps) {
-    this._proximityApps[peerName] = { name: peerName, apps: apps };
+    this._proximityApps[peerName] = {
+      name: peerName,
+      apps: apps,
+      connectedTs: +new Date()
+    };
     this._dispatchEvent('proximity');
   }
 }
