@@ -13,10 +13,12 @@ export default class HierarchicalListView extends ListView {
 
   template(peer) {
     console.log('templating ' + JSON.stringify(peer));
-    var string = `<li tabindex="0"><h2>${peer.name}</h2></li>`;
-    peer.apps.forEach((app) => {
-      string += super(app);
-    });
+    var string = `<li tabindex="0" class="subheading">${peer.name}</li>`;
+    if (peer.apps) {
+      peer.apps.forEach((app) => {
+        string += super(app);
+      });
+    }
     return string;
   }
 }

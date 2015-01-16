@@ -263,8 +263,8 @@ export default class P2pService extends Service {
     this._setProximityApps(this._peerName, apps);
   }
 
-  _setProximityApps(peer, apps) {
-    this._proximityApps[peer] = { name: peer.name, apps: apps };
+  _setProximityApps(peerName, apps) {
+    this._proximityApps[peerName] = { name: peerName, apps: apps };
     this._dispatchEvent('proximity');
   }
 }

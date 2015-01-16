@@ -15,7 +15,7 @@
 
 gaia-list h1 {
   font-size: 1.5rem;
-  margin: 2rem 0.6rem 0 0.6rem;
+  margin: 2rem 0.6rem 0.6rem 0.6rem;
   color: #666;
 }
 
@@ -23,9 +23,9 @@ gaia-list li {
   height: 3rem;
 
   margin: 0 0.6rem;
-  padding: 0.6rem 0;
+  padding: 0.6rem 0.4rem;
 
-  width: calc(100% - 1.2rem);
+  width: calc(100% - 2.0rem);
 
   display: flex;
   align-items: center;
@@ -36,6 +36,12 @@ gaia-list li {
 
 gaia-list.app-list li {
   border-bottom: 1px solid #ddd;
+}
+
+gaia-list li.subheading {
+  background: #eee;
+  font-size: 1.5rem;
+  height: 2rem;
 }
 
 gaia-list li h3, gaia-list li h4 {
