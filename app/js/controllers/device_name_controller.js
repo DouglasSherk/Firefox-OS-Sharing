@@ -1,5 +1,7 @@
 import { Controller } from 'fxos-mvc/dist/mvc';
 
+import DeviceNameService from 'app/js/services/device_name_service';
+
 import DeviceNameView from 'app/js/views/device_name_view';
 
 export default class DeviceNameController extends Controller {
@@ -13,6 +15,11 @@ export default class DeviceNameController extends Controller {
 
     setTimeout(() => {
       this.view.open();
+
+      DeviceNameService.instance.getDeviceName().then((deviceName) => {
+        console.log('setting to ' + deviceName);
+        this.view.value = deviceName;
+      });
     });
   }
 }

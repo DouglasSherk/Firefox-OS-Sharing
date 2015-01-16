@@ -286,7 +286,9 @@ export default class P2pService extends Service {
 
     this._setProximityApps(this._peerName, apps);
 
-    P2PHelper.disconnect();
+    // XXX/drs: Forget about disconnecting from this peer for now. Connections
+    // are too flaky for peer rotation to work.
+    //P2PHelper.disconnect();
     P2PHelper.startScan();
   }
 
