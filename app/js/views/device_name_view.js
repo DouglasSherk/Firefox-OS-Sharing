@@ -17,6 +17,9 @@ export default class DeviceNameView extends View {
       this.el = this.$('gaia-dialog-prompt');
       this.el.addEventListener('opened', this._handleOpened.bind(this));
       this.el.addEventListener('closed', this._handleClosed.bind(this));
+      // XXX/drs: Yikes, we should probably expose this a bit better in the WC.
+      this.el.els.submit.addEventListener(
+        'click', this._handleSubmit.bind(this));
     });
   }
 
@@ -38,5 +41,9 @@ export default class DeviceNameView extends View {
 
   _handleClosed() {
     this.controller.handleClosed();
+  }
+
+  _handleSubmit() {
+    this.controller.handleSubmit();
   }
 }
