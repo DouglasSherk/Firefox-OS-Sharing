@@ -62,7 +62,12 @@ export default class P2pService extends Service {
         {manifest: {name: 'Sharing', description: 'doo'}, owner: 'Doug'},
         {manifest: {name: 'HelloWorld', description: 'too'}, owner: 'Ham'},
         {manifest: {name: 'test', description: 'ham'}, owner: 'Hurr'}]);
-    }, 3000);
+    }, 2000);
+
+    setTimeout(() => {
+      this._peerName = 'foo';
+      this._appsUpdated([]);
+    }, 4000);
   }
 
   static get instance() {

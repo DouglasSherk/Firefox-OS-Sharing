@@ -39,9 +39,23 @@ gaia-list.app-list li {
 }
 
 gaia-list li.subheading {
-  background: #eee;
-  font-size: 1.5rem;
   height: 2rem;
+  font-size: 1.5rem;
+
+  background: #eee;
+}
+
+gaia-list li.subheading > p {
+  height: auto;
+  width: 15rem;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+gaia-list li.subheading > * {
+  flex: initial !important;
 }
 
 gaia-list li h3, gaia-list li h4 {
