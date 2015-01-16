@@ -1,6 +1,6 @@
-import 'app/js/globals';
+import 'gaia-button';
 
-import MainController from 'app/js/controllers/main_controller';
+// import MainController from 'app/js/controllers/main_controller';
 
-var mainController = new MainController();
-mainController.main();
+// var mainController = new MainController();
+// mainController.main();
