@@ -1,12 +1,12 @@
-import { Controller } from 'components/fxos-mvc/dist/mvc';
+import { Controller } from 'fxos-mvc/dist/mvc';
 
-import P2pService from 'js/services/p2p_service';
-import AppsService from 'js/services/apps_service';
+import P2pService from 'app/js/services/p2p_service';
+import AppsService from 'app/js/services/apps_service';
 
-import ShareSettingsView from 'js/views/share_settings_view';
-import ListView from 'js/views/list_view';
+import ShareSettingsView from 'app/js/views/share_settings_view';
+import ListView from 'app/js/views/list_view';
 
-import DeviceNameController from 'js/controllers/device_name_controller';
+import DeviceNameController from 'app/js/controllers/device_name_controller';
 
 export default class ShareController extends Controller {
   constructor() {

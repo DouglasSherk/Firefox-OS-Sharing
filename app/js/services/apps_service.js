@@ -1,4 +1,4 @@
-import { Service } from 'components/fxos-mvc/dist/mvc';
+import { Service } from 'fxos-mvc/dist/mvc';
 
 var singletonGuard = {};
 var instance;

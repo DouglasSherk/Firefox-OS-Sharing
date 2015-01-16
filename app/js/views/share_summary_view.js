@@ -1,6 +1,6 @@
-import { View } from 'components/fxos-mvc/dist/mvc';
+import { View } from 'fxos-mvc/dist/mvc';
 
-import 'components/gaia-list/gaia-list';
+import 'gaia-list/gaia-list';
 
 export default class ShareSummaryView extends View {
   constructor() {

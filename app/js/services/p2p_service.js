@@ -1,9 +1,9 @@
-import /* global HTTPServer */ 'components/p2p/fxos-web-server';
-import /* global P2PHelper */ 'components/p2p/p2p_helper';
+import /* global HTTPServer */ 'p2p/fxos-web-server';
+import /* global P2PHelper */ 'p2p/p2p_helper';
 
-import { Service } from 'components/fxos-mvc/dist/mvc';
+import { Service } from 'fxos-mvc/dist/mvc';
 
-import AppsService from 'js/services/apps_service';
+import AppsService from 'app/js/services/apps_service';
 
 // Enable this if you want the device to pretend that it's connected to another
 // device and request its own apps.

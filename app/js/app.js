@@ -1,6 +1,8 @@
-import 'js/globals';
+/* globals requirejs */
 
-import MainController from 'js/controllers/main_controller';
+requirejs.config({
+  baseUrl: 'components',
+  paths: { app: '../' }
+});
 
-var mainController = new MainController();
-mainController.main();
+requirejs(['app/js/index']);

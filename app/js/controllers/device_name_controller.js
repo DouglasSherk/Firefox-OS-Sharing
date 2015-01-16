@@ -1,6 +1,6 @@
-import { Controller } from 'components/fxos-mvc/dist/mvc';
+import { Controller } from 'fxos-mvc/dist/mvc';
 
-import DeviceNameView from 'js/views/device_name_view';
+import DeviceNameView from 'app/js/views/device_name_view';
 
 export default class DeviceNameController extends Controller {
   constructor() {

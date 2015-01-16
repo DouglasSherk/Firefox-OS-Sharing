@@ -6,3 +6,4 @@ node_modules/
 app/components/*
 !app/components/p2p
 .DS_Store
+npm_debug.log

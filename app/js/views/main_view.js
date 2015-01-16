@@ -1,6 +1,6 @@
-import { View } from 'components/fxos-mvc/dist/mvc';
-import 'components/gaia-header/dist/gaia-header';
-import 'components/gaia-icons/gaia-icons';
+import { View } from 'fxos-mvc/dist/mvc';
+import 'gaia-header/dist/gaia-header';
+import 'gaia-icons/gaia-icons';
 
 export default class MainView extends View {
   template() {

@@ -1,6 +1,6 @@
-import ListView from 'js/views/list_view';
+import ListView from 'app/js/views/list_view';
 
-import 'components/gaia-loading/gaia-loading';
+import 'gaia-loading/gaia-loading';
 
 export default class HierarchicalListView extends ListView {
   constructor(options) {

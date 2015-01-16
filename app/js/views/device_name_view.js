@@ -1,8 +1,8 @@
-import { View } from 'components/fxos-mvc/dist/mvc';
+import { View } from 'fxos-mvc/dist/mvc';
 
-import 'components/gaia-icons/gaia-icons';
-import 'components/gaia-text-input/gaia-text-input';
-import 'components/gaia-dialog/gaia-dialog-confirm';
+import 'gaia-icons/gaia-icons';
+import 'gaia-text-input/gaia-text-input';
+import 'gaia-dialog/gaia-dialog-confirm';
 
 export default class DeviceNameView extends View {
   template() {

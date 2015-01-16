@@ -1,9 +1,9 @@
-import { Controller } from 'components/fxos-mvc/dist/mvc';
+import { Controller } from 'fxos-mvc/dist/mvc';
 
-import P2pService from 'js/services/p2p_service';
+import P2pService from 'app/js/services/p2p_service';
 
-import ShareSummaryView from 'js/views/share_summary_view';
-import HierarchicalListView from 'js/views/hierarchical_list_view';
+import ShareSummaryView from 'app/js/views/share_summary_view';
+import HierarchicalListView from 'app/js/views/hierarchical_list_view';
 
 export default class ProximityAppsController extends Controller {
   constructor() {
