@@ -7,6 +7,7 @@
     "app/components"
   ],
   "dependencies": {
+    "alameda": "https://raw.githubusercontent.com/requirejs/alameda/0.2.0/alameda.js",
     "fxos-mvc": "git@github.com:fxos/mvc.git",
     "gaia-theme": " gaia-components/gaia-theme",
     "gaia-header" : "gaia-components/gaia-header",
