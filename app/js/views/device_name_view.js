@@ -15,6 +15,8 @@ export default class DeviceNameView extends View {
 
     setTimeout(() => {
       this.el = this.$('gaia-dialog-prompt');
+      this.el.addEventListener('opened', this._handleOpened.bind(this));
+      this.el.addEventListener('closed', this._handleClosed.bind(this));
     });
   }
 
@@ -28,5 +30,13 @@ export default class DeviceNameView extends View {
 
   set value(val) {
     this.el.els.input.value = val;
+  }
+
+  _handleOpened() {
+    this.controller.handleOpened();
+  }
+
+  _handleClosed() {
+    this.controller.handleClosed();
   }
 }
