@@ -180,6 +180,21 @@ export default class P2pService extends Service {
           this._setProximityApps(peer.name, {});
         }
       }
+
+      // Compare this list of peers with the previous one. Remove anyone out of
+      // range from the proximity apps list.
+      for (var oldPeer in this._proximityApps) {
+        var foundMatch = false;
+        for (index in evt.peerList) {
+          var newPeer = evt.peerList[index];
+          if (newPeer.name === oldPeer) {
+            foundMatch = true;
+          }
+        }
+        if (!foundMatch) {
+          this._setProximityApps(oldPeer.name, undefined);
+        }
+      }
     });
 
     P2PHelper.addEventListener('connected', (evt) => {
@@ -195,6 +210,7 @@ export default class P2pService extends Service {
       P2PHelper.disconnect();
       P2PHelper.startScan();
 
+      delete this._proximityApps[this._peerName];
       this._connectedIp = null;
       this._peerName = null;
 
@@ -229,7 +245,7 @@ export default class P2pService extends Service {
       // XXX/drs: Suggestion from justindarc to improve stability.
       P2PHelper.stopScan();
       P2PHelper.connect(peer.address);
-    }, 5000);
+    }, 10000);
   }
 
   _connectToFirstPeer(peers) {
@@ -301,11 +317,15 @@ export default class P2pService extends Service {
   }
 
   _setProximityApps(peerName, apps) {
-    this._proximityApps[peerName] = {
-      name: peerName,
-      apps: apps,
-      connectedTs: +new Date()
-    };
+    if (apps !== undefined) {
+      this._proximityApps[peerName] = {
+        name: peerName,
+        apps: apps,
+        connectedTs: +new Date()
+      };
+    } else {
+      delete this._proximityApps[peerName];
+    }
     this._dispatchEvent('proximity');
   }
 }
