@@ -149,8 +149,12 @@ export default class P2pService extends Service {
               console.log(JSON.stringify(manifest));
               response.send(JSON.stringify(manifest));
             } else if (path === '/download') {
+              console.log('processing as download');
               app.export().then((blob) => {
-                response.send(blob);
+                console.log('sending blob: ');
+                console.log(blob);
+                response.headers['Content-Type'] = 'application/zip';
+                response.sendFile(blob);
               });
             }
           }

@@ -111,14 +111,24 @@ export default class AppsService extends Service {
     console.log('AppsService::installApp(' + JSON.stringify(appData) + ')');
     var manifestURL =
       appData.url + '/manifest.webapp?app=' + appData.manifest.name;
+    var dataURL = appData.url + '/download?app=' + appData.manifest.name;
     var type = appData.type;
     var installReq;
     if (type === 'hosted') {
       console.log('installing hosted app, ' + manifestURL);
-      installReq = navigator.mozApps.install(manifestURL);
+      installReq = navigator.mozApps.install(manifestURL, {
+        installMetaData: {
+          url: dataURL
+        }
+      });
     } else if (type === 'packaged') {
       console.log('installing packaged app, ' + manifestURL);
-      installReq = navigator.mozApps.installPackage(manifestURL);
+      console.log('downloading: ' + dataURL);
+      installReq = navigator.mozApps.installPackage(manifestURL, {
+        installMetaData: {
+          url: dataURL
+        }
+      });
     } else {
       throw new Error('Could not install app, unrecognized type: ' + type);
     }
