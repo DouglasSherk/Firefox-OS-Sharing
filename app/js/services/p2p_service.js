@@ -4,6 +4,7 @@ import /* global P2PHelper */ 'p2p/p2p_helper';
 import { Service } from 'fxos-mvc/dist/mvc';
 
 import AppsService from 'app/js/services/apps_service';
+import DeviceNameService from 'app/js/services/device_name_service';
 
 // Enable this if you want the device to pretend that it's connected to another
 // device and request its own apps.
@@ -68,6 +69,8 @@ export default class P2pService extends Service {
       this._peerName = 'foo';
       this._appsUpdated([]);
     }, 4000);
+
+    this._enableP2pConnection();
   }
 
   static get instance() {
@@ -157,7 +160,9 @@ export default class P2pService extends Service {
       }
     });
     this.httpServer.start();
+  }
 
+  _enableP2pConnection() {
     if (!window.P2PHelper) {
       window.alert('WiFi Direct is not available on this device.');
       window.close();
@@ -203,7 +208,10 @@ export default class P2pService extends Service {
       };
     });
 
-    P2PHelper.setDisplayName('P2P Web Server ' + P2PHelper.localAddress);
+    P2PHelper.setDisplayName('flame');
+    DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
+      P2PHelper.setDisplayName(e.deviceName);
+    });
 
     P2PHelper.startScan();
   }
