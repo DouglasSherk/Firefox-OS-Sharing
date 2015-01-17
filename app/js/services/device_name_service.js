@@ -13,7 +13,7 @@ export default class DeviceNameService extends Service {
     super();
 
     navigator.mozSettings.addObserver('deviceinfo.product_model', (e) => {
-      this.deviceName = e.settingValue;
+      this._dispatchEvent('devicenamechange', {deviceName: e.settingValue});
     });
 
     var request =
@@ -36,8 +36,16 @@ export default class DeviceNameService extends Service {
   }
 
   set deviceName(deviceName) {
-    console.log('got deviceinfo.product_model');
-    this._dispatchEvent('devicenamechange', {deviceName: deviceName});
+    var request = navigator.mozSettings.createLock().set({
+      'deviceinfo.product_model': deviceName});
+
+    request.onsuccess = () => {
+      this._dispatchEvent('devicenamechange', {deviceName: deviceName});
+    };
+
+    request.onerror = (e) => {
+      console.error('error setting deviceinfo.product_model: ' + e);
+    };
   }
 
   get deviceName() {

@@ -2,6 +2,7 @@ import { Controller } from 'fxos-mvc/dist/mvc';
 
 import P2pService from 'app/js/services/p2p_service';
 import AppsService from 'app/js/services/apps_service';
+import DeviceNameService from 'app/js/services/device_name_service';
 
 import ShareSettingsView from 'app/js/views/share_settings_view';
 import ListView from 'app/js/views/list_view';
@@ -30,6 +31,7 @@ export default class ShareController extends Controller {
     this.sharedAddonsView.init(this);
 
     this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
+    this._deviceNameChangedWrapped = this.deviceNameChanged.bind(this);
   }
 
   main() {
@@ -48,6 +50,9 @@ export default class ShareController extends Controller {
 
     P2pService.instance.addEventListener(
       'broadcast', this._broadcastChangedWrapped, true);
+
+    DeviceNameService.instance.addEventListener(
+      'devicenamechange', this._deviceNameChangedWrapped, true);
   }
 
   teardown() {
@@ -57,6 +62,9 @@ export default class ShareController extends Controller {
 
     P2pService.instance.removeEventListener(
       'broadcast', this._broadcastChangedWrapped);
+
+    DeviceNameService.instance.removeEventListener(
+      'devicenamechange', this._deviceNameChangedWrapped);
   }
 
   toggleBroadcasting(toggle) {
@@ -68,6 +76,10 @@ export default class ShareController extends Controller {
     this.shareSettingsView.displayBroadcast(broadcast);
     this.sharedAppsView.toggle(!broadcast);
     this.sharedAddonsView.toggle(!broadcast);
+  }
+
+  deviceNameChanged(e) {
+    this.shareSettingsView.deviceName = e.deviceName;
   }
 
   handleRenameDevice() {

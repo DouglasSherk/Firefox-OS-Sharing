@@ -22,6 +22,8 @@ export default class ShareSettingsView extends View {
       this.renameDeviceBtn = this.$('.rename-device');
       this.renameDeviceBtn.addEventListener(
         'click', this._handleRenameDevice.bind(this));
+
+      this.deviceNameElt = document.getElementById('device-name');
     });
   }
 
@@ -37,7 +39,7 @@ export default class ShareSettingsView extends View {
       <li>
         <div>
           <h3>Device Name</h3>
-          <h4 id="device-name">Doug Phone</h4>
+          <h4 id="device-name">Loading...</h4>
         </div>
         <i class="forward-light"></i>
       </li>
@@ -57,6 +59,17 @@ export default class ShareSettingsView extends View {
     setTimeout(() => {
       this.shareEnabledElt.setChecked(!!enabled);
     }, 500);
+  }
+
+  get deviceName() {
+    console.error('DONT USE ME LOL!');
+    return this.deviceNameElt.textContent;
+  }
+
+  set deviceName(deviceName) {
+    setTimeout(() => {
+      this.deviceNameElt.textContent = deviceName;
+    });
   }
 
   _handleShareEnabledChange(e) {
