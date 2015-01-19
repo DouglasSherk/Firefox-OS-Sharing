@@ -108,6 +108,13 @@ export default class AppsService extends Service {
   }
 
   installApp(appData) {
+    navigator.mozApps.mgmt.import(appData).then((app) => {
+      console.log('imported!');
+    }, (e) => {
+      console.error('error importing app: ' + e);
+    });
+
+    /*
     console.log('AppsService::installApp(' + JSON.stringify(appData) + ')');
     var manifestURL =
       appData.url + '/manifest.webapp?app=' + appData.manifest.name;
@@ -139,5 +146,6 @@ export default class AppsService extends Service {
     installReq.onsuccess = () => {
       window.alert('package installed!');
     };
+    */
   }
 }

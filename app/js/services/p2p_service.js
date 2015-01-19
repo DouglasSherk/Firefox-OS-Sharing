@@ -8,7 +8,7 @@ import DeviceNameService from 'app/js/services/device_name_service';
 
 // Enable this if you want the device to pretend that it's connected to another
 // device and request its own apps.
-//window.TEST_MODE = true;
+window.TEST_MODE = true;
 
 var singletonGuard = {};
 var instance;
@@ -19,6 +19,8 @@ export default class P2pService extends Service {
       console.error('Cannot create singleton class');
       return;
     }
+
+    window.s = this;
 
     super();
 
@@ -95,11 +97,26 @@ export default class P2pService extends Service {
     console.log('scanning in ' + JSON.stringify(apps));
     for (var i = 0; i < apps.length; i++) {
       var app = apps[i];
-      console.log('found matching app: ' + JSON.stringify(app));
+
+      if (appName === app.manifest.name) {
+        console.log('found matching app: ' + JSON.stringify(app));
+        var xhr = new XMLHttpRequest();
+        console.log('requesting ' + app.url + '/download?app=' + app.manifest.name);
+        xhr.open('GET', app.url + '/download?app=' + app.manifest.name);
+        xhr.responseType = 'blob';
+        xhr.onload = (ev) => {
+          console.log('blob loaded');
+          var blob = ev.response;
+          AppsService.instance.installApp(blob);
+        };
+        xhr.send();
+      }
+      /*
       if (appName === app.manifest.name) {
         AppsService.instance.installApp(app);
         break;
       }
+      */
     }
   }
 
@@ -153,7 +170,7 @@ export default class P2pService extends Service {
               app.export().then((blob) => {
                 console.log('sending blob: ');
                 console.log(blob);
-                response.headers['Content-Type'] = 'application/zip';
+                response.headers['Content-Type'] = blob.type;
                 response.sendFile(blob);
               });
             }
