@@ -100,14 +100,45 @@ export default class P2pService extends Service {
 
       if (appName === app.manifest.name) {
         console.log('found matching app: ' + JSON.stringify(app));
-        var xhr = new XMLHttpRequest();
-        console.log('requesting ' + app.url + '/download?app=' + app.manifest.name);
+        var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
+        console.log(
+          'requesting ' + app.url + '/download?app=' + app.manifest.name);
         xhr.open('GET', app.url + '/download?app=' + app.manifest.name);
         xhr.responseType = 'blob';
-        xhr.onload = (ev) => {
-          console.log('blob loaded');
-          var blob = ev.response;
-          AppsService.instance.installApp(blob);
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log('blob loaded');
+            //console.log(ev);
+            //console.log(xhr.responseText);
+            //var blob =
+            //  new Blob([xhr.response], {type: 'application/openwebapp+zip'});
+            //var file = new File([blob], 'file.tmp');
+            var sdcard = navigator.getDeviceStorage('sdcard');
+            if (!sdcard) {
+              console.error('No SD card!');
+              return;
+            }
+            var fileName = 'temp-app.zip';
+            var delReq = sdcard.delete(fileName);
+            delReq.onsuccess = delReq.onerror = () => {
+              var req = sdcard.addNamed(
+                new Blob([xhr.response], {type: 'application/openwebapp+zip'}),
+                fileName);
+              req.onsuccess = () => {
+                var getReq = sdcard.get(fileName);
+                getReq.onsuccess = function() {
+                  var file = this.result;
+                  AppsService.instance.installApp(file);
+                };
+                getReq.onerror = function() {
+                  console.error('error getting file', this.error.name);
+                };
+              };
+              req.onerror = (e) => {
+                console.error('error saving blob', e);
+              };
+            };
+          }
         };
         xhr.send();
       }

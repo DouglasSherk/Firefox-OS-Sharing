@@ -111,7 +111,7 @@ export default class AppsService extends Service {
     navigator.mozApps.mgmt.import(appData).then((app) => {
       console.log('imported!');
     }, (e) => {
-      console.error('error importing app: ' + e);
+      console.error('error importing app', e);
     });
 
     /*
