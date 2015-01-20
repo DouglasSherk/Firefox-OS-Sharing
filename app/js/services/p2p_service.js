@@ -57,6 +57,7 @@ export default class P2pService extends Service {
     window.addEventListener(
       'beforeunload', this._deactivateHttpServer.bind(this));
 
+    /*
     setTimeout(() => {
       this._peerName = 'asdf';
       this._appsUpdated([
@@ -69,6 +70,7 @@ export default class P2pService extends Service {
       this._peerName = 'foo';
       this._appsUpdated([]);
     }, 4000);
+    */
 
     this._enableP2pConnection();
   }
@@ -274,12 +276,11 @@ export default class P2pService extends Service {
       };
     });
 
-    P2PHelper.setDisplayName('flame');
     DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
       P2PHelper.setDisplayName(e.deviceName);
+      P2PHelper.startScan();
     });
 
-    P2PHelper.startScan();
   }
 
   _connectToPeer(peer) {
@@ -290,6 +291,7 @@ export default class P2pService extends Service {
     this._peerName = peer.name;
     this._connectTimer = setTimeout(() => {
       console.log('connecting to peer!');
+      console.log(peer);
       this._connectTimer = null;
 
       // XXX/drs: Suggestion from justindarc to improve stability.
@@ -303,7 +305,7 @@ export default class P2pService extends Service {
 
     for (var i = 0; i < peers.length; i++) {
       var peer = peers[i];
-      if (!this._proximityApps[peer.name]) {
+      if (!this._proximityApps[peer.name] && peer.name === 'flame') {
         connectToPeer = peer;
       }
     }
