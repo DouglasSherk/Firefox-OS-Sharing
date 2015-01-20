@@ -52,11 +52,10 @@ export default class ShareSettingsView extends View {
   }
 
   displayBroadcast(enabled) {
-    this.shareDescriptionElt.textContent = enabled ?
-      'Sharing On' : 'Turn on to share apps';
-
-    // XXX/drs: We have to wait for this to load for some reason.
     setTimeout(() => {
+      this.shareDescriptionElt.textContent = enabled ?
+        'Sharing On' : 'Turn on to share apps';
+
       this.shareEnabledElt.setChecked(!!enabled);
     }, 500);
   }
