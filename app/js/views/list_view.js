@@ -23,7 +23,7 @@ export default class ListView extends View {
   template(app) {
     var string = `
       <li tabindex="0">
-        <div>
+        <div class="description" data-app="${app.manifest.name}">
           <h3>${app.manifest.name}</h3>
           <h4>${app.owner || app.manifest.description}</h4>
         </div>
@@ -39,7 +39,18 @@ export default class ListView extends View {
       this._controls = this.$$('.control');
       for (var i = 0; i < this._controls.length; i++) {
         var control = this._controls[i];
-        control.addEventListener('click', this._handleClick.bind(this));
+        control.addEventListener('click', this._handleControlClick.bind(this));
+      }
+
+      // Bind click listeners to the description region if displaying a download
+      // list.
+      if (this.type === 'download') {
+        var descriptions = this.$$('.description');
+        for (i = 0; i < descriptions.length; i++) {
+          var description = descriptions[i];
+          description.addEventListener(
+            'click', this._handleDescriptionClick.bind(this));
+        }
       }
     });
   }
@@ -64,7 +75,11 @@ export default class ListView extends View {
     }
   }
 
-  _handleClick(e) {
-    this.controller.handleClick(e);
+  _handleControlClick(e) {
+    this.controller.handleControlClick(e);
+  }
+
+  _handleDescriptionClick(e) {
+    this.controller.handleDescriptionClick(e);
   }
 }

@@ -20,6 +20,10 @@ export default class P2pService extends Service {
       return;
     }
 
+    if (window.TEST_MODE) {
+      window.p2p = this;
+    }
+
     super();
 
     this._peerName = null;

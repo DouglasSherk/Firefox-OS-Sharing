@@ -60,9 +60,17 @@ export default class ProximityAppsController extends Controller {
     this.proximityAddonsView.render(P2pService.instance.proximityAddons);
   }
 
-  handleClick(e) {
+  handleControlClick(e) {
     var appName = e.target.dataset.app;
     P2pService.instance.downloadApp(appName);
+  }
+
+  handleDescriptionClick(e) {
+    // In case the tap hit a child node of the <div> element with the data-app
+    // attribute set.
+    var appName = e.target.dataset.app || e.target.parentNode.dataset.app;
+    window.location.hash = 'app';
+    window.history.pushState(appName, appName);
   }
 
   openSharePanel() {

@@ -4,6 +4,7 @@ import MainView from 'app/js/views/main_view';
 
 import ProximityAppsController from 'app/js/controllers/proximity_apps_controller';
 import ShareController from 'app/js/controllers/share_controller';
+import AppController from 'app/js/controllers/app_controller';
 
 //import 'p2p/fxos-web-server.js';
 //import 'p2p/p2p_helper.js';
@@ -14,7 +15,8 @@ export default class MainController extends RoutingController {
 
     super({
       '': new ProximityAppsController(),
-      'share': new ShareController()
+      'share': new ShareController(),
+      'app': new AppController()
     });
   }
 

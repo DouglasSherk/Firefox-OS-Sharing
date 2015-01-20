@@ -154,4 +154,21 @@ export default class AppsService extends Service {
     };
     */
   }
+
+  findAppByName(appName) {
+    return new Promise((resolve, reject) => {
+      this.getInstalledApps().then((apps) => {
+        for (var i in apps) {
+          var app = apps[i];
+          if (app.manifest.name === appName) {
+            resolve(app);
+            return;
+          }
+        }
+        console.error('No app found by name', appName);
+        reject();
+        return;
+      }, (e) => { reject(e); });
+    });
+  }
 }
