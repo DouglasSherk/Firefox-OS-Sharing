@@ -7,15 +7,7 @@ export default class HierarchicalListView extends ListView {
     super(options);
   }
 
-  render(params) {
-    super(params);
-
-    console.log('rendering ' + JSON.stringify(params));
-  }
-
   template(peer) {
-    console.log('templating ' + JSON.stringify(peer));
-
     var loading =
       peer.apps.length ? '' : '<gaia-loading></gaia-loading>';
     var string = `

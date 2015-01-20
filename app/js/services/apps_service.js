@@ -21,9 +21,15 @@ export default class AppsService extends Service {
   }
 
   getInstalledApps() {
+    var excludedApps = ['Marketplace', 'In-app Payment Tester', 'Membuster',
+      'Share Receiver', 'Template', 'Test Agent', 'Test receiver#1',
+      'Test Receiver#2', 'Test receiver (inline)', 'Test Shared CSS',
+      'UI tests - Privileged App', 'Sheet app 1', 'Sheet app 2', 'Sheet app 3'];
+
     return this._getAppsSubset((app) => {
       return app.manifest.role !== 'system' &&
              app.manifest.type !== 'certified' &&
+             excludedApps.indexOf(app.manifest.name) === -1 &&
              !app.manifest.customizations;
     });
   }
