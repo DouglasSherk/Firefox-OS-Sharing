@@ -8,7 +8,7 @@ import DeviceNameService from 'app/js/services/device_name_service';
 
 // Enable this if you want the device to pretend that it's connected to another
 // device and request its own apps.
-//window.TEST_MODE = true;
+window.TEST_MODE = true;
 
 var singletonGuard = {};
 var instance;
