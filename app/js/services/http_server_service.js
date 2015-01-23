@@ -3,6 +3,7 @@ import /* global HTTPServer */ 'fxos-web-server/dist/fxos-web-server';
 import { Service } from 'fxos-mvc/dist/mvc';
 
 import AppsService from 'app/js/services/apps_service';
+import DeviceNameService from 'app/js/services/device_name_service';
 
 var singletonGuard = {};
 var instance;
@@ -17,6 +18,10 @@ export default class HttpServerService extends Service {
     super();
 
     window.addEventListener('beforeunload', this.deactivate.bind(this));
+
+    DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
+      this._deviceName = e.deviceName;
+    }, true);
   }
 
   static get instance() {
@@ -63,7 +68,7 @@ export default class HttpServerService extends Service {
         // The client is requesting a list of all apps.
         } else {
           response.send(JSON.stringify({
-            name: 'blah',
+            name: this._deviceName,
             apps: AppsService.instance.pretty(apps)
           }));
         }

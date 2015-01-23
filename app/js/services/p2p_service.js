@@ -2,8 +2,6 @@ import /* global DNSSD */ 'dns-sd.js/dist/dns-sd';
 
 import { Service } from 'fxos-mvc/dist/mvc';
 
-//import AppsService from 'app/js/services/apps_service';
-//import DeviceNameService from 'app/js/services/device_name_service';
 import HttpServerService from 'app/js/services/http_server_service';
 import HttpClientService from 'app/js/services/http_client_service';
 
@@ -131,10 +129,6 @@ export default class P2pService extends Service {
     });
 
     DNSSD.startDiscovery();
-
-    //DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
-      //P2PHelper.setDisplayName(e.deviceName);
-    //});
   }
 
   _addPeer(address) {
