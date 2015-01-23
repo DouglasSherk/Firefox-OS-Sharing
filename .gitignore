@@ -3,7 +3,6 @@ gulpfile.js
 .jshintrc
 dist/
 node_modules/
-app/components/*
-!app/components/p2p
 .DS_Store
 app/npm-debug.log
+app/components/

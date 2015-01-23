@@ -40,33 +40,62 @@ export default class AppsService extends Service {
     });
   }
 
-  _getAppsSubset(subsetCallback) {
-    return new Promise((resolve, reject) => {
-      var installedApps = [];
+  installAppBlob(appData) {
+    var sdcard = navigator.getDeviceStorage('sdcard');
+    if (!sdcard) {
+      console.error('No SD card!');
+      return;
+    }
 
-      var req = navigator.mozApps.mgmt.getAll();
+    var fileName = 'temp-app.zip';
+    var delReq = sdcard.delete(fileName);
+    delReq.onsuccess = delReq.onerror = () => {
+      var req = sdcard.addNamed(
+        new Blob([appData], {type: 'application/openwebapp+zip'}),
+        fileName);
 
       req.onsuccess = () => {
-        var result = req.result;
+        var getReq = sdcard.get(fileName);
 
-        // Strip out apps that we shouldn't share.
-        for (var index in result) {
-          var app = result[index];
-          if (subsetCallback(app)) {
-            installedApps.push(app);
+        getReq.onsuccess = () => {
+          var file = getReq.result;
+          navigator.mozApps.mgmt.import(file).then((app) => {
+            window.alert(`${app.manifest.name} installed!`);
+          }, (e) => {
+            console.error('error installing app', e);
+          });
+        };
+
+        getReq.onerror = () => {
+          console.error('error getting file', getReq.error.name);
+        };
+      };
+
+      req.onerror = (e) => {
+        console.error('error saving blob', e);
+      };
+    };
+  }
+
+  getInstalledApp(appName) {
+    return new Promise((resolve, reject) => {
+      this.getInstalledApps().then((apps) => {
+        for (var i in apps) {
+          var app = apps[i];
+          if (app.manifest.name === appName) {
+            resolve(app);
+            return;
           }
         }
-
-        resolve(installedApps);
-      };
-
-      req.onerror = e => {
-        console.log('error fetching installed apps: ', e);
-        reject(e);
-      };
+        console.error('No app found by name', appName);
+        reject();
+        return;
+      }, (e) => { reject(e); });
     });
   }
 
+  // Helper method to flatten an app manifest down to only the fields necessary
+  // for networking.
   pretty(apps) {
     var prettyApps = [];
     apps.forEach((app) => {
@@ -113,62 +142,30 @@ export default class AppsService extends Service {
     return flattenedApps;
   }
 
-  installApp(appData) {
-    navigator.mozApps.mgmt.import(appData).then((app) => {
-      console.log('imported!');
-    }, (e) => {
-      console.error('error importing app', e);
-    });
-
-    /*
-    console.log('AppsService::installApp(' + JSON.stringify(appData) + ')');
-    var manifestURL =
-      appData.url + '/manifest.webapp?app=' + appData.manifest.name;
-    var dataURL = appData.url + '/download?app=' + appData.manifest.name;
-    var type = appData.type;
-    var installReq;
-    if (type === 'hosted') {
-      console.log('installing hosted app, ' + manifestURL);
-      installReq = navigator.mozApps.install(manifestURL, {
-        installMetaData: {
-          url: dataURL
-        }
-      });
-    } else if (type === 'packaged') {
-      console.log('installing packaged app, ' + manifestURL);
-      console.log('downloading: ' + dataURL);
-      installReq = navigator.mozApps.installPackage(manifestURL, {
-        installMetaData: {
-          url: dataURL
-        }
-      });
-    } else {
-      throw new Error('Could not install app, unrecognized type: ' + type);
-    }
-    installReq.onerror = function(err) {
-      console.error(err);
-      window.alert('Error installing app: ' + err.target.error.name);
-    };
-    installReq.onsuccess = () => {
-      window.alert('package installed!');
-    };
-    */
-  }
-
-  findAppByName(appName) {
+  _getAppsSubset(subsetCallback) {
     return new Promise((resolve, reject) => {
-      this.getInstalledApps().then((apps) => {
-        for (var i in apps) {
-          var app = apps[i];
-          if (app.manifest.name === appName) {
-            resolve(app);
-            return;
+      var installedApps = [];
+
+      var req = navigator.mozApps.mgmt.getAll();
+
+      req.onsuccess = () => {
+        var result = req.result;
+
+        // Strip out apps that we shouldn't share.
+        for (var index in result) {
+          var app = result[index];
+          if (subsetCallback(app)) {
+            installedApps.push(app);
           }
         }
-        console.error('No app found by name', appName);
-        reject();
-        return;
-      }, (e) => { reject(e); });
+
+        resolve(installedApps);
+      };
+
+      req.onerror = e => {
+        console.log('error fetching installed apps: ', e);
+        reject(e);
+      };
     });
   }
 }

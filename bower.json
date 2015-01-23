@@ -7,6 +7,8 @@
     "app/components"
   ],
   "dependencies": {
+    "dns-sd.js": "git@github.com:justindarc/dns-sd.js",
+    "fxos-web-server": "git@github.com:justindarc/fxos-web-server",
     "fxos-mvc": "git@github.com:fxos/mvc.git",
     "gaia-theme": " gaia-components/gaia-theme",
     "gaia-header" : "gaia-components/gaia-header",
