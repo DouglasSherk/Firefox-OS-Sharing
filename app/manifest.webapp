@@ -28,7 +28,10 @@
       "access": "readwrite"
     },
     "tcp-socket": {
-      "description": "For serving apps to other devices"
+      "description": "For connecting to other devices"
+    },
+    "udp-socket": {
+      "description": "For connecting to other devices"
     },
     "wifi-manage": {
       "description": "For connecting to other devices to share apps"

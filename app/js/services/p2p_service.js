@@ -48,8 +48,6 @@ export default class P2pService extends Service {
     this._proximityApps = [];
     this._proximityAddons = [];
 
-    this._peers = [];
-
     /*
     setTimeout(() => {
       this._updatePeerInfo('127.0.0.1', {name: 'localhost', apps: [
@@ -64,11 +62,11 @@ export default class P2pService extends Service {
     }, 4000);
     */
 
-    if (window.TEST_MODE) {
+    /*if (window.TEST_MODE) {
       setTimeout(() => {
         this._addPeer('127.0.0.1');
       }, 2000);
-    }
+    }*/
 
     this._enableP2pConnection();
   }
@@ -119,24 +117,12 @@ export default class P2pService extends Service {
         return;
       }
 
-      var isConnected = this._peers.find((peer) => {
-        return peer === e.address;
+      HttpClientService.instance.requestPeerInfo(e.address).then((peer) => {
+        this._updatePeerInfo(e.address, peer);
       });
-
-      if (!isConnected) {
-        this._addPeer(e.address);
-      }
     });
 
     DNSSD.startDiscovery();
-  }
-
-  _addPeer(address) {
-    this._peers.push(address);
-
-    HttpClientService.instance.requestPeerInfo(address).then((peer) => {
-      this._updatePeerInfo(address, peer);
-    });
   }
 
   _updatePeerInfo(address, peer) {
