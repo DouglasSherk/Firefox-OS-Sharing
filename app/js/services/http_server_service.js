@@ -62,7 +62,10 @@ export default class HttpServerService extends Service {
           });
         // The client is requesting a list of all apps.
         } else {
-          response.send(AppsService.instance.pretty(apps));
+          response.send(JSON.stringify({
+            name: 'blah',
+            apps: apps
+          }));
         }
       });
     });

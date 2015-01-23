@@ -51,15 +51,15 @@ export default class P2pService extends Service {
     this._proximityAddons = [];
 
     setTimeout(() => {
-      this._appsUpdated('127.0.0.1', [
+      this._updatePeerInfo('127.0.0.1', {name: 'localhost', apps: [
         {manifest: {name: 'Sharing', description: 'doo'}, owner: 'Doug'},
         {manifest: {name: 'HelloWorld', description: 'too'}, owner: 'Ham'},
         {manifest: {name: 'Rail Rush', description: 'game'}, owner: 'Gamer'},
-        {manifest: {name: 'test', description: 'ham'}, owner: 'Hurr'}]);
+        {manifest: {name: 'test', description: 'ham'}, owner: 'Hurr'}]});
     }, 2000);
 
     setTimeout(() => {
-      this._appsUpdated('192.168.100.100', []);
+      this._updatePeerInfo('192.168.100.100', {name: 'garbage', apps: []});
     }, 4000);
 
     this._enableP2pConnection();
@@ -130,17 +130,15 @@ export default class P2pService extends Service {
   _addPeer(address) {
     this._peers.add(address);
 
-    HttpClientService.instance.requestApps(address).then((apps) => {
-      this._appsUpdated(address, apps);
+    HttpClientService.instance.requestPeerInfo(address).then((peer) => {
+      this._updatePeerInfo(address, peer);
     });
   }
 
-  _appsUpdated(address, apps) {
-    if (apps !== undefined) {
-      this._proximityApps[address] = {
-        address: address,
-        apps: apps
-      };
+  _updatePeerInfo(address, peer) {
+    if (peer.apps !== undefined) {
+      peer.address = address;
+      this._proximityApps[address] = peer;
     } else {
       delete this._proximityApps[address];
     }

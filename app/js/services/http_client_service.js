@@ -35,13 +35,13 @@ export default class HttpClientService extends Service {
     xhr.send();
   }
 
-  requestApps(address) {
+  requestPeerInfo(address) {
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          var apps = JSON.parse(xhr.responseText);
-          resolve(apps);
+          var peer = JSON.parse(xhr.responseText);
+          resolve(peer);
         }
       };
       xhr.open('GET', HttpService.instance.getPeerUrl(address));
