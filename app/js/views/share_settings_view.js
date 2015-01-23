@@ -44,7 +44,7 @@ export default class ShareSettingsView extends View {
         <i class="forward-light"></i>
       </li>
       <li>
-        <gaia-button class="rename-device">Rename Device</gaia-button>
+        <gaia-button disabled class="rename-device">Rename Device</gaia-button>
       </li>
     `;
 
@@ -67,6 +67,7 @@ export default class ShareSettingsView extends View {
 
   set deviceName(deviceName) {
     setTimeout(() => {
+      this.renameDeviceBtn.removeAttribute('disabled');
       this.deviceNameElt.textContent = deviceName;
     });
   }

@@ -9,16 +9,16 @@ export default class DeviceNameController extends Controller {
     this.view = new DeviceNameView();
     // XXX/drs: Shouldn't have to do this?
     this.view.init(this);
+
+    this._updateDeviceNameWrapped = this._updateDeviceName.bind(this);
   }
 
   main() {
     this.view.render();
     document.body.appendChild(this.view.el);
 
-    this._updateDeviceNameWrapped = this._updateDeviceName.bind(this);
-
     setTimeout(() => {
-      this.view.open();
+      this.view.el.open();
     });
   }
 
