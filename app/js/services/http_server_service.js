@@ -48,11 +48,7 @@ export default class HttpServerService extends Service {
               if (path === '/manifest.webapp') {
                 response.headers['Content-Type'] =
                   'application/x-web-app-manifest+json';
-
                 var manifest = app.manifest;
-                manifest.installs_allowed_from = ['*'];
-                manifest.package_path = '/download?app=' + appName;
-
                 response.send(JSON.stringify(manifest));
 
               // The client is requesting an app binary.

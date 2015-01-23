@@ -110,36 +110,16 @@ export default class AppsService extends Service {
     return JSON.stringify(prettyApps);
   }
 
-  // Flattens a collection of apps in the format:
-  // [
-  //   'owner1': [
-  //     { manifest: { name: 'app1', ... } },
-  //     { manifest: { name: 'app2', ... } }
-  //   ],
-  //   'owner2': [
-  //     { manifest: { name: 'app3', ... } },
-  //     { manifest: { name: 'app4', ... } }
-  //   ]
-  // ]
-  //
-  // Down to:
-  // [
-  //   { manifest: { name: 'app1', ... }, owner: 'owner1' },
-  //   { manifest: { name: 'app2', ... }, owner: 'owner1' },
-  //   { manifest: { name: 'app3', ... }, owner: 'owner2' },
-  //   ...
-  // ]
-  flatten(owners) {
-    var flattenedApps = [];
-    for (var owner in owners) {
-      var apps = owners[owner].apps;
+  // Adds the address field into each app element.
+  flatten(addresses) {
+    for (var address in addresses) {
+      var apps = addresses[address].apps;
       for (var i = 0; i < apps.length; i++) {
         var app = apps[i];
-        app.owner = owner;
-        flattenedApps.push(app);
+        app.address = address;
       }
     }
-    return flattenedApps;
+    return addresses;
   }
 
   _getAppsSubset(subsetCallback) {
@@ -162,8 +142,8 @@ export default class AppsService extends Service {
         resolve(installedApps);
       };
 
-      req.onerror = e => {
-        console.log('error fetching installed apps: ', e);
+      req.onerror = (e) => {
+        console.error('error fetching installed apps: ', e);
         reject(e);
       };
     });

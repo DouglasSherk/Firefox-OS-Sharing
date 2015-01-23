@@ -50,20 +50,17 @@ export default class P2pService extends Service {
     this._proximityApps = [];
     this._proximityAddons = [];
 
-    /*
     setTimeout(() => {
-      this._peerName = 'asdf';
-      this._appsUpdated([
+      this._appsUpdated('127.0.0.1', [
         {manifest: {name: 'Sharing', description: 'doo'}, owner: 'Doug'},
         {manifest: {name: 'HelloWorld', description: 'too'}, owner: 'Ham'},
+        {manifest: {name: 'Rail Rush', description: 'game'}, owner: 'Gamer'},
         {manifest: {name: 'test', description: 'ham'}, owner: 'Hurr'}]);
     }, 2000);
 
     setTimeout(() => {
-      this._peerName = 'foo';
-      this._appsUpdated([]);
+      this._appsUpdated('192.168.100.100', []);
     }, 4000);
-    */
 
     this._enableP2pConnection();
   }
@@ -139,25 +136,13 @@ export default class P2pService extends Service {
   }
 
   _appsUpdated(address, apps) {
-    apps.forEach((_, index) => {
-      var app = apps[index];
-      app.url = this._connectedIp;
-      if (!app.type) {
-        app.type = 'packaged';
-      }
-    });
-
-    this._setProximityApps(this._peerName, apps);
-  }
-
-  _setProximityApps(peerName, apps) {
     if (apps !== undefined) {
-      this._proximityApps[peerName] = {
-        name: peerName,
+      this._proximityApps[address] = {
+        address: address,
         apps: apps
       };
     } else {
-      delete this._proximityApps[peerName];
+      delete this._proximityApps[address];
     }
     this._dispatchEvent('proximity');
   }

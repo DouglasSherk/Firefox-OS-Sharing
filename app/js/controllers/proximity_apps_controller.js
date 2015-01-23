@@ -1,5 +1,7 @@
 import { Controller } from 'fxos-mvc/dist/mvc';
 
+import AppsService from 'app/js/services/apps_service';
+import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
 
 import ShareSummaryView from 'app/js/views/share_summary_view';
@@ -24,8 +26,6 @@ export default class ProximityAppsController extends Controller {
 
     P2pService.instance.addEventListener(
       'proximity', this.proximityChanged.bind(this));
-
-    this.installedApps = {};
 
     this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
   }
@@ -56,13 +56,15 @@ export default class ProximityAppsController extends Controller {
   }
 
   proximityChanged() {
-    this.proximityAppsView.render(P2pService.instance.proximityApps);
-    this.proximityAddonsView.render(P2pService.instance.proximityAddons);
+    this.proximityAppsView.render(
+      AppsService.instance.flatten(P2pService.instance.proximityApps));
+    this.proximityAddonsView.render(
+      AppsService.instance.flatten(P2pService.instance.proximityAddons));
   }
 
   handleControlClick(e) {
-    var appName = e.target.dataset.app;
-    P2pService.instance.downloadApp(appName);
+    var url = e.target.dataset.url;
+    HttpClientService.instance.downloadApp(url);
   }
 
   handleDescriptionClick(e) {

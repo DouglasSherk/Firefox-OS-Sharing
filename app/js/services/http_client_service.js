@@ -1,6 +1,7 @@
 import { Service } from 'fxos-mvc/dist/mvc';
 
 import AppsService from 'app/js/services/apps_service';
+import HttpService from 'app/js/services/http_service';
 
 var singletonGuard = {};
 var instance;
@@ -43,7 +44,7 @@ export default class HttpClientService extends Service {
           resolve(apps);
         }
       };
-      xhr.open('GET', 'http://' + address);
+      xhr.open('GET', HttpService.instance.getPeerUrl(address));
       xhr.send();
     });
   }
