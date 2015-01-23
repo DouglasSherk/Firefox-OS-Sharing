@@ -1,4 +1,4 @@
-import /* global DNSSD */ 'dns-sd.js/dist/dns-sd';
+import /* global DNSSD, IPUtils */ 'dns-sd.js/dist/dns-sd';
 
 import { Service } from 'fxos-mvc/dist/mvc';
 
@@ -69,6 +69,13 @@ export default class P2pService extends Service {
     }*/
 
     this._enableP2pConnection();
+
+    this._ipAddresses = new Promise((resolve, reject) => {
+      IPUtils.getAddresses((ipAddress) => {
+        // XXX/drs: This will break if we have multiple IP addresses.
+        resolve([ipAddress]);
+      });
+    });
   }
 
   static get instance() {
@@ -117,8 +124,17 @@ export default class P2pService extends Service {
         return;
       }
 
-      HttpClientService.instance.requestPeerInfo(e.address).then((peer) => {
-        this._updatePeerInfo(e.address, peer);
+      var address = e.address;
+
+      // Trying to connect to self.
+      this._ipAddresses.then((ipAddresses) => {
+        if (ipAddresses.indexOf(address) !== -1) {
+          return;
+        }
+
+        HttpClientService.instance.requestPeerInfo(address).then((peer) => {
+          this._updatePeerInfo(address, peer);
+        });
       });
     });
 
