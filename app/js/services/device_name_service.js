@@ -12,19 +12,25 @@ export default class DeviceNameService extends Service {
 
     super();
 
-    navigator.mozSettings.addObserver('deviceinfo.product_model', (e) => {
+    navigator.mozSettings.addObserver('lightsaber.device_name', (e) => {
       this._dispatchEvent('devicenamechange', {deviceName: e.settingValue});
     });
 
     var request =
-      navigator.mozSettings.createLock().get('deviceinfo.product_model');
+      navigator.mozSettings.createLock().get('lightsaber.device_name');
 
     request.onsuccess = () => {
-      this.deviceName = request.result['deviceinfo.product_model'];
+      var result = request.result['lightsaber.device_name'];
+
+      if (result) {
+        this.deviceName = result;
+      } else {
+        this._setDeviceNameToDefault();
+      }
     };
 
     request.onerror = (e) => {
-      console.error('error getting deviceinfo.product_model: ' + e);
+      console.error('error getting lightsaber.device_name: ' + e);
     };
   }
 
@@ -37,18 +43,31 @@ export default class DeviceNameService extends Service {
 
   set deviceName(deviceName) {
     var request = navigator.mozSettings.createLock().set({
-      'deviceinfo.product_model': deviceName});
+      'lightsaber.device_name': deviceName});
 
     request.onsuccess = () => {
       this._dispatchEvent('devicenamechange', {deviceName: deviceName});
     };
 
     request.onerror = (e) => {
-      console.error('error setting deviceinfo.product_model: ' + e);
+      console.error('error setting lightsaber.device_name: ' + e);
     };
   }
 
   get deviceName() {
     console.error('DONT USE ME LOL!');
+  }
+
+  _setDeviceNameToDefault() {
+    var request =
+      navigator.mozSettings.createLock().get('deviceinfo.product_model');
+
+    request.onsuccess = () => {
+      this.deviceName = request.result['deviceinfo.product_model'];
+    };
+
+    request.onerror = (e) => {
+      console.error('error getting deviceinfo.product_model', e);
+    };
   }
 }
