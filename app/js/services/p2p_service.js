@@ -50,6 +50,9 @@ export default class P2pService extends Service {
     this._proximityApps = [];
     this._proximityAddons = [];
 
+    this._peers = [];
+
+    /*
     setTimeout(() => {
       this._updatePeerInfo('127.0.0.1', {name: 'localhost', apps: [
         {manifest: {name: 'Sharing', description: 'doo'}, owner: 'Doug'},
@@ -61,6 +64,13 @@ export default class P2pService extends Service {
     setTimeout(() => {
       this._updatePeerInfo('192.168.100.100', {name: 'garbage', apps: []});
     }, 4000);
+    */
+
+    if (window.TEST_MODE) {
+      setTimeout(() => {
+        this._addPeer('127.0.0.1');
+      }, 2000);
+    }
 
     this._enableP2pConnection();
   }
@@ -128,7 +138,7 @@ export default class P2pService extends Service {
   }
 
   _addPeer(address) {
-    this._peers.add(address);
+    this._peers.push(address);
 
     HttpClientService.instance.requestPeerInfo(address).then((peer) => {
       this._updatePeerInfo(address, peer);

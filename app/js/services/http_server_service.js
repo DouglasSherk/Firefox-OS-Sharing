@@ -64,7 +64,7 @@ export default class HttpServerService extends Service {
         } else {
           response.send(JSON.stringify({
             name: 'blah',
-            apps: apps
+            apps: AppsService.instance.pretty(apps)
           }));
         }
       });

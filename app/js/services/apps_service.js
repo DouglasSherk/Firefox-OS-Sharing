@@ -107,7 +107,7 @@ export default class AppsService extends Service {
         }
       });
     });
-    return JSON.stringify(prettyApps);
+    return prettyApps;
   }
 
   // Adds the address field into each app element.
