@@ -103,14 +103,20 @@ export default class P2pService extends Service {
   }
 
   getProximityApp(appName) {
-    var proximityApp;
-    for (var index in this._proximityApps) {
-      var peer = this._proximityApps[index];
-      proximityApp = peer.apps.find((app) => {
-        return app.manifest.name === appName;
-      });
+    function searchForProximityApp(appName, apps) {
+      var proximityApp;
+      for (var index in apps) {
+        var peer = apps[index];
+        proximityApp = peer.apps.find((app) => {
+          return app.manifest.name === appName;
+        });
+      }
+      return proximityApp;
     }
-    return proximityApp;
+
+    var retval = searchForProximityApp(appName, this._proximityApps) ||
+                 searchForProximityApp(appName, this._proximityAddons);
+    return retval;
   }
 
   _broadcastLoaded(val) {
