@@ -57,9 +57,9 @@ export default class ProximityAppsController extends Controller {
 
   proximityChanged() {
     this.proximityAppsView.render(
-      AppsService.instance.flatten(P2pService.instance.proximityApps));
+      AppsService.instance.flatten(P2pService.instance.getProximityApps()));
     this.proximityAddonsView.render(
-      AppsService.instance.flatten(P2pService.instance.proximityAddons));
+      AppsService.instance.flatten(P2pService.instance.getProximityAddons()));
   }
 
   handleControlClick(e) {

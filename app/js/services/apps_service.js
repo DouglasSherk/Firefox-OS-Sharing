@@ -110,13 +110,15 @@ export default class AppsService extends Service {
     return prettyApps;
   }
 
-  // Adds the address field into each app element.
+  // Adds the address and name fields into each app element.
   flatten(addresses) {
     for (var address in addresses) {
       var apps = addresses[address].apps;
+      var peerName = addresses[address].name;
       for (var i = 0; i < apps.length; i++) {
         var app = apps[i];
         app.address = address;
+        app.peerName = peerName;
       }
     }
     return addresses;

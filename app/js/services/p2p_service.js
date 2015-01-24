@@ -94,12 +94,23 @@ export default class P2pService extends Service {
      'lightsaber.p2p_broadcast': enable});
   }
 
-  get proximityApps() {
+  getProximityApps() {
     return this._proximityApps;
   }
 
-  get proximityAddons() {
+  getProximityAddons() {
     return this._proximityAddons;
+  }
+
+  getProximityApp(appName) {
+    var proximityApp;
+    for (var index in this._proximityApps) {
+      var peer = this._proximityApps[index];
+      proximityApp = peer.apps.find((app) => {
+        return app.manifest.name === appName;
+      });
+    }
+    return proximityApp;
   }
 
   _broadcastLoaded(val) {

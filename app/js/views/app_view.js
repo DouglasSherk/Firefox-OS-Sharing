@@ -1,5 +1,7 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
+import HttpService from 'app/js/services/http_service';
+
 import 'gaia-button/gaia-button';
 
 export default class AppView extends View {
@@ -28,9 +30,10 @@ export default class AppView extends View {
       var downloadButtonEl = document.getElementById('appDownload');
 
       appNameEl.textContent = app.manifest.name;
-      appOwnerEl.textContent = 'Provided by ' + app.owner;
+      appOwnerEl.textContent = 'Provided by ' + app.peerName;
       appDescriptionEl.textContent = app.manifest.description;
-      downloadButtonEl.dataset.app = app.manifest.name;
+      downloadButtonEl.dataset.url =
+        HttpService.instance.getAppDownloadUrl(app);
       downloadButtonEl.addEventListener('click', this._handleClick.bind(this));
     });
   }

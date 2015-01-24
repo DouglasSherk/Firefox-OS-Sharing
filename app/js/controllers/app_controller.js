@@ -2,7 +2,7 @@ import { Controller } from 'fxos-mvc/dist/mvc';
 
 import AppView from 'app/js/views/app_view';
 
-import AppsService from 'app/js/services/apps_service';
+import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
 
 export default class AppController extends Controller {
@@ -14,10 +14,9 @@ export default class AppController extends Controller {
   main() {
     var appName = window.history.state;
 
-    AppsService.instance.findAppByName(appName).then((app) => {
-      this.view.render(app);
-      document.body.appendChild(this.view.el);
-    });
+    var app = P2pService.instance.getProximityApp(appName);
+    this.view.render(app);
+    document.body.appendChild(this.view.el);
   }
 
   teardown() {
@@ -25,7 +24,7 @@ export default class AppController extends Controller {
   }
 
   _handleClick(e) {
-    var appName = e.target.dataset.app;
-    P2pService.instance.downloadApp(appName);
+    var url = e.target.dataset.url;
+    HttpClientService.instance.downloadApp(url);
   }
 }
