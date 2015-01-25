@@ -40,6 +40,10 @@ export default class AppsService extends Service {
     });
   }
 
+  getInstalledAppsAndAddons() {
+    return this._getAppsSubset((app) => { return true; });
+  }
+
   installAppBlob(appData) {
     var sdcard = navigator.getDeviceStorage('sdcard');
     if (!sdcard) {

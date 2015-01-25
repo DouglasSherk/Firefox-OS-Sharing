@@ -43,13 +43,13 @@ export default class HttpServerService extends Service {
 
       var path = request.path;
       var appName = request.params.app;
-      AppsService.instance.getInstalledApps().then((apps) => {
+      AppsService.instance.getInstalledAppsAndAddons().then((appsAndAddons) => {
         if (path !== '/') {
-          apps.forEach((app) => {
+          appsAndAddons.forEach((app) => {
             if (app.manifest.name === appName) {
 
-              // The client is requesting a manifest for an app. This is used for
-              // displaying a description and other info.
+              // The client is requesting a manifest for an app. This is used
+              // for displaying a description and other info.
               if (path === '/manifest.webapp') {
                 response.headers['Content-Type'] =
                   'application/x-web-app-manifest+json';
@@ -67,10 +67,15 @@ export default class HttpServerService extends Service {
           });
         // The client is requesting a list of all apps.
         } else {
-          response.send(JSON.stringify({
-            name: this._deviceName,
-            apps: AppsService.instance.pretty(apps)
-          }));
+          AppsService.instance.getInstalledApps().then((apps) => {
+            AppsService.instance.getInstalledAddons().then((addons) => {
+              response.send(JSON.stringify({
+                name: this._deviceName,
+                apps: AppsService.instance.pretty(apps),
+                addons: AppsService.instance.pretty(addons)
+              }));
+            });
+          });
         }
       });
     });

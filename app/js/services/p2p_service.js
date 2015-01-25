@@ -162,11 +162,16 @@ export default class P2pService extends Service {
   }
 
   _updatePeerInfo(address, peer) {
+    peer.address = address;
     if (peer.apps !== undefined) {
-      peer.address = address;
       this._proximityApps[address] = peer;
     } else {
       delete this._proximityApps[address];
+    }
+    if (peer.addons !== undefined) {
+      this._proximityAddons[address] = peer;
+    } else {
+      delete this._proximityAddons[address];
     }
     this._dispatchEvent('proximity');
   }
