@@ -143,8 +143,8 @@ export default class P2pService extends Service {
 
       var address = e.address;
 
-      // Trying to connect to self.
       this._ipAddresses.then((ipAddresses) => {
+        // Make sure we're not trying to connect to ourself.
         if (ipAddresses.indexOf(address) !== -1) {
           return;
         }
@@ -156,6 +156,9 @@ export default class P2pService extends Service {
     });
 
     DNSSD.startDiscovery();
+    setInterval(() => {
+      DNSSD.startDiscovery();
+    }, 10000);
   }
 
   _updatePeerInfo(address, peer) {
