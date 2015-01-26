@@ -5,6 +5,7 @@ import HttpService from 'app/js/services/http_service';
 import 'gaia-list/gaia-list';
 import 'gaia-checkbox/gaia-checkbox';
 import 'gaia-sub-header/gaia-sub-header';
+import 'gaia-loading/gaia-loading';
 
 export default class ListView extends View {
   constructor(options) {
@@ -21,10 +22,20 @@ export default class ListView extends View {
   }
 
   layout(template) {
-    return `<gaia-sub-header>${this.title}</gaia-sub-header>${template}`;
+    var loading = this.controller._everRendered ?
+      '' : '<gaia-loading></gaia-loading>';
+    var string = `
+      <gaia-sub-header>${this.title}</gaia-sub-header>
+      ${loading}
+      ${template}`;
+    return string;
   }
 
   template(app) {
+    // Hack! Write this to the controller so that all categories lose the
+    // loading indicator when we get any networked apps.
+    this.controller._everRendered = true;
+
     var string = `
       <li tabindex="0">
         <div class="description" data-app="${app.manifest.name}">
