@@ -38,6 +38,10 @@ gaia-list.app-list li {
   border-bottom: 1px solid #ddd;
 }
 
+gaia-list.app-list li:last-child {
+  border-bottom: none;
+}
+
 gaia-list li.subheading {
   height: 2rem;
   font-size: 1.5rem;
@@ -75,22 +79,6 @@ gaia-list li h4 {
   text-overflow: ellipsis;
 }
 
-gaia-list li:first-child::before {
-  content: none;
-}
-
-gaia-list li::before {
-  top: 0px;
-  left: 16px;
-  right: 16px;
-  height: 1px;
-
-  position: absolute;
-
-  content: "";
-  background: #ddd;
-}
-
 gaia-list li > * {
   height: 2.4rem;
 }
@@ -107,4 +95,8 @@ gaia-list li a {
   font-size: 1rem;
   font-style: italic;
   color: #3366bb;
+}
+
+gaia-list li i {
+  text-align: right;
 }

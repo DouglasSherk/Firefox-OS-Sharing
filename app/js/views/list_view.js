@@ -4,6 +4,7 @@ import HttpService from 'app/js/services/http_service';
 
 import 'gaia-list/gaia-list';
 import 'gaia-checkbox/gaia-checkbox';
+import 'gaia-sub-header/gaia-sub-header';
 
 export default class ListView extends View {
   constructor(options) {
@@ -19,7 +20,7 @@ export default class ListView extends View {
   }
 
   layout(template) {
-    return `<h1>${this.title}</h1>${template}`;
+    return `<gaia-sub-header>${this.title}</gaia-sub-header>${template}`;
   }
 
   template(app) {
