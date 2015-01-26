@@ -100,7 +100,35 @@ export default class AppsService extends Service {
         console.error('No app found by name', appName);
         reject();
         return;
-      }, (e) => { reject(e); });
+      }, reject);
+    });
+  }
+
+  stripInstalledAppsFromProximityApps(peers) {
+    return new Promise((resolve, reject) => {
+      this.getInstalledAppsAndAddons().then((installedApps) => {
+        for (var peerIndex in peers) {
+          var peer = peers[peerIndex];
+
+          ['apps', 'addons'].forEach((appType) => {
+            if (!peer[appType]) {
+              return;
+            }
+
+            for (var i = peer.apps.length - 1; i > 0; i--) {
+              var app = peer[appType][i];
+              var matchingApp = installedApps.find((installedApp) => {
+                return installedApp.manifest.name === app.manifest.name;
+              });
+
+              if (matchingApp) {
+                peer[appType].splice(i, 1);
+              }
+            }
+          });
+        }
+        resolve(peers);
+      });
     });
   }
 
