@@ -24,15 +24,22 @@ export default class HttpClientService extends Service {
   }
 
   downloadApp(url) {
-    var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
-    xhr.open('GET', url);
-    xhr.responseType = 'blob';
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        AppsService.instance.installAppBlob(xhr.response);
-      }
-    };
-    xhr.send();
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
+      xhr.open('GET', url);
+      xhr.responseType = 'blob';
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            AppsService.instance.installAppBlob(
+              xhr.response).then(resolve, reject);
+          } else {
+            reject({name: 'HTTP error', message: xhr.status});
+          }
+        }
+      };
+      xhr.send();
+    });
   }
 
   requestPeerInfo(address) {

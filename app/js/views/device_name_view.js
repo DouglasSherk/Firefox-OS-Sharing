@@ -6,7 +6,6 @@ import 'gaia-dialog/gaia-dialog';
 
 export default class DeviceNameView extends View {
   template() {
-    console.log('adding in template');
     var string = `
       <h1>Change device name</h1>
       <p>Ugly due to a limitation in web components. See bug 1079236.</p>

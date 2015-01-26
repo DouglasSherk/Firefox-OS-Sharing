@@ -45,40 +45,46 @@ export default class AppsService extends Service {
   }
 
   installAppBlob(appData) {
-    var sdcard = navigator.getDeviceStorage('sdcard');
-    if (!sdcard) {
-      console.error('No SD card!');
-      return;
-    }
+    return new Promise((resolve, reject) => {
+      var sdcard = navigator.getDeviceStorage('sdcard');
+      if (!sdcard) {
+        console.error('No SD card!');
+        reject({name: 'No SD card!'});
+        return;
+      }
 
-    var fileName = 'temp-app.zip';
-    var delReq = sdcard.delete(fileName);
-    delReq.onsuccess = delReq.onerror = () => {
-      var req = sdcard.addNamed(
-        new Blob([appData], {type: 'application/openwebapp+zip'}),
-        fileName);
+      var fileName = 'temp-app.zip';
+      var delReq = sdcard.delete(fileName);
+      delReq.onsuccess = delReq.onerror = () => {
+        var req = sdcard.addNamed(
+          new Blob([appData], {type: 'application/openwebapp+zip'}),
+          fileName);
 
-      req.onsuccess = () => {
-        var getReq = sdcard.get(fileName);
+        req.onsuccess = () => {
+          var getReq = sdcard.get(fileName);
 
-        getReq.onsuccess = () => {
-          var file = getReq.result;
-          navigator.mozApps.mgmt.import(file).then((app) => {
-            window.alert(`${app.manifest.name} installed!`);
-          }, (e) => {
-            console.error('error installing app', e);
-          });
+          getReq.onsuccess = () => {
+            var file = getReq.result;
+            navigator.mozApps.mgmt.import(file).then((app) => {
+              resolve(app);
+            }, (e) => {
+              console.error('error installing app', e);
+              reject(e);
+            });
+          };
+
+          getReq.onerror = () => {
+            console.error('error getting file', getReq.error.name);
+            reject(getReq.error);
+          };
         };
 
-        getReq.onerror = () => {
-          console.error('error getting file', getReq.error.name);
+        req.onerror = (e) => {
+          console.error('error saving blob', e);
+          reject(e);
         };
       };
-
-      req.onerror = (e) => {
-        console.error('error saving blob', e);
-      };
-    };
+    });
   }
 
   getInstalledApp(appName) {

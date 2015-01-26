@@ -20,6 +20,8 @@
     "gaia-dialog": "gaia-components/gaia-dialog",
     "gaia-checkbox": "gaia-components/gaia-checkbox",
     "gaia-switch": "gaia-components/gaia-switch",
-    "gaia-loading": "gaia-components/gaia-loading"
+    "gaia-loading": "gaia-components/gaia-loading",
+    "gaia-progress": "gaia-components/gaia-progress",
+    "gaia-sub-header": "gaia-components/gaia-sub-header"
   }
 }
