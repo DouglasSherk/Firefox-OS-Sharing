@@ -56,8 +56,12 @@ export default class ShareSettingsView extends View {
       this.shareDescriptionElt.textContent = enabled ?
         'Sharing On' : 'Turn on to share apps';
 
-      this.shareEnabledElt.setChecked(!!enabled);
-    }, 500);
+      if (enabled) {
+        this.shareEnabledElt.setAttribute('checked', '');
+      } else {
+        this.shareEnabledElt.removeAttribute('checked');
+      }
+    }, 0);
   }
 
   get deviceName() {
