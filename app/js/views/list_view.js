@@ -17,6 +17,7 @@ export default class ListView extends View {
 
     this.title = options.title;
     this.type = options.type;
+    this.attr = options.attr;
   }
 
   layout(template) {

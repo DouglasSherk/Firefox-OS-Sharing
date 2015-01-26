@@ -17,13 +17,15 @@ export default class ProximityAppsController extends Controller {
     this.proximityAppsView = new HierarchicalListView({
       id: 'proximity-apps',
       title: 'Available apps',
-      type: 'download'
+      type: 'download',
+      attr: 'apps'
     });
     this.proximityAppsView.init(this);
     this.proximityAddonsView = new HierarchicalListView({
       id: 'proximity-addons',
       title: 'Available addons',
-      type: 'download'
+      type: 'download',
+      attr: 'addons'
     });
     this.proximityAddonsView.init(this);
 
@@ -64,12 +66,14 @@ export default class ProximityAppsController extends Controller {
     var proximityApps = P2pService.instance.getProximityApps();
     AppsService.instance.stripInstalledAppsFromProximityApps(
       proximityApps).then((apps) => {
-      this.proximityAppsView.render(AppsService.instance.flatten(apps));
+      this.proximityAppsView.render(AppsService.instance.flatten(apps, 'apps'));
     });
     var proximityAddons = P2pService.instance.getProximityAddons();
     AppsService.instance.stripInstalledAppsFromProximityApps(
       proximityAddons).then((addons) => {
-      this.proximityAddonsView.render(AppsService.instance.flatten(addons));
+      console.log(addons);
+      this.proximityAddonsView.render(
+        AppsService.instance.flatten(addons, 'addons'));
     });
   }
 

@@ -83,6 +83,10 @@ export default class HttpServerService extends Service {
   }
 
   deactivate() {
+    if (!this.httpServer) {
+      return;
+    }
+
     this.httpServer.stop();
     this.httpServer = null;
   }
