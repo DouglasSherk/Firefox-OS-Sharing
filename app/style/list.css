@@ -14,7 +14,6 @@
 }
 
 gaia-list h1 {
-  font-size: 1.5rem;
   margin: 2rem 0.6rem 0.6rem 0.6rem;
   color: #666;
 }
@@ -69,7 +68,6 @@ gaia-list li h3, gaia-list li h4 {
 gaia-list li h4 {
   max-width: 13rem;
 
-  font-size: 1rem;
   font-weight: 100;
 
   overflow: hidden;
