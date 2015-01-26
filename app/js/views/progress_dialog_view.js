@@ -25,14 +25,14 @@ export default class ProgressDialogView extends View {
 
   success(app) {
     this.el.innerHTML = `
-      <h4>Successfully downloaded ${app.manifest.name}!</h4>
+      <p>Successfully downloaded ${app.manifest.name}!</p>
     `;
     this._loading = false;
   }
 
   error(e) {
     this.el.innerHTML = `
-      <h4>Error downloading app: ${e.name || ''} ${e.description || ''}</h4>
+      <p>Error downloading app: ${e.name || ''} ${e.description || ''}</p>
       <section><gaia-button>Ok</gaia-button></section>
     `;
     this._loading = false;
