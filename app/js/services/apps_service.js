@@ -115,7 +115,7 @@ export default class AppsService extends Service {
               return;
             }
 
-            for (var i = peer.apps.length - 1; i > 0; i--) {
+            for (var i = peer[appType].length - 1; i >= 0; i--) {
               var app = peer[appType][i];
               var matchingApp = installedApps.find((installedApp) => {
                 return installedApp.manifest.name === app.manifest.name;
