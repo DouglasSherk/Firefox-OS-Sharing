@@ -28,6 +28,13 @@ export default class ProximityAppsController extends Controller {
       attr: 'addons'
     });
     this.proximityAddonsView.init(this);
+    this.proximityThemesView = new HierarchicalListView({
+      id: 'proximity-themes',
+      title: 'Available themes',
+      type: 'download',
+      attr: 'themes'
+    });
+    this.proximityThemesView.init(this);
 
     this.progressDialogController = new ProgressDialogController();
 
@@ -44,6 +51,7 @@ export default class ProximityAppsController extends Controller {
     this.proximityChanged();
     document.body.appendChild(this.proximityAppsView.el);
     document.body.appendChild(this.proximityAddonsView.el);
+    document.body.appendChild(this.proximityThemesView.el);
 
     P2pService.instance.addEventListener(
       'broadcast', this._broadcastChangedWrapped, true);
@@ -53,6 +61,7 @@ export default class ProximityAppsController extends Controller {
     document.body.removeChild(this.shareSummaryView.el);
     document.body.removeChild(this.proximityAppsView.el);
     document.body.removeChild(this.proximityAddonsView.el);
+    document.body.removeChild(this.proximityThemesView.el);
 
     P2pService.instance.removeEventListener(
       'broadcast', this._broadcastChangedWrapped);
@@ -71,9 +80,14 @@ export default class ProximityAppsController extends Controller {
     var proximityAddons = P2pService.instance.getProximityAddons();
     AppsService.instance.stripInstalledAppsFromProximityApps(
       proximityAddons).then((addons) => {
-      console.log(addons);
       this.proximityAddonsView.render(
         AppsService.instance.flatten(addons, 'addons'));
+    });
+    var proximityThemes = P2pService.instance.getProximityThemes();
+    AppsService.instance.stripInstalledAppsFromProximityApps(
+      proximityThemes).then((themes) => {
+      this.proximityThemesView.render(
+        AppsService.instance.flatten(themes, 'themes'));
     });
   }
 

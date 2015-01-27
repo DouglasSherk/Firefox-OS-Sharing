@@ -28,15 +28,26 @@ export default class AppsService extends Service {
 
     return this._getAppsSubset((app) => {
       return app.manifest.role !== 'system' &&
+             app.manifest.role !== 'addon' &&
+             app.manifest.role !== 'theme' &&
              app.manifest.type !== 'certified' &&
-             excludedApps.indexOf(app.manifest.name) === -1 &&
-             !app.manifest.customizations;
+             excludedApps.indexOf(app.manifest.name) === -1;
     });
   }
 
   getInstalledAddons() {
     return this._getAppsSubset((app) => {
-      return !!app.manifest.customizations;
+      return app.manifest.role === 'addon';
+    });
+  }
+
+  getInstalledThemes() {
+    var excludedThemes =
+      ['Default Theme', 'Test theme 1', 'Test theme 2', 'Broken theme 3'];
+
+    return this._getAppsSubset((app) => {
+      return app.manifest.role === 'theme' &&
+             excludedThemes.indexOf(app.manifest.name) === -1;
     });
   }
 
@@ -89,7 +100,7 @@ export default class AppsService extends Service {
 
   getInstalledApp(appName) {
     return new Promise((resolve, reject) => {
-      this.getInstalledApps().then((apps) => {
+      this.getInstalledAppsAndAddons().then((apps) => {
         for (var i in apps) {
           var app = apps[i];
           if (app.manifest.name === appName) {
@@ -110,7 +121,7 @@ export default class AppsService extends Service {
         for (var peerIndex in peers) {
           var peer = peers[peerIndex];
 
-          ['apps', 'addons'].forEach((appType) => {
+          ['apps', 'addons', 'themes'].forEach((appType) => {
             if (!peer[appType]) {
               return;
             }

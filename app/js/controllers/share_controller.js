@@ -29,6 +29,13 @@ export default class ShareController extends Controller {
       disabled: true
     });
     this.sharedAddonsView.init(this);
+    this.sharedThemesView = new ListView({
+      id: 'shared-themes',
+      title: 'My themes',
+      type: 'toggle',
+      disabled: true
+    });
+    this.sharedThemesView.init(this);
 
     this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
     this._deviceNameChangedWrapped = this.deviceNameChanged.bind(this);
@@ -45,6 +52,11 @@ export default class ShareController extends Controller {
       AppsService.instance.getInstalledAddons().then((addons) => {
         this.sharedAddonsView.render(addons);
         document.body.appendChild(this.sharedAddonsView.el);
+
+        AppsService.instance.getInstalledThemes().then((themes) => {
+          this.sharedThemesView.render(themes);
+          document.body.appendChild(this.sharedThemesView.el);
+        });
       });
     });
 
@@ -59,6 +71,7 @@ export default class ShareController extends Controller {
     document.body.removeChild(this.shareSettingsView.el);
     document.body.removeChild(this.sharedAppsView.el);
     document.body.removeChild(this.sharedAddonsView.el);
+    document.body.removeChild(this.sharedThemesView.el);
 
     P2pService.instance.removeEventListener(
       'broadcast', this._broadcastChangedWrapped);
@@ -76,6 +89,7 @@ export default class ShareController extends Controller {
     this.shareSettingsView.displayBroadcast(broadcast);
     this.sharedAppsView.toggle(!broadcast);
     this.sharedAddonsView.toggle(!broadcast);
+    this.sharedThemesView.toggle(!broadcast);
   }
 
   deviceNameChanged(e) {

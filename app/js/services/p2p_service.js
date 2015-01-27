@@ -47,6 +47,7 @@ export default class P2pService extends Service {
 
     this._proximityApps = [];
     this._proximityAddons = [];
+    this._proximityThemes = [];
 
     /*
     setTimeout(() => {
@@ -102,6 +103,10 @@ export default class P2pService extends Service {
     return this._proximityAddons;
   }
 
+  getProximityThemes() {
+    return this._proximityThemes;
+  }
+
   getProximityApp(appName) {
     function searchForProximityApp(appName, apps) {
       var proximityApp;
@@ -115,7 +120,8 @@ export default class P2pService extends Service {
     }
 
     var retval = searchForProximityApp(appName, this._proximityApps) ||
-                 searchForProximityApp(appName, this._proximityAddons);
+                 searchForProximityApp(appName, this._proximityAddons) ||
+                 searchForProximityApp(appName, this._proximityTheme);
     return retval;
   }
 
@@ -172,6 +178,11 @@ export default class P2pService extends Service {
       this._proximityAddons[address] = peer;
     } else {
       delete this._proximityAddons[address];
+    }
+    if (peer.themes !== undefined) {
+      this._proximityThemes[address] = peer;
+    } else {
+      delete this._proximityThemes[address];
     }
     this._dispatchEvent('proximity');
   }
