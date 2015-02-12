@@ -6,8 +6,7 @@ import ProximityAppsController from 'app/js/controllers/proximity_apps_controlle
 import ShareController from 'app/js/controllers/share_controller';
 import AppController from 'app/js/controllers/app_controller';
 
-//import 'p2p/fxos-web-server.js';
-//import 'p2p/p2p_helper.js';
+import ActivityService from 'app/js/services/activity_service';
 
 export default class MainController extends RoutingController {
   constructor() {
@@ -18,6 +17,9 @@ export default class MainController extends RoutingController {
       'share': new ShareController(),
       'app': new AppController()
     });
+
+    var stub = function() {};
+    stub(ActivityService.instance);
   }
 
   main() {
@@ -28,6 +30,10 @@ export default class MainController extends RoutingController {
   }
 
   handleBack() {
+    if (window.location.hash === '' && window.activityHandled) {
+      window.close();
+    }
+
     window.location.hash = '';
   }
 }

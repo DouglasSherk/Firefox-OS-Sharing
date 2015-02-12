@@ -43,5 +43,17 @@
   },
   "icons": {
     "128": "/icons/Icon_P2P_Sharing.png"
+  },
+  "activities": {
+    "share": {
+      "filters": {
+        "type": {
+          "required": true,
+          "value": "app"
+        }
+      },
+      "disposition": "inline",
+      "href": "/index.html?share"
+    }
   }
 }
