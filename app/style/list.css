@@ -43,7 +43,6 @@ gaia-list.app-list li:last-child {
 
 gaia-list li.subheading {
   height: 2rem;
-  font-size: 1.5rem;
 
   background: #eee;
 }
@@ -77,8 +76,8 @@ gaia-list li h4 {
   text-overflow: ellipsis;
 }
 
-gaia-list li > * {
-  height: 2.4rem;
+gaia-list gaia-loading {
+  min-height: 0 !important;
 }
 
 gaia-list li > :first-child {
@@ -90,7 +89,6 @@ gaia-list li > :nth-child(2) {
 }
 
 gaia-list li a {
-  font-size: 1rem;
   font-style: italic;
   color: #3366bb;
 }

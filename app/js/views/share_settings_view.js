@@ -43,7 +43,7 @@ export default class ShareSettingsView extends View {
         </div>
         <i class="forward-light"></i>
       </li>
-      <li>
+      <li class="borderless">
         <gaia-button disabled class="rename-device">Rename Device</gaia-button>
       </li>
     `;

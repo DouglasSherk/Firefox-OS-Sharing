@@ -24,7 +24,8 @@ export default class AppsService extends Service {
     var excludedApps = ['Marketplace', 'In-app Payment Tester', 'Membuster',
       'Share Receiver', 'Template', 'Test Agent', 'Test receiver#1',
       'Test Receiver#2', 'Test receiver (inline)', 'Test Shared CSS',
-      'UI tests - Privileged App', 'Sheet app 1', 'Sheet app 2', 'Sheet app 3'];
+      'UI tests - Privileged App', 'Sheet app 1', 'Sheet app 2', 'Sheet app 3',
+      'NFC API tests'];
 
     return this._getAppsSubset((app) => {
       return app.manifest.role !== 'system' &&
