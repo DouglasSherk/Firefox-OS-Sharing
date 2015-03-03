@@ -22,6 +22,8 @@ export default class DeviceNameView extends View {
         'opened', this.controller.handleOpened.bind(this.controller));
       this.el.addEventListener(
         'closed', this.controller.handleClosed.bind(this.controller));
+
+      this.inputEl.placeholder = 'Name your device';
     });
   }
 
