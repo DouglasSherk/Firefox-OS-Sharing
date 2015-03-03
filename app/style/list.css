@@ -4,8 +4,8 @@
   padding: 0.3rem;
 
   position: relative;
-  display: flex;
 
+  text-align: right;
   line-height: 3.4rem;
   align-items: center;
 }
@@ -82,10 +82,6 @@ gaia-list gaia-loading {
 
 gaia-list li > :first-child {
   flex: 6;
-}
-
-gaia-list li > :nth-child(2) {
-  flex: 1;
 }
 
 gaia-list li a {
