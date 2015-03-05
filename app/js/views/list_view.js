@@ -9,7 +9,7 @@ import 'gaia-loading/gaia-loading';
 
 export default class ListView extends View {
   constructor(options) {
-    this.el = document.createElement('gaia-list');
+    this.el = document.createElement('div');
     this.el.id = options.id;
     this.el.classList.add('app-list');
     if (options.disabled) {
@@ -26,8 +26,10 @@ export default class ListView extends View {
       '' : '<gaia-loading></gaia-loading>';
     var string = `
       <gaia-sub-header>${this.title}</gaia-sub-header>
-      ${loading}
-      ${template}`;
+      <gaia-list>
+        ${loading}
+        ${template}
+      </gaia-list>`;
     return string;
   }
 

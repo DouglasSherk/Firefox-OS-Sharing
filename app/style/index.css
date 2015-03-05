@@ -15,3 +15,7 @@ body.loading {
   pointer-events: none;
   opacity: 0.5;
 }
+
+gaia-header {
+  margin-bottom: 0.5rem;
+}
