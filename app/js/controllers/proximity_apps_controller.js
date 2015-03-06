@@ -8,27 +8,27 @@ import
   ProgressDialogController from 'app/js/controllers/progress_dialog_controller';
 
 import ShareSummaryView from 'app/js/views/share_summary_view';
-import HierarchicalListView from 'app/js/views/hierarchical_list_view';
+import ListView from 'app/js/views/list_view';
 
 export default class ProximityAppsController extends Controller {
   constructor() {
     this.shareSummaryView = new ShareSummaryView();
     this.shareSummaryView.init(this);
-    this.proximityAppsView = new HierarchicalListView({
+    this.proximityAppsView = new ListView({
       id: 'proximity-apps',
       title: 'Available apps',
       type: 'download',
       attr: 'apps'
     });
     this.proximityAppsView.init(this);
-    this.proximityAddonsView = new HierarchicalListView({
+    this.proximityAddonsView = new ListView({
       id: 'proximity-addons',
       title: 'Available addons',
       type: 'download',
       attr: 'addons'
     });
     this.proximityAddonsView.init(this);
-    this.proximityThemesView = new HierarchicalListView({
+    this.proximityThemesView = new ListView({
       id: 'proximity-themes',
       title: 'Available themes',
       type: 'download',

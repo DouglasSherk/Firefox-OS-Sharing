@@ -162,16 +162,18 @@ export default class AppsService extends Service {
 
   // Adds the address and name fields into each app element.
   flatten(addresses, attr) {
+    var apps = [];
     for (var address in addresses) {
-      var apps = addresses[address][attr];
+      var peerApps = addresses[address][attr];
       var peerName = addresses[address].name;
-      for (var i = 0; i < apps.length; i++) {
-        var app = apps[i];
+      for (var i = 0; i < peerApps.length; i++) {
+        var app = peerApps[i];
         app.address = address;
         app.peerName = peerName;
+        apps.push(app);
       }
     }
-    return addresses;
+    return apps;
   }
 
   _getAppsSubset(subsetCallback) {
