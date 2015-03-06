@@ -4,9 +4,6 @@ import AppsService from 'app/js/services/apps_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
 
-import
-  ProgressDialogController from 'app/js/controllers/progress_dialog_controller';
-
 import ShareSummaryView from 'app/js/views/share_summary_view';
 import ListView from 'app/js/views/list_view';
 
@@ -35,8 +32,6 @@ export default class ProximityAppsController extends Controller {
       attr: 'themes'
     });
     this.proximityThemesView.init(this);
-
-    this.progressDialogController = new ProgressDialogController();
 
     P2pService.instance.addEventListener(
       'proximity', this.proximityChanged.bind(this));
@@ -93,10 +88,14 @@ export default class ProximityAppsController extends Controller {
 
   handleControlClick(e) {
     var url = e.target.dataset.url;
-    this.progressDialogController.main();
+
+    var progressDialogController =
+      window.routingController.controller('progress_dialog');
+    progressDialogController.main();
+
     HttpClientService.instance.downloadApp(url).then(
-      this.progressDialogController.success.bind(this.progressDialogController),
-      this.progressDialogController.error.bind(this.progressDialogController));
+      progressDialogController.success.bind(progressDialogController),
+      progressDialogController.error.bind(progressDialogController));
   }
 
   handleDescriptionClick(e) {

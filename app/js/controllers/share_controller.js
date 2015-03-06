@@ -7,12 +7,8 @@ import DeviceNameService from 'app/js/services/device_name_service';
 import ShareSettingsView from 'app/js/views/share_settings_view';
 import ListView from 'app/js/views/list_view';
 
-import DeviceNameController from 'app/js/controllers/device_name_controller';
-
 export default class ShareController extends Controller {
   constructor() {
-    this.deviceNameController = new DeviceNameController();
-
     this.shareSettingsView = new ShareSettingsView();
     this.shareSettingsView.init(this);
     this.sharedAppsView = new ListView({
@@ -97,6 +93,8 @@ export default class ShareController extends Controller {
   }
 
   handleRenameDevice() {
-    this.deviceNameController.main();
+    var deviceNameController =
+      window.routingController.controller('device_name');
+    deviceNameController.main();
   }
 }

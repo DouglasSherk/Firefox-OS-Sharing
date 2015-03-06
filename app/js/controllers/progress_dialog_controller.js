@@ -2,8 +2,6 @@ import { Controller } from 'fxos-mvc/dist/mvc';
 
 import ProgressDialogView from 'app/js/views/progress_dialog_view';
 
-// XXX/drs: This would be better as a service, or some kind of singleton. We
-// use this in two spots with different dialogs for each.
 export default class ProgressDialogController extends Controller {
   constructor() {
     this.view = new ProgressDialogView();
