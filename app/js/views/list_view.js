@@ -87,12 +87,16 @@ export default class ListView extends View {
     if (this.type === 'toggle') {
       return `<gaia-checkbox class="control"></gaia-checkbox>`;
     } else if (this.type === 'download') {
-      var url = HttpService.instance.getAppDownloadUrl(app);
-      var string = `
-        <a data-url="${url}" class="control">
-          Download
-        </a>`;
-      return string;
+      if (app.installed) {
+        return '<a class="control" disabled>Installed</a>';
+      } else {
+        var url = HttpService.instance.getAppDownloadUrl(app);
+        var string = `
+          <a data-url="${url}" class="control">
+            Download
+          </a>`;
+        return string;
+      }
     }
   }
 

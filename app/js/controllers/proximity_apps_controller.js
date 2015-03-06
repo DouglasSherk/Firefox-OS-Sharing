@@ -73,18 +73,18 @@ export default class ProximityAppsController extends Controller {
 
   proximityChanged() {
     var proximityApps = P2pService.instance.getProximityApps();
-    AppsService.instance.stripInstalledAppsFromProximityApps(
+    AppsService.instance.markInstalledAppsInProximityApps(
       proximityApps).then((apps) => {
       this.proximityAppsView.render(AppsService.instance.flatten(apps, 'apps'));
     });
     var proximityAddons = P2pService.instance.getProximityAddons();
-    AppsService.instance.stripInstalledAppsFromProximityApps(
+    AppsService.instance.markInstalledAppsInProximityApps(
       proximityAddons).then((addons) => {
       this.proximityAddonsView.render(
         AppsService.instance.flatten(addons, 'addons'));
     });
     var proximityThemes = P2pService.instance.getProximityThemes();
-    AppsService.instance.stripInstalledAppsFromProximityApps(
+    AppsService.instance.markInstalledAppsInProximityApps(
       proximityThemes).then((themes) => {
       this.proximityThemesView.render(
         AppsService.instance.flatten(themes, 'themes'));

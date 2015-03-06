@@ -116,7 +116,7 @@ export default class AppsService extends Service {
     });
   }
 
-  stripInstalledAppsFromProximityApps(peers) {
+  markInstalledAppsInProximityApps(peers) {
     return new Promise((resolve, reject) => {
       this.getInstalledAppsAndAddons().then((installedApps) => {
         for (var peerIndex in peers) {
@@ -134,7 +134,7 @@ export default class AppsService extends Service {
               });
 
               if (matchingApp) {
-                peer[appType].splice(i, 1);
+                peer[appType][i].installed = true;
               }
             }
           });
