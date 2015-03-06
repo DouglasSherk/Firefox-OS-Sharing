@@ -26,7 +26,7 @@ export default class MainController extends RoutingController {
     this.view.render();
     super();
     this.route();
-    document.body.classList.remove('loading');
+    document.documentElement.classList.remove('loading');
   }
 
   handleBack() {

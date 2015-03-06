@@ -5,10 +5,15 @@
 body {
   margin: 0;
   font-family: "FiraSans";
+  background: white;
 }
 
-body.loading {
-  background: url(/img/gears.svg) 50% 50%;
+html.loading {
+  height: 100%;
+}
+
+html.loading body {
+  background: black url(/icons/Icon_P2P_Sharing.png) no-repeat center;
 }
 
 [disabled] {
