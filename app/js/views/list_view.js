@@ -38,11 +38,14 @@ export default class ListView extends View {
     // loading indicator when we get any networked apps.
     this.controller._everRendered = true;
 
+    var desc = app.peerName ||
+               (app.manifest.developer && app.manifest.developer.name) ||
+               app.manifest.description || 'No information available';
     var string = `
       <li tabindex="0">
         <div class="description" data-app="${app.manifest.name}">
           <h3>${app.manifest.name}</h3>
-          <h4>${app.peerName || app.manifest.description}</h4>
+          <h4>${desc}</h4>
         </div>
         ${this._control(app)}
       </li>`;

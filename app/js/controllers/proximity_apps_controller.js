@@ -23,7 +23,7 @@ export default class ProximityAppsController extends Controller {
     this.proximityAppsView.init(this);
     this.proximityAddonsView = new ListView({
       id: 'proximity-addons',
-      title: 'Available addons',
+      title: 'Available add-ons',
       type: 'download',
       attr: 'addons'
     });

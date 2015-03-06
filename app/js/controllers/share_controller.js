@@ -24,7 +24,7 @@ export default class ShareController extends Controller {
     this.sharedAppsView.init(this);
     this.sharedAddonsView = new ListView({
       id: 'shared-addons',
-      title: 'My addons',
+      title: 'My add-ons',
       type: 'toggle',
       disabled: true
     });
