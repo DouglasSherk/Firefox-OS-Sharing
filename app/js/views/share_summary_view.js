@@ -7,6 +7,8 @@ export default class ShareSummaryView extends View {
     this.el = document.createElement('gaia-list');
     this.el.id = 'sharing-summary';
     this.el.addEventListener('click', this._handleClick.bind(this));
+
+    this.render();
   }
 
   template() {
@@ -25,7 +27,7 @@ export default class ShareSummaryView extends View {
     super();
 
     setTimeout(() => {
-      this.broadcastElt = document.getElementById('sharing-summary-status');
+      this.broadcastElt = this.$('#sharing-summary-status');
     });
   }
 

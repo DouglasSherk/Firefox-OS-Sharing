@@ -34,32 +34,28 @@ export default class ProximityAppsController extends Controller {
     this.proximityThemesView.init(this);
 
     P2pService.instance.addEventListener(
-      'proximity', this.proximityChanged.bind(this));
+      'broadcast', this.broadcastChanged.bind(this), true);
 
-    this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
+    P2pService.instance.addEventListener(
+      'proximity', this.proximityChanged.bind(this), true);
+
+    this.proximityChanged();
   }
 
   main() {
-    this.shareSummaryView.render();
     document.body.appendChild(this.shareSummaryView.el);
 
-    this.proximityChanged();
     document.body.appendChild(this.proximityAppsView.el);
     document.body.appendChild(this.proximityAddonsView.el);
     document.body.appendChild(this.proximityThemesView.el);
-
-    P2pService.instance.addEventListener(
-      'broadcast', this._broadcastChangedWrapped, true);
   }
 
   teardown() {
     document.body.removeChild(this.shareSummaryView.el);
+
     document.body.removeChild(this.proximityAppsView.el);
     document.body.removeChild(this.proximityAddonsView.el);
     document.body.removeChild(this.proximityThemesView.el);
-
-    P2pService.instance.removeEventListener(
-      'broadcast', this._broadcastChangedWrapped);
   }
 
   broadcastChanged() {

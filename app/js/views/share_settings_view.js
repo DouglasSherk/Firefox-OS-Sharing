@@ -7,23 +7,25 @@ export default class ShareSettingsView extends View {
   constructor() {
     this.el = document.createElement('gaia-list');
     this.el.id = 'share-settings';
+
+    this.render();
   }
 
   render() {
     super();
 
     setTimeout(() => {
-      this.shareEnabledElt = document.getElementById('share-enabled');
+      this.shareEnabledElt = this.$('#share-enabled');
       this.shareEnabledElt.addEventListener(
         'change', this._handleShareEnabledChange.bind(this));
 
-      this.shareDescriptionElt = document.getElementById('share-description');
+      this.shareDescriptionElt = this.$('#share-description');
 
-      this.renameDeviceBtn = this.$('.rename-device');
+      this.renameDeviceBtn = this.$('#rename-device');
       this.renameDeviceBtn.addEventListener(
         'click', this._handleRenameDevice.bind(this));
 
-      this.deviceNameElt = document.getElementById('device-name');
+      this.deviceNameElt = this.$('#device-name');
     });
   }
 
@@ -44,7 +46,7 @@ export default class ShareSettingsView extends View {
         <i class="forward-light"></i>
       </li>
       <li class="borderless">
-        <gaia-button disabled class="rename-device">Rename Device</gaia-button>
+        <gaia-button disabled id="rename-device">Rename Device</gaia-button>
       </li>
     `;
 
