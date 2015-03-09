@@ -1,7 +1,5 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import HttpService from 'app/js/services/http_service';
-
 import 'gaia-list/gaia-list';
 import 'gaia-checkbox/gaia-checkbox';
 import 'gaia-sub-header/gaia-sub-header';
@@ -90,9 +88,8 @@ export default class ListView extends View {
       if (app.installed) {
         return '<a class="control" disabled>Installed</a>';
       } else {
-        var url = HttpService.instance.getAppDownloadUrl(app);
         var string = `
-          <a data-url="${url}" class="control">
+          <a data-id="${app.manifest.origin}" class="control">
             Download
           </a>`;
         return string;

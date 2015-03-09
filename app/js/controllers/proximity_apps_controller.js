@@ -83,15 +83,20 @@ export default class ProximityAppsController extends Controller {
   }
 
   handleControlClick(e) {
-    var url = e.target.dataset.url;
+    var id = e.target.dataset.id;
+    var app = P2pService.instance.getProximityApp({origin: id});
 
-    var progressDialogController =
-      window.routingController.controller('progress_dialog');
-    progressDialogController.main();
+    var confirmDownloadController =
+      window.routingController.controller('confirm_download');
+    confirmDownloadController.open(app, () => {
+      var progressDialogController =
+        window.routingController.controller('progress_dialog');
+      progressDialogController.main();
 
-    HttpClientService.instance.downloadApp(url).then(
-      progressDialogController.success.bind(progressDialogController),
-      progressDialogController.error.bind(progressDialogController));
+      HttpClientService.instance.downloadApp(app).then(
+        progressDialogController.success.bind(progressDialogController),
+        progressDialogController.error.bind(progressDialogController));
+    });
   }
 
   handleDescriptionClick(e) {

@@ -14,8 +14,8 @@ export default class AppController extends Controller {
   main() {
     var appName = window.history.state;
 
-    var app = P2pService.instance.getProximityApp(appName);
-    this.view.render(app);
+    this._app = P2pService.instance.getProximityApp({name: appName});
+    this.view.render(this._app);
     document.body.appendChild(this.view.el);
   }
 
@@ -24,14 +24,16 @@ export default class AppController extends Controller {
   }
 
   _handleClick(e) {
-    var url = e.target.dataset.url;
+    var confirmDownloadController =
+      window.routingController.controller('confirm_download');
+    confirmDownloadController.open(this._app, () => {
+      var progressDialogController =
+        window.routingController.controller('progress_dialog');
+      progressDialogController.main();
 
-    var progressDialogController =
-      window.routingController.controller('progress_dialog');
-    progressDialogController.main();
-
-    HttpClientService.instance.downloadApp(url).then(
-      progressDialogController.success.bind(progressDialogController),
-      progressDialogController.error.bind(progressDialogController));
+      HttpClientService.instance.downloadApp(this._app).then(
+        progressDialogController.success.bind(progressDialogController),
+        progressDialogController.error.bind(progressDialogController));
+    });
   }
 }

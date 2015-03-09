@@ -99,17 +99,19 @@ export default class AppsService extends Service {
     });
   }
 
-  getInstalledApp(appName) {
+  getInstalledApp(filters) {
     return new Promise((resolve, reject) => {
       this.getInstalledAppsAndAddons().then((apps) => {
         for (var i in apps) {
           var app = apps[i];
-          if (app.manifest.name === appName) {
-            resolve(app);
-            return;
+          for (var filter in filters) {
+            if (app.manifest[filter] === filters[filter]) {
+              resolve(app);
+              return;
+            }
           }
         }
-        console.error('No app found by name', appName);
+        console.error('No app found by filters', JSON.stringify(filters));
         reject();
         return;
       }, reject);

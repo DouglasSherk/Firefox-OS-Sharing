@@ -7,7 +7,7 @@ import HttpClientService from 'app/js/services/http_client_service';
 
 // Enable this if you want the device to pretend that it's connected to another
 // device and request its own apps.
-window.TEST_MODE = true;
+window.TEST_MODE = false;
 
 var singletonGuard = {};
 var instance;
@@ -52,10 +52,14 @@ export default class P2pService extends Service {
     /*
     setTimeout(() => {
       this._updatePeerInfo('127.0.0.1', {name: 'localhost', apps: [
-        {manifest: {name: 'Sharing', description: 'doo'}, owner: 'Doug'},
-        {manifest: {name: 'HelloWorld', description: 'too'}, owner: 'Ham'},
-        {manifest: {name: 'Rail Rush', description: 'game'}, owner: 'Gamer'},
-        {manifest: {name: 'test', description: 'ham'}, owner: 'Hurr'}]});
+        {manifest: {name: 'Sharing', description: 'doo', origin: 'abc'},
+         owner: 'Doug'},
+        {manifest: {name: 'HelloWorld', description: 'too', origin: 'def'},
+         owner: 'Ham'},
+        {manifest: {name: 'Rail Rush', description: 'game', origin: 'ghi'},
+         owner: 'Gamer'},
+        {manifest: {name: 'test', description: 'ham', origin: 'jkl'},
+         owner: 'Hurr'}]});
     }, 2000);
 
     setTimeout(() => {
@@ -107,21 +111,31 @@ export default class P2pService extends Service {
     return this._proximityThemes;
   }
 
-  getProximityApp(appName) {
-    function searchForProximityApp(appName, apps) {
+  getProximityApp(filters) {
+    function searchForProximityApp(apps) {
       var proximityApp;
       for (var index in apps) {
         var peer = apps[index];
+
         proximityApp = peer.apps.find((app) => {
-          return app.manifest.name === appName;
+          for (var filter in filters) {
+            if (app.manifest[filter] === filters[filter]) {
+              return true;
+            }
+          }
+          return false;
         });
+
+        if (proximityApp) {
+          break;
+        }
       }
       return proximityApp;
     }
 
-    var retval = searchForProximityApp(appName, this._proximityApps) ||
-                 searchForProximityApp(appName, this._proximityAddons) ||
-                 searchForProximityApp(appName, this._proximityTheme);
+    var retval = searchForProximityApp(this._proximityApps) ||
+                 searchForProximityApp(this._proximityAddons) ||
+                 searchForProximityApp(this._proximityTheme);
     return retval;
   }
 

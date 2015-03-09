@@ -23,7 +23,9 @@ export default class HttpClientService extends Service {
     return instance;
   }
 
-  downloadApp(url) {
+  downloadApp(app) {
+    var url = HttpService.instance.getAppDownloadUrl(app);
+
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
       xhr.open('GET', url);
