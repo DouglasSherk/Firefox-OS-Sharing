@@ -15,17 +15,19 @@ export default class ShareSettingsView extends View {
     super();
 
     setTimeout(() => {
-      this.shareEnabledElt = this.$('#share-enabled');
-      this.shareEnabledElt.addEventListener(
+      this.els = {};
+
+      this.els.shareEnabled = this.$('#share-enabled');
+      this.els.shareEnabled.addEventListener(
         'change', this._handleShareEnabledChange.bind(this));
 
-      this.shareDescriptionElt = this.$('#share-description');
+      this.els.shareDescription = this.$('#share-description');
 
-      this.renameDeviceBtn = this.$('#rename-device');
-      this.renameDeviceBtn.addEventListener(
+      this.els.renameDevice = this.$('#rename-device');
+      this.els.renameDevice.addEventListener(
         'click', this._handleRenameDevice.bind(this));
 
-      this.deviceNameElt = this.$('#device-name');
+      this.els.deviceName = this.$('#device-name');
     });
   }
 
@@ -46,7 +48,9 @@ export default class ShareSettingsView extends View {
         <i class="forward-light"></i>
       </li>
       <li class="borderless">
-        <gaia-button disabled id="rename-device">Rename Device</gaia-button>
+        <button disabled id="rename-device" class="button">
+          Rename Device
+        </button>
       </li>
     `;
 
@@ -55,26 +59,26 @@ export default class ShareSettingsView extends View {
 
   displayBroadcast(enabled) {
     setTimeout(() => {
-      this.shareDescriptionElt.textContent = enabled ?
+      this.els.shareDescription.textContent = enabled ?
         'Sharing On' : 'Turn on to share apps';
 
       if (enabled) {
-        this.shareEnabledElt.setAttribute('checked', '');
+        this.els.shareEnabled.setAttribute('checked', '');
       } else {
-        this.shareEnabledElt.removeAttribute('checked');
+        this.els.shareEnabled.removeAttribute('checked');
       }
     }, 0);
   }
 
   get deviceName() {
     console.error('DONT USE ME LOL!');
-    return this.deviceNameElt.textContent;
+    return this.els.deviceName.textContent;
   }
 
   set deviceName(deviceName) {
     setTimeout(() => {
-      this.renameDeviceBtn.removeAttribute('disabled');
-      this.deviceNameElt.textContent = deviceName;
+      this.els.renameDevice.removeAttribute('disabled');
+      this.els.deviceName.textContent = deviceName;
     });
   }
 
