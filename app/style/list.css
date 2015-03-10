@@ -4,8 +4,6 @@ gaia-list h1 {
 }
 
 gaia-list li {
-  height: 3rem;
-
   margin: 0 0.6rem;
   padding: 0.6rem 0.4rem;
 
@@ -34,15 +32,13 @@ gaia-list li > .description {
   border-bottom: none;
 }
 
-.app-list li a {
+.app-list li .control {
   width: 100%;
-  height: 3.4rem;
   margin-left: 1rem;
 
   position: relative;
 
   text-align: right;
-  line-height: 3.4rem;
   align-items: center;
 }
 
@@ -86,8 +82,8 @@ gaia-list gaia-loading {
 
 gaia-list li > img {
   margin-right: 10px;
-  width: 38px;
-  height: 38px;
+  width: 4rem;
+  height: 4rem;
 }
 
 gaia-list li > img:first-child ~ :nth-child(2),
