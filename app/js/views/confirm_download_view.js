@@ -38,7 +38,7 @@ export default class ConfirmDownloadView extends View {
   }
 
   open(app) {
-    this._icon.src = 'icons/Icon_P2P_Sharing.png';
+    this._icon.src = app.icon;
     this._header.textContent = app.manifest.name;
     this._subheader.textContent =
       (app.manifest.developer && app.manifest.developer.name) ||

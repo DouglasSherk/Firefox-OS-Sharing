@@ -84,7 +84,7 @@ export default class ProximityAppsController extends Controller {
 
   handleControlClick(e) {
     var id = e.target.dataset.id;
-    var app = P2pService.instance.getProximityApp({origin: id});
+    var app = P2pService.instance.getProximityApp({manifestURL: id});
 
     var confirmDownloadController =
       window.routingController.controller('confirm_download');

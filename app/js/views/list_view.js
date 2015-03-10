@@ -42,7 +42,7 @@ export default class ListView extends View {
     var string = `
       <li tabindex="0">
         <img src="${app.icon}"></img>
-        <div class="description" data-app="${app.manifest.name}">
+        <div class="description" data-id="${app.manifestURL}">
           <h3>${app.manifest.name}</h3>
           <h4>${desc}</h4>
         </div>
@@ -90,7 +90,7 @@ export default class ListView extends View {
         return '<a class="control" disabled>Installed</a>';
       } else {
         var string = `
-          <a data-id="${app.manifest.origin}" class="control">
+          <a data-id="${app.manifestURL}" class="control">
             Download
           </a>`;
         return string;

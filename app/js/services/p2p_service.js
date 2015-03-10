@@ -119,7 +119,8 @@ export default class P2pService extends Service {
 
         proximityApp = peer.apps.find((app) => {
           for (var filter in filters) {
-            if (app.manifest[filter] === filters[filter]) {
+            if (app[filter] === filters[filter] ||
+                app.manifest[filter] === filters[filter]) {
               return true;
             }
           }

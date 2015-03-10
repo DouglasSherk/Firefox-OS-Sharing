@@ -61,6 +61,14 @@ gaia-list li.subheading > * {
   flex: initial !important;
 }
 
+gaia-list li h3 {
+  font-size: 1.2rem;
+}
+
+gaia-list li h4 {
+  font-size: 0.9rem;
+}
+
 gaia-list li h3, gaia-list li h4 {
   margin: 0;
 

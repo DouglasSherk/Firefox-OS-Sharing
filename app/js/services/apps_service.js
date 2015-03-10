@@ -105,7 +105,8 @@ export default class AppsService extends Service {
         for (var i in apps) {
           var app = apps[i];
           for (var filter in filters) {
-            if (app.manifest[filter] === filters[filter]) {
+            if (app[filter] === filters[filter] ||
+                app.manifest[filter] === filters[filter]) {
               resolve(app);
               return;
             }
@@ -155,8 +156,9 @@ export default class AppsService extends Service {
         type: app.type,
         manifest: {
           name: app.manifest.name,
-          description: app.manifest.description
+          description: app.manifest.description,
         },
+        manifestURL: app.manifestURL,
         icon: app.icon
       });
     });
