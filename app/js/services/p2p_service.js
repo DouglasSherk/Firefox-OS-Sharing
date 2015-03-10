@@ -51,15 +51,15 @@ export default class P2pService extends Service {
 
     /*
     setTimeout(() => {
-      this._updatePeerInfo('127.0.0.1', {name: 'localhost', apps: [
-        {manifest: {name: 'Sharing', description: 'doo', origin: 'abc'},
-         owner: 'Doug'},
-        {manifest: {name: 'HelloWorld', description: 'too', origin: 'def'},
-         owner: 'Ham'},
-        {manifest: {name: 'Rail Rush', description: 'game', origin: 'ghi'},
-         owner: 'Gamer'},
-        {manifest: {name: 'test', description: 'ham', origin: 'jkl'},
-         owner: 'Hurr'}]});
+      this._updatePeerInfo('127.0.0.1', {name: '', apps: [
+        {manifest: {name: 'Sharing', description: 'doo', origin: 'abc',
+         developer: {name: 'Dougiashdfihajksdhfkashdfkjhkasjhdfasdffd'}}},
+        {manifest: {name: 'HelloWorld', description: 'too', origin: 'def',
+         developer: {name: 'Hammasjdjkfhakshdfjkhaskjd'}}},
+        {manifest: {name: 'Rail Rush', description: 'game', origin: 'ghi',
+         developer: {name: 'Gamer'}}},
+        {manifest: {name: 'test', description: 'ham', origin: 'jkl',
+         developer: {name: 'abcabcacbasdasdasd'}}}]});
     }, 2000);
 
     setTimeout(() => {

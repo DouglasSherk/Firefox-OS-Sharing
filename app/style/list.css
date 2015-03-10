@@ -1,18 +1,3 @@
-#proximity-apps a {
-  width: 100%;
-  height: 3.4rem;
-  padding: 0.3rem;
-
-  position: relative;
-
-  text-align: right;
-  line-height: 3.4rem;
-  align-items: center;
-}
-
-#proximity-apps a:nth-child(odd) {
-}
-
 gaia-list h1 {
   margin: 2rem 0.6rem 0.6rem 0.6rem;
   color: #666;
@@ -33,12 +18,32 @@ gaia-list li {
   font-weight: 100;
 }
 
-gaia-list.app-list li {
+gaia-list li > * {
+  flex: 1;
+}
+
+gaia-list li > .description {
+  overflow: hidden;
+}
+
+.app-list li {
   border-bottom: 1px solid #ddd;
 }
 
-gaia-list.app-list li:last-child {
+.app-list li:last-child {
   border-bottom: none;
+}
+
+.app-list li a {
+  width: 100%;
+  height: 3.4rem;
+  margin-left: 1rem;
+
+  position: relative;
+
+  text-align: right;
+  line-height: 3.4rem;
+  align-items: center;
 }
 
 gaia-list li.subheading {
@@ -62,18 +67,17 @@ gaia-list li.subheading > * {
 
 gaia-list li h3, gaia-list li h4 {
   margin: 0;
-}
 
-gaia-list li h4 {
-  max-width: 13rem;
-
-  font-weight: 100;
+  text-overflow: ellipsis;
 
   overflow: hidden;
   white-space: nowrap;
+}
+
+gaia-list li h4 {
+  font-weight: 100;
 
   color: #777;
-  text-overflow: ellipsis;
 }
 
 gaia-list gaia-loading {

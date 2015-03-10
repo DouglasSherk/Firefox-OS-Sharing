@@ -196,7 +196,10 @@ export default class AppsService extends Service {
           if (subsetCallback(app)) {
             iconPromises.push(new Promise((resolve, reject) => {
               var _app = app;
-              mgmt.getIcon(app, '32').then((icon) => {
+              // XXX/drs: This is higher than we need, but some apps scale have
+              // icons as low as 16px, which look really bad. I'd rather we
+              // scale them down than up.
+              mgmt.getIcon(app, '128').then((icon) => {
                 var fr = new FileReader();
                 fr.addEventListener('loadend', () => {
                   _app.icon = fr.result;
