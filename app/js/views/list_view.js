@@ -41,6 +41,7 @@ export default class ListView extends View {
                app.manifest.description || 'No information available';
     var string = `
       <li tabindex="0">
+        <img src="${app.icon}"></img>
         <div class="description" data-app="${app.manifest.name}">
           <h3>${app.manifest.name}</h3>
           <h4>${desc}</h4>

@@ -80,7 +80,14 @@ gaia-list gaia-loading {
   min-height: 0 !important;
 }
 
-gaia-list li > :first-child {
+gaia-list li > img {
+  margin-right: 10px;
+  width: 38px;
+  height: 38px;
+}
+
+gaia-list li > img:first-child ~ :nth-child(2),
+gaia-list li > :first-child:not(img) {
   flex: 6;
 }
 
