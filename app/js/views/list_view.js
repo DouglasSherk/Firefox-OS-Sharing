@@ -1,7 +1,5 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import HttpService from 'app/js/services/http_service';
-
 import 'gaia-list/gaia-list';
 import 'gaia-checkbox/gaia-checkbox';
 import 'gaia-sub-header/gaia-sub-header';
@@ -9,7 +7,7 @@ import 'gaia-loading/gaia-loading';
 
 export default class ListView extends View {
   constructor(options) {
-    this.el = document.createElement('gaia-list');
+    this.el = document.createElement('div');
     this.el.id = options.id;
     this.el.classList.add('app-list');
     if (options.disabled) {
@@ -26,8 +24,10 @@ export default class ListView extends View {
       '' : '<gaia-loading></gaia-loading>';
     var string = `
       <gaia-sub-header>${this.title}</gaia-sub-header>
-      ${loading}
-      ${template}`;
+      <gaia-list>
+        ${loading}
+        ${template}
+      </gaia-list>`;
     return string;
   }
 
@@ -36,11 +36,14 @@ export default class ListView extends View {
     // loading indicator when we get any networked apps.
     this.controller._everRendered = true;
 
+    var desc = app.peerName ||
+               (app.manifest.developer && app.manifest.developer.name) ||
+               app.manifest.description || 'No information available';
     var string = `
       <li tabindex="0">
         <div class="description" data-app="${app.manifest.name}">
           <h3>${app.manifest.name}</h3>
-          <h4>${app.owner || app.manifest.description}</h4>
+          <h4>${desc}</h4>
         </div>
         ${this._control(app)}
       </li>`;
@@ -82,12 +85,15 @@ export default class ListView extends View {
     if (this.type === 'toggle') {
       return `<gaia-checkbox class="control"></gaia-checkbox>`;
     } else if (this.type === 'download') {
-      var url = HttpService.instance.getAppDownloadUrl(app);
-      var string = `
-        <a data-url="${url}" class="control">
-          Download
-        </a>`;
-      return string;
+      if (app.installed) {
+        return '<a class="control" disabled>Installed</a>';
+      } else {
+        var string = `
+          <a data-id="${app.manifest.origin}" class="control">
+            Download
+          </a>`;
+        return string;
+      }
     }
   }
 

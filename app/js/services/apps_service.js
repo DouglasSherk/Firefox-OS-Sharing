@@ -99,24 +99,26 @@ export default class AppsService extends Service {
     });
   }
 
-  getInstalledApp(appName) {
+  getInstalledApp(filters) {
     return new Promise((resolve, reject) => {
       this.getInstalledAppsAndAddons().then((apps) => {
         for (var i in apps) {
           var app = apps[i];
-          if (app.manifest.name === appName) {
-            resolve(app);
-            return;
+          for (var filter in filters) {
+            if (app.manifest[filter] === filters[filter]) {
+              resolve(app);
+              return;
+            }
           }
         }
-        console.error('No app found by name', appName);
+        console.error('No app found by filters', JSON.stringify(filters));
         reject();
         return;
       }, reject);
     });
   }
 
-  stripInstalledAppsFromProximityApps(peers) {
+  markInstalledAppsInProximityApps(peers) {
     return new Promise((resolve, reject) => {
       this.getInstalledAppsAndAddons().then((installedApps) => {
         for (var peerIndex in peers) {
@@ -134,7 +136,7 @@ export default class AppsService extends Service {
               });
 
               if (matchingApp) {
-                peer[appType].splice(i, 1);
+                peer[appType][i].installed = true;
               }
             }
           });
@@ -162,16 +164,18 @@ export default class AppsService extends Service {
 
   // Adds the address and name fields into each app element.
   flatten(addresses, attr) {
+    var apps = [];
     for (var address in addresses) {
-      var apps = addresses[address][attr];
+      var peerApps = addresses[address][attr];
       var peerName = addresses[address].name;
-      for (var i = 0; i < apps.length; i++) {
-        var app = apps[i];
+      for (var i = 0; i < peerApps.length; i++) {
+        var app = peerApps[i];
         app.address = address;
         app.peerName = peerName;
+        apps.push(app);
       }
     }
-    return addresses;
+    return apps;
   }
 
   _getAppsSubset(subsetCallback) {

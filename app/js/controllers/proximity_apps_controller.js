@@ -4,31 +4,28 @@ import AppsService from 'app/js/services/apps_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
 
-import
-  ProgressDialogController from 'app/js/controllers/progress_dialog_controller';
-
 import ShareSummaryView from 'app/js/views/share_summary_view';
-import HierarchicalListView from 'app/js/views/hierarchical_list_view';
+import ListView from 'app/js/views/list_view';
 
 export default class ProximityAppsController extends Controller {
   constructor() {
     this.shareSummaryView = new ShareSummaryView();
     this.shareSummaryView.init(this);
-    this.proximityAppsView = new HierarchicalListView({
+    this.proximityAppsView = new ListView({
       id: 'proximity-apps',
       title: 'Available apps',
       type: 'download',
       attr: 'apps'
     });
     this.proximityAppsView.init(this);
-    this.proximityAddonsView = new HierarchicalListView({
+    this.proximityAddonsView = new ListView({
       id: 'proximity-addons',
-      title: 'Available addons',
+      title: 'Available add-ons',
       type: 'download',
       attr: 'addons'
     });
     this.proximityAddonsView.init(this);
-    this.proximityThemesView = new HierarchicalListView({
+    this.proximityThemesView = new ListView({
       id: 'proximity-themes',
       title: 'Available themes',
       type: 'download',
@@ -36,35 +33,29 @@ export default class ProximityAppsController extends Controller {
     });
     this.proximityThemesView.init(this);
 
-    this.progressDialogController = new ProgressDialogController();
+    P2pService.instance.addEventListener(
+      'broadcast', this.broadcastChanged.bind(this), true);
 
     P2pService.instance.addEventListener(
-      'proximity', this.proximityChanged.bind(this));
+      'proximity', this.proximityChanged.bind(this), true);
 
-    this._broadcastChangedWrapped = this.broadcastChanged.bind(this);
+    this.proximityChanged();
   }
 
   main() {
-    this.shareSummaryView.render();
     document.body.appendChild(this.shareSummaryView.el);
 
-    this.proximityChanged();
     document.body.appendChild(this.proximityAppsView.el);
     document.body.appendChild(this.proximityAddonsView.el);
     document.body.appendChild(this.proximityThemesView.el);
-
-    P2pService.instance.addEventListener(
-      'broadcast', this._broadcastChangedWrapped, true);
   }
 
   teardown() {
     document.body.removeChild(this.shareSummaryView.el);
+
     document.body.removeChild(this.proximityAppsView.el);
     document.body.removeChild(this.proximityAddonsView.el);
     document.body.removeChild(this.proximityThemesView.el);
-
-    P2pService.instance.removeEventListener(
-      'broadcast', this._broadcastChangedWrapped);
   }
 
   broadcastChanged() {
@@ -73,18 +64,18 @@ export default class ProximityAppsController extends Controller {
 
   proximityChanged() {
     var proximityApps = P2pService.instance.getProximityApps();
-    AppsService.instance.stripInstalledAppsFromProximityApps(
+    AppsService.instance.markInstalledAppsInProximityApps(
       proximityApps).then((apps) => {
       this.proximityAppsView.render(AppsService.instance.flatten(apps, 'apps'));
     });
     var proximityAddons = P2pService.instance.getProximityAddons();
-    AppsService.instance.stripInstalledAppsFromProximityApps(
+    AppsService.instance.markInstalledAppsInProximityApps(
       proximityAddons).then((addons) => {
       this.proximityAddonsView.render(
         AppsService.instance.flatten(addons, 'addons'));
     });
     var proximityThemes = P2pService.instance.getProximityThemes();
-    AppsService.instance.stripInstalledAppsFromProximityApps(
+    AppsService.instance.markInstalledAppsInProximityApps(
       proximityThemes).then((themes) => {
       this.proximityThemesView.render(
         AppsService.instance.flatten(themes, 'themes'));
@@ -92,11 +83,20 @@ export default class ProximityAppsController extends Controller {
   }
 
   handleControlClick(e) {
-    var url = e.target.dataset.url;
-    this.progressDialogController.main();
-    HttpClientService.instance.downloadApp(url).then(
-      this.progressDialogController.success.bind(this.progressDialogController),
-      this.progressDialogController.error.bind(this.progressDialogController));
+    var id = e.target.dataset.id;
+    var app = P2pService.instance.getProximityApp({origin: id});
+
+    var confirmDownloadController =
+      window.routingController.controller('confirm_download');
+    confirmDownloadController.open(app, () => {
+      var progressDialogController =
+        window.routingController.controller('progress_dialog');
+      progressDialogController.main();
+
+      HttpClientService.instance.downloadApp(app).then(
+        progressDialogController.success.bind(progressDialogController),
+        progressDialogController.error.bind(progressDialogController));
+    });
   }
 
   handleDescriptionClick(e) {
