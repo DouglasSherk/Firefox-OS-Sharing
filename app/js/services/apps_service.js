@@ -157,6 +157,9 @@ export default class AppsService extends Service {
         manifest: {
           name: app.manifest.name,
           description: app.manifest.description,
+          developer: {
+            name: (app.manifest.developer && app.manifest.developer.name) || ''
+          }
         },
         manifestURL: app.manifestURL,
         icon: app.icon
