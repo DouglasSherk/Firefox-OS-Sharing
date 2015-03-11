@@ -13,6 +13,10 @@ export default class AppsService extends Service {
     super();
 
     this._getApps();
+
+    var mgmt = navigator.mozApps.mgmt;
+    mgmt.addEventListener('install', (app) => this._handleInstall(app));
+    mgmt.addEventListener('uninstall', (app) => this._handleUninstall(app));
   }
 
   static get instance() {
@@ -198,36 +202,21 @@ export default class AppsService extends Service {
 
       var iconPromises = [];
 
-      var mgmt = navigator.mozApps.mgmt;
-      var req = mgmt.getAll();
-
+      var req = navigator.mozApps.mgmt.getAll();
       req.onsuccess = () => {
         var result = req.result;
 
         for (var index in result) {
           var app = result[index];
-          iconPromises.push(new Promise((resolve, reject) => {
-            var _app = app;
-            // XXX/drs: This is higher than we need, but some apps scale have
-            // icons as low as 16px, which look really bad. I'd rather we
-            // scale them down than up.
-            mgmt.getIcon(app, '128').then(icon => {
-              var fr = new FileReader();
-              fr.addEventListener('loadend', () => {
-                _app.icon = fr.result;
-                this._installedApps.push(_app);
-                resolve();
-              });
-              fr.readAsDataURL(icon);
-            }, () => {
-              _app.icon = 'icons/default.png';
-              this._installedApps.push(_app);
-              resolve();
-            });
-          }));
+          iconPromises.push(new Promise((resolve, reject) =>
+            this._getApp(app, resolve)
+          ));
         }
 
-        Promise.all(iconPromises).then(() => oresolve());
+        Promise.all(iconPromises).then(() => {
+          oresolve();
+          this._dispatchEvent('updated');
+        });
       };
 
       req.onerror = (e) => {
@@ -235,5 +224,46 @@ export default class AppsService extends Service {
         reject(e);
       };
     });
+  }
+
+  _getApp(app, resolve) {
+    // XXX/drs: This is higher than we need, but some apps scale have
+    // icons as low as 16px, which look really bad. I'd rather we
+    // scale them down than up.
+    navigator.mozApps.mgmt.getIcon(app, '128').then(icon => {
+      var fr = new FileReader();
+      fr.addEventListener('loadend', () => {
+        app.icon = fr.result;
+        this._installedApps.push(app);
+        if (resolve) { resolve(); }
+      });
+      fr.readAsDataURL(icon);
+    }, () => {
+      app.icon = 'icons/default.png';
+      this._installedApps.push(app);
+      if (resolve) { resolve(); }
+    });
+  }
+
+  _handleInstall(e) {
+    var app = e.application;
+    if (app.downloading) {
+      var downloaded = () => {
+        app.removeEventListener('downloadsuccess', downloaded);
+        (new Promise((resolve, reject) => {
+          this._getApp(app, resolve);
+        })).then(() => {
+          this._dispatchEvent('updated');
+        });
+      };
+      app.addEventListener('downloadsuccess', downloaded);
+    }
+  }
+
+  _handleUninstall(e) {
+    var app = e.application;
+    this._installedApps = this._installedApps.filter((installedApp) =>
+      app.manifestURL !== installedApp.manifestURL);
+    this._dispatchEvent('updated');
   }
 }
