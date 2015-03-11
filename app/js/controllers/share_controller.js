@@ -34,12 +34,13 @@ export default class ShareController extends Controller {
     this.sharedThemesView.init(this);
 
     P2pService.instance.addEventListener(
-      'broadcast', this.broadcastChanged.bind(this), true);
+      'broadcast', () => this.broadcastChanged(), true);
 
     DeviceNameService.instance.addEventListener(
-      'devicenamechange', this.deviceNameChanged.bind(this), true);
+      'devicenamechange', (e) => this.deviceNameChanged(e), true);
 
-    this.appsChanged();
+    AppsService.instance.addEventListener(
+      'updated', () => this.appsChanged(), true);
 
     this.header = 'Share My Apps';
   }
