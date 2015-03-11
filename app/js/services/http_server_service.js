@@ -41,6 +41,60 @@ export default class HttpServerService extends Service {
     this._broadcast = val;
   }
 
+  _serverIndex(evt) {
+    var response = evt.response;
+
+    Promise.all([AppsService.instance.getInstalledApps(),
+                 AppsService.instance.getInstalledAddons()]).then(results => {
+      var apps = results[0];
+      var addons = results[1];
+      response.send(encodeURIComponent(JSON.stringify({
+        name: this._deviceName,
+        apps: AppsService.instance.pretty(apps),
+        addons: AppsService.instance.pretty(addons)
+      })));
+    });
+  }
+
+  // The client is requesting a manifest for an app. This is used for displaying
+  // a description and other info.
+  _serverManifest(evt) {
+    var response = evt.response;
+    var request = evt.request;
+
+    var appId = decodeURIComponent(request.params.app || '');
+
+    AppsService.instance.getInstalledAppsAndAddons().then((appsAndAddons) => {
+      appsAndAddons.forEach((app) => {
+        if (app.manifestURL === appId) {
+
+          response.headers['Content-Type'] =
+            'application/x-web-app-manifest+json';
+          var manifest = app.manifest;
+          response.send(JSON.stringify(manifest));
+        }
+      });
+    });
+  }
+
+  _serverDownload(evt) {
+    var response = evt.response;
+    var request = evt.request;
+
+    var appId = decodeURIComponent(request.params.app || '');
+
+    AppsService.instance.getInstalledAppsAndAddons().then((appsAndAddons) => {
+      appsAndAddons.forEach((app) => {
+        if (app.manifestURL === appId) {
+          app.export().then((blob) => {
+            response.headers['Content-Type'] = blob.type;
+            response.sendFile(blob);
+          });
+        }
+      });
+    });
+  }
+
   _activate() {
     if (this.httpServer) {
       return;
@@ -57,42 +111,15 @@ export default class HttpServerService extends Service {
       }
 
       var path = request.path;
-      var appId = decodeURIComponent(request.params.app || '');
-      AppsService.instance.getInstalledAppsAndAddons().then((appsAndAddons) => {
-        if (path !== '/') {
-          appsAndAddons.forEach((app) => {
-            if (app.manifestURL === appId) {
-
-              // The client is requesting a manifest for an app. This is used
-              // for displaying a description and other info.
-              if (path === '/manifest.webapp') {
-                response.headers['Content-Type'] =
-                  'application/x-web-app-manifest+json';
-                var manifest = app.manifest;
-                response.send(JSON.stringify(manifest));
-
-              // The client is requesting an app binary.
-              } else if (path === '/download') {
-                app.export().then((blob) => {
-                  response.headers['Content-Type'] = blob.type;
-                  response.sendFile(blob);
-                });
-              }
-            }
-          });
-        // The client is requesting a list of all apps.
-        } else {
-          AppsService.instance.getInstalledApps().then((apps) => {
-            AppsService.instance.getInstalledAddons().then((addons) => {
-              response.send(encodeURIComponent(JSON.stringify({
-                name: this._deviceName,
-                apps: AppsService.instance.pretty(apps),
-                addons: AppsService.instance.pretty(addons)
-              })));
-            });
-          });
-        }
-      });
+      var routes = {
+        '/manifest.webapp': this._serverManifest.bind(this),
+        '/download': this._serverDownload.bind(this),
+        '/': this._serverIndex.bind(this)
+      };
+      var route = routes[path];
+      if (route) {
+        route(evt);
+      }
     });
     this.httpServer.start();
   }
