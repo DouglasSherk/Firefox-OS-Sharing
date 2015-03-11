@@ -4,6 +4,7 @@ import { Service } from 'fxos-mvc/dist/mvc';
 
 import AppsService from 'app/js/services/apps_service';
 import DeviceNameService from 'app/js/services/device_name_service';
+import P2pService from 'app/js/services/p2p_service';
 
 var singletonGuard = {};
 var instance;
@@ -17,11 +18,13 @@ export default class HttpServerService extends Service {
 
     super();
 
-    window.addEventListener('beforeunload', this.deactivate.bind(this));
+    window.addEventListener('beforeunload', this._deactivate.bind(this));
 
     DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
       this._deviceName = e.deviceName;
     }, true);
+
+    this._activate();
   }
 
   static get instance() {
@@ -31,7 +34,7 @@ export default class HttpServerService extends Service {
     return instance;
   }
 
-  activate() {
+  _activate() {
     if (this.httpServer) {
       return;
     }
@@ -40,6 +43,11 @@ export default class HttpServerService extends Service {
     this.httpServer.addEventListener('request', (evt) => {
       var response = evt.response;
       var request = evt.request;
+
+      if (!P2pService.instance.broadcast) {
+        response.send('');
+        return;
+      }
 
       var path = request.path;
       var appName = request.params.app;
@@ -82,7 +90,7 @@ export default class HttpServerService extends Service {
     this.httpServer.start();
   }
 
-  deactivate() {
+  _deactivate() {
     if (!this.httpServer) {
       return;
     }

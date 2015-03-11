@@ -2,7 +2,6 @@ import /* global DNSSD, IPUtils */ 'dns-sd.js/dist/dns-sd';
 
 import { Service } from 'fxos-mvc/dist/mvc';
 
-import HttpServerService from 'app/js/services/http_server_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import IconService from 'app/js/services/icon_service';
 
@@ -109,13 +108,12 @@ export default class P2pService extends Service {
     return retval;
   }
 
+  refreshPeers() {
+    DNSSD.startDiscovery();
+  }
+
   _broadcastLoaded(val) {
     this._broadcast = val;
-    if (this._broadcast) {
-      HttpServerService.instance.activate();
-    } else {
-      HttpServerService.instance.deactivate();
-    }
     this._dispatchEvent('broadcast');
   }
 
@@ -148,7 +146,7 @@ export default class P2pService extends Service {
     DNSSD.startDiscovery();
     setInterval(() => {
       DNSSD.startDiscovery();
-    }, 10000);
+    }, 300000 /* every 5 minutes */);
   }
 
   _updatePeerInfo(address, peer) {
