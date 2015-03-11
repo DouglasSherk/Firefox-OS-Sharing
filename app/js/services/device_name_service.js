@@ -23,7 +23,7 @@ export default class DeviceNameService extends Service {
       var result = request.result['lightsaber.device_name'];
 
       if (result) {
-        this.deviceName = result;
+        this._deviceName = result;
       } else {
         this._setDeviceNameToDefault();
       }
@@ -55,7 +55,8 @@ export default class DeviceNameService extends Service {
   }
 
   get deviceName() {
-    console.error('DONT USE ME LOL!');
+    console.log('this._deviceName: ' + this._deviceName);
+    return this._deviceName;
   }
 
   _setDeviceNameToDefault() {
@@ -63,7 +64,7 @@ export default class DeviceNameService extends Service {
       navigator.mozSettings.createLock().get('deviceinfo.product_model');
 
     request.onsuccess = () => {
-      this.deviceName = request.result['deviceinfo.product_model'];
+      this._deviceName = request.result['deviceinfo.product_model'];
     };
 
     request.onerror = (e) => {

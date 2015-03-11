@@ -95,6 +95,16 @@ export default class HttpServerService extends Service {
     });
   }
 
+  _serverRefresh(evt) {
+    var response = evt.response;
+    var request = evt.request;
+
+    var peerName = request.params.peerName;
+    this._dispatchEvent('refresh', { peerName: peerName });
+
+    response.send('');
+  }
+
   _activate() {
     if (this.httpServer) {
       return;
@@ -114,6 +124,7 @@ export default class HttpServerService extends Service {
       var routes = {
         '/manifest.webapp': this._serverManifest.bind(this),
         '/download': this._serverDownload.bind(this),
+        '/refresh': this._serverRefresh.bind(this),
         '/': this._serverIndex.bind(this)
       };
       var route = routes[path];

@@ -2,6 +2,8 @@ import /* global DNSSD, IPUtils */ 'dns-sd.js/dist/dns-sd';
 
 import { Service } from 'fxos-mvc/dist/mvc';
 
+import AppsService from 'app/js/services/apps_service';
+import DeviceNameService from 'app/js/services/device_name_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import HttpServerService from 'app/js/services/http_server_service';
 import IconService from 'app/js/services/icon_service';
@@ -160,6 +162,58 @@ export default class P2pService extends Service {
     HttpServerService.instance.broadcast = () => {
       return this._broadcast;
     };
+
+    // When we receive a notification from a peer that their app list has
+    // changed, we should request the app list again.
+    //
+    // We could have made apps send their app lists instead, but the retrieval
+    // mechanism was designed when we were using WiFi Direct, where a pull model
+    // made more sense.
+    HttpServerService.instance.addEventListener('refresh', (e) => {
+      var peer = this._getPeer(e.peerName);
+      HttpClientService.instance.requestPeerInfo(peer.address).then((peer) => {
+        this._updatePeerInfo(peer.address, peer);
+      });
+    });
+
+    // XXX/drs: We should really switch to a push model for all acquiring of app
+    // lists. This is really gross.
+    AppsService.instance.addEventListener('updated', () => {
+      var deviceName = DeviceNameService.instance.deviceName;
+      if (!deviceName) {
+        return;
+      }
+
+      var peerAddresses = [];
+      [this._proximityApps, this._proximityAddons,
+       this._proximityThemes].forEach((apps) => {
+        for (var address in apps) {
+          if (peerAddresses.indexOf(address) === -1) {
+            peerAddresses.push(address);
+          }
+        }
+      });
+
+      peerAddresses.forEach(peerAddress =>
+        HttpClientService.instance.notifyPeerInfoUpdated(
+          peerAddress, deviceName));
+    });
+  }
+
+  _getPeer(peerName) {
+    var searchAppListForPeer = (apps) => {
+      for (var address in apps) {
+        var peer = apps[address];
+        if (peer.name === peerName) {
+          return peer;
+        }
+      }
+      return null;
+    };
+
+    return searchAppListForPeer(this._proximityApps) ||
+           searchAppListForPeer(this._proximityAddons) ||
+           searchAppListForPeer(this._proximityThemes);
   }
 
   _updatePeerInfo(address, peer) {

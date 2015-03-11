@@ -33,4 +33,8 @@ export default class HttpClientService extends Service {
     var id = encodeURIComponent(app.manifestURL);
     return `http://${app.address}:8080/manifest?app=${id}`;
   }
+
+  getNotifyPeerInfoUrl(address, deviceName) {
+    return `http://${address}:8080/refresh?peerName=${deviceName}`;
+  }
 }

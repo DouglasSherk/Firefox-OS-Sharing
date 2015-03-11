@@ -247,16 +247,25 @@ export default class AppsService extends Service {
 
   _handleInstall(e) {
     var app = e.application;
+
+    var updateApp = () => {
+      (new Promise((resolve, reject) => {
+        this._installedApps = this._installedApps.filter((installedApp) =>
+          app.manifestURL !== installedApp.manifestURL);
+        this._getApp(app, resolve);
+      })).then(() => {
+        this._dispatchEvent('updated');
+      });
+    };
+
     if (app.downloading) {
       var downloaded = () => {
         app.removeEventListener('downloadsuccess', downloaded);
-        (new Promise((resolve, reject) => {
-          this._getApp(app, resolve);
-        })).then(() => {
-          this._dispatchEvent('updated');
-        });
+        updateApp();
       };
       app.addEventListener('downloadsuccess', downloaded);
+    } else {
+      updateApp();
     }
   }
 

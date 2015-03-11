@@ -57,4 +57,11 @@ export default class HttpClientService extends Service {
       xhr.send();
     });
   }
+
+  notifyPeerInfoUpdated(address, deviceName) {
+    var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
+    xhr.open('GET',
+             HttpService.instance.getNotifyPeerInfoUrl(address, deviceName));
+    xhr.send();
+  }
 }
