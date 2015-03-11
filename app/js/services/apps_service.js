@@ -11,6 +11,8 @@ export default class AppsService extends Service {
     }
 
     super();
+
+    this._getApps();
   }
 
   static get instance() {
@@ -27,7 +29,7 @@ export default class AppsService extends Service {
       'UI tests - Privileged App', 'Sheet app 1', 'Sheet app 2', 'Sheet app 3',
       'NFC API tests'];
 
-    return this._getAppsSubset((app) => {
+    return this._getAppsSubset(app => {
       return app.manifest.role !== 'system' &&
              app.manifest.role !== 'addon' &&
              app.manifest.role !== 'theme' &&
@@ -37,7 +39,7 @@ export default class AppsService extends Service {
   }
 
   getInstalledAddons() {
-    return this._getAppsSubset((app) => {
+    return this._getAppsSubset(app => {
       return app.manifest.role === 'addon';
     });
   }
@@ -46,14 +48,13 @@ export default class AppsService extends Service {
     var excludedThemes =
       ['Default Theme', 'Test theme 1', 'Test theme 2', 'Broken theme 3'];
 
-    return this._getAppsSubset((app) => {
-      return app.manifest.role === 'theme' &&
-             excludedThemes.indexOf(app.manifest.name) === -1;
-    });
+    return this._getAppsSubset(app =>
+      app.manifest.role === 'theme' &&
+      excludedThemes.indexOf(app.manifest.name) === -1);
   }
 
   getInstalledAppsAndAddons() {
-    return this._getAppsSubset((app) => { return true; });
+    return this._getAppsSubset(() => true);
   }
 
   installAppBlob(appData) {
@@ -101,7 +102,7 @@ export default class AppsService extends Service {
 
   getInstalledApp(filters) {
     return new Promise((resolve, reject) => {
-      this.getInstalledAppsAndAddons().then((apps) => {
+      this.getInstalledAppsAndAddons().then(apps => {
         for (var i in apps) {
           var app = apps[i];
           for (var filter in filters) {
@@ -121,11 +122,11 @@ export default class AppsService extends Service {
 
   markInstalledAppsInProximityApps(peers) {
     return new Promise((resolve, reject) => {
-      this.getInstalledAppsAndAddons().then((installedApps) => {
+      this.getInstalledAppsAndAddons().then(installedApps => {
         for (var peerIndex in peers) {
           var peer = peers[peerIndex];
 
-          ['apps', 'addons', 'themes'].forEach((appType) => {
+          ['apps', 'addons', 'themes'].forEach(appType => {
             if (!peer[appType]) {
               return;
             }
@@ -185,8 +186,16 @@ export default class AppsService extends Service {
   }
 
   _getAppsSubset(subsetCallback) {
-    return new Promise((oresolve, reject) => {
-      var installedApps = [];
+    return new Promise((resolve, reject) => {
+      this._initialized.then(() =>
+        resolve(this._installedApps.filter(app => subsetCallback(app))));
+    });
+  }
+
+  _getApps() {
+    this._initialized = new Promise((oresolve, reject) => {
+      this._installedApps = [];
+
       var iconPromises = [];
 
       var mgmt = navigator.mozApps.mgmt;
@@ -195,35 +204,30 @@ export default class AppsService extends Service {
       req.onsuccess = () => {
         var result = req.result;
 
-        // Strip out apps that we shouldn't share.
         for (var index in result) {
           var app = result[index];
-          if (subsetCallback(app)) {
-            iconPromises.push(new Promise((resolve, reject) => {
-              var _app = app;
-              // XXX/drs: This is higher than we need, but some apps scale have
-              // icons as low as 16px, which look really bad. I'd rather we
-              // scale them down than up.
-              mgmt.getIcon(app, '128').then((icon) => {
-                var fr = new FileReader();
-                fr.addEventListener('loadend', () => {
-                  _app.icon = fr.result;
-                  installedApps.push(_app);
-                  resolve();
-                });
-                fr.readAsDataURL(icon);
-              }, () => {
-                _app.icon = 'icons/default.png';
-                installedApps.push(_app);
+          iconPromises.push(new Promise((resolve, reject) => {
+            var _app = app;
+            // XXX/drs: This is higher than we need, but some apps scale have
+            // icons as low as 16px, which look really bad. I'd rather we
+            // scale them down than up.
+            mgmt.getIcon(app, '128').then(icon => {
+              var fr = new FileReader();
+              fr.addEventListener('loadend', () => {
+                _app.icon = fr.result;
+                this._installedApps.push(_app);
                 resolve();
               });
-            }));
-          }
+              fr.readAsDataURL(icon);
+            }, () => {
+              _app.icon = 'icons/default.png';
+              this._installedApps.push(_app);
+              resolve();
+            });
+          }));
         }
 
-        Promise.all(iconPromises).then(() => {
-          oresolve(installedApps);
-        });
+        Promise.all(iconPromises).then(() => oresolve());
       };
 
       req.onerror = (e) => {
