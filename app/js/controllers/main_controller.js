@@ -51,7 +51,11 @@ export default class MainController extends RoutingController {
 
   route() {
     super();
-    this.view.setHeader(this.activeController.header);
+    setTimeout(() => {
+      this.view.setHeader(this.activeController.header);
+      this.view.toggleBackButton(
+        this.activeController !== this._controllers['']);
+    });
   }
 
   back(e) {

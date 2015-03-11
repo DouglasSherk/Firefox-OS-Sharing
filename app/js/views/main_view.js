@@ -5,7 +5,7 @@ import 'gaia-icons/gaia-icons';
 export default class MainView extends View {
   template() {
     var string = `
-      <gaia-header action="back" data-action="back">
+      <gaia-header data-action="back">
         <h1 data-action="developer">P2P Sharing</h1>
       </gaia-header>`;
 
@@ -19,19 +19,27 @@ export default class MainView extends View {
     this.on('contextmenu', 'gaia-header h1');
 
     setTimeout(() => {
-      this.header = this.$('gaia-header h1');
+      this.els = {};
+      this.els.header = this.$('gaia-header');
+      this.els.headerText = this.$('gaia-header h1');
     });
   }
 
   setHeader(text) {
-    if (!this.header) {
+    if (!this.els || !this.els.headerText) {
       return;
     }
 
     if (text) {
-      this.header.textContent = text;
+      this.els.headerText.textContent = text;
     } else {
-      this.header.textContent = 'P2P Sharing';
+      this.els.headerText.textContent = 'P2P Sharing';
+    }
+  }
+
+  toggleBackButton(enable) {
+    if (this.els && this.els.header) {
+      this.els.header.setAttribute('action', enable ? 'back' : '');
     }
   }
 }
