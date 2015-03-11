@@ -9,6 +9,8 @@ export default class AppController extends Controller {
     var appId = window.history.state;
 
     this._app = P2pService.instance.getProximityApp({manifestURL: appId});
+    this.header = this._app && this._app.manifest.name;
+
     AppsService.instance.getInstalledApp({manifestURL: appId}).then((app) => {
       this._app.installed = true;
       this._show();

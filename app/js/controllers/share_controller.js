@@ -40,6 +40,8 @@ export default class ShareController extends Controller {
       'devicenamechange', this.deviceNameChanged.bind(this), true);
 
     this.appsChanged();
+
+    this.header = 'Share My Apps';
   }
 
   main() {

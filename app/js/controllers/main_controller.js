@@ -49,6 +49,11 @@ export default class MainController extends RoutingController {
     document.documentElement.classList.remove('loading');
   }
 
+  route() {
+    super();
+    this.view.setHeader(this.activeController.header);
+  }
+
   back(e) {
     if (e.detail.type !== 'back') {
       return;

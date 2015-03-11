@@ -17,5 +17,21 @@ export default class MainView extends View {
 
     this.on('action', 'gaia-header');
     this.on('contextmenu', 'gaia-header h1');
+
+    setTimeout(() => {
+      this.header = this.$('gaia-header h1');
+    });
+  }
+
+  setHeader(text) {
+    if (!this.header) {
+      return;
+    }
+
+    if (text) {
+      this.header.textContent = text;
+    } else {
+      this.header.textContent = 'P2P Sharing';
+    }
   }
 }
