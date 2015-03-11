@@ -25,10 +25,12 @@ export default class HttpClientService extends Service {
   }
 
   getAppDownloadUrl(app) {
-    return `http://${app.address}:8080/download?app=${app.manifest.name}`;
+    var id = encodeURIComponent(app.manifestURL);
+    return `http://${app.address}:8080/download?app=${id}`;
   }
 
   getAppManifestUrl(app) {
-    return `http://${app.address}:8080/manifest?app=${app.manifest.name}`;
+    var id = encodeURIComponent(app.manifestURL);
+    return `http://${app.address}:8080/manifest?app=${id}`;
   }
 }

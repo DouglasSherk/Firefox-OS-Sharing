@@ -4,7 +4,6 @@ import { Service } from 'fxos-mvc/dist/mvc';
 
 import AppsService from 'app/js/services/apps_service';
 import DeviceNameService from 'app/js/services/device_name_service';
-import P2pService from 'app/js/services/p2p_service';
 
 var singletonGuard = {};
 var instance;
@@ -34,6 +33,14 @@ export default class HttpServerService extends Service {
     return instance;
   }
 
+  get broadcast() {
+    return null;
+  }
+
+  set broadcast(val) {
+    this._broadcast = val;
+  }
+
   _activate() {
     if (this.httpServer) {
       return;
@@ -44,17 +51,17 @@ export default class HttpServerService extends Service {
       var response = evt.response;
       var request = evt.request;
 
-      if (!P2pService.instance.broadcast) {
+      if (!this._broadcast) {
         response.send('');
         return;
       }
 
       var path = request.path;
-      var appName = request.params.app;
+      var appId = decodeURIComponent(request.params.app || '');
       AppsService.instance.getInstalledAppsAndAddons().then((appsAndAddons) => {
         if (path !== '/') {
           appsAndAddons.forEach((app) => {
-            if (app.manifest.name === appName) {
+            if (app.manifestURL === appId) {
 
               // The client is requesting a manifest for an app. This is used
               // for displaying a description and other info.

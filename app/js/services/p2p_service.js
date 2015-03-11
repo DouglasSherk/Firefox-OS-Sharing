@@ -3,6 +3,7 @@ import /* global DNSSD, IPUtils */ 'dns-sd.js/dist/dns-sd';
 import { Service } from 'fxos-mvc/dist/mvc';
 
 import HttpClientService from 'app/js/services/http_client_service';
+import HttpServerService from 'app/js/services/http_server_service';
 import IconService from 'app/js/services/icon_service';
 
 var singletonGuard = {};
@@ -41,14 +42,17 @@ export default class P2pService extends Service {
     this._proximityAddons = [];
     this._proximityThemes = [];
 
-    this._enableP2pConnection();
-
     this._ipAddresses = new Promise((resolve, reject) => {
       IPUtils.getAddresses((ipAddress) => {
         // XXX/drs: This will break if we have multiple IP addresses.
         resolve([ipAddress]);
       });
     });
+
+    this._enableP2pConnection();
+
+    window.addEventListener(
+      'visibilitychange', () => this._enableP2pConnection());
   }
 
   static get instance() {
@@ -147,6 +151,15 @@ export default class P2pService extends Service {
     setInterval(() => {
       DNSSD.startDiscovery();
     }, 300000 /* every 5 minutes */);
+
+    /**
+     * XXX/drs: Why do we have to do this? We should be able to just get this
+     * from HttpServerService, but it keeps getting 'P2pService undefined'
+     * errors when this reference is made.
+     */
+    HttpServerService.instance.broadcast = () => {
+      return this._broadcast;
+    };
   }
 
   _updatePeerInfo(address, peer) {
