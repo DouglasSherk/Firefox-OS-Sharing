@@ -12,6 +12,7 @@ import ProximityAppsController from
   'app/js/controllers/proximity_apps_controller';
 import ShareController from 'app/js/controllers/share_controller';
 
+import AppView from 'app/js/views/app_view';
 import ConfirmDownloadView from 'app/js/views/confirm_download_view';
 
 import ActivityService from 'app/js/services/activity_service';
@@ -25,7 +26,9 @@ export default class MainController extends RoutingController {
 
     super({
       '': indexController,
-      'app': new AppController(),
+      'app': new AppController({
+        view: new AppView()
+      }),
       'confirm_download': new ConfirmDownloadController({
         view: new ConfirmDownloadView()
       }),

@@ -50,10 +50,11 @@ export default class ListView extends View {
     var desc = app.peerName ||
                (app.manifest.developer && app.manifest.developer.name) ||
                app.manifest.description || 'No information available';
-    var toggle = this.type === 'toggle' && 'data-action="toggle"';
+    var toggle = (this.type === 'toggle' && 'data-action="toggle"') || '';
     var string = `
       <li tabindex="0" ${toggle}>
-        <img data-action="description" src="${app.icon}"></img>
+        <img data-action="description" data-id="${app.manifestURL}"
+         src="${app.icon}"></img>
         <div class="description" data-action="description"
          data-id="${app.manifestURL}">
           <h3>${app.manifest.name}</h3>

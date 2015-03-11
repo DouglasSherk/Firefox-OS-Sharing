@@ -1,21 +1,22 @@
 import { Controller } from 'fxos-mvc/dist/mvc';
 
-import AppView from 'app/js/views/app_view';
-
+import AppsService from 'app/js/services/apps_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
 
 export default class AppController extends Controller {
-  constructor() {
-    this.view = new AppView();
-    this.view.init(this);
+  main() {
+    var appId = window.history.state;
+
+    this._app = P2pService.instance.getProximityApp({manifestURL: appId});
+    AppsService.instance.getInstalledApp({manifestURL: appId}).then((app) => {
+      this._app.installed = true;
+      this._show();
+    }, () => this._show());
   }
 
-  main() {
-    var appName = window.history.state;
-
-    this._app = P2pService.instance.getProximityApp({name: appName});
-    this.view.render(this._app);
+  _show() {
+    this.view.show(this._app);
     document.body.appendChild(this.view.el);
   }
 
@@ -23,7 +24,7 @@ export default class AppController extends Controller {
     document.body.removeChild(this.view.el);
   }
 
-  _handleClick(e) {
+  download(e) {
     var confirmDownloadController =
       window.routingController.controller('confirm_download');
     confirmDownloadController.open(this._app, () => {

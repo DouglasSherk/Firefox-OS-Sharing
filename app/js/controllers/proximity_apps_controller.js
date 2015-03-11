@@ -102,9 +102,9 @@ export default class ProximityAppsController extends Controller {
   description(e) {
     // In case the tap hit a child node of the <div> element with the data-app
     // attribute set.
-    var appName = e.target.dataset.app || e.target.parentNode.dataset.app;
+    var appId = e.target.dataset.id || e.target.parentNode.dataset.id;
     window.location.hash = 'app';
-    window.history.pushState(appName, appName);
+    window.history.pushState(appId, appId);
   }
 
   openSharePanel() {
