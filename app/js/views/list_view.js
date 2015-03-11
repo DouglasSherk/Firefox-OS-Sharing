@@ -10,6 +10,7 @@ export default class ListView extends View {
     this.el = document.createElement('div');
     this.el.id = options.id;
     this.el.classList.add('app-list');
+    this.el.classList.add(options.type);
     if (options.disabled) {
       this.el.setAttribute('disabled', true);
     }
@@ -31,6 +32,16 @@ export default class ListView extends View {
     return string;
   }
 
+  render(params) {
+    super(params);
+
+    if (this.type === 'toggle') {
+      this.on('click', '.app-list li');
+    } else {
+      this.on('click', '.app-list li *');
+    }
+  }
+
   template(app) {
     // Hack! Write this to the controller so that all categories lose the
     // loading indicator when we get any networked apps.
@@ -39,38 +50,19 @@ export default class ListView extends View {
     var desc = app.peerName ||
                (app.manifest.developer && app.manifest.developer.name) ||
                app.manifest.description || 'No information available';
+    var toggle = (this.type === 'toggle' && 'data-action="toggle"') || '';
     var string = `
-      <li tabindex="0">
-        <div class="description" data-app="${app.manifest.name}">
+      <li tabindex="0" ${toggle}>
+        <img data-action="description" data-id="${app.manifestURL}"
+         src="${app.icon}"></img>
+        <div class="description" data-action="description"
+         data-id="${app.manifestURL}">
           <h3>${app.manifest.name}</h3>
           <h4>${desc}</h4>
         </div>
         ${this._control(app)}
       </li>`;
     return string;
-  }
-
-  render(params) {
-    super(params);
-
-    setTimeout(() => {
-      this._controls = this.$$('.control');
-      for (var i = 0; i < this._controls.length; i++) {
-        var control = this._controls[i];
-        control.addEventListener('click', this._handleControlClick.bind(this));
-      }
-
-      // Bind click listeners to the description region if displaying a download
-      // list.
-      if (this.type === 'download') {
-        var descriptions = this.$$('.description');
-        for (i = 0; i < descriptions.length; i++) {
-          var description = descriptions[i];
-          description.addEventListener(
-            'click', this._handleDescriptionClick.bind(this));
-        }
-      }
-    });
   }
 
   toggle(enable) {
@@ -83,25 +75,19 @@ export default class ListView extends View {
 
   _control(app) {
     if (this.type === 'toggle') {
-      return `<gaia-checkbox class="control"></gaia-checkbox>`;
+      return '<gaia-checkbox data-action="toggle" class="control">' +
+             '</gaia-checkbox>';
     } else if (this.type === 'download') {
       if (app.installed) {
         return '<a class="control" disabled>Installed</a>';
       } else {
         var string = `
-          <a data-id="${app.manifest.origin}" class="control">
+          <a data-id="${app.manifestURL}" data-action="download"
+           class="control">
             Download
           </a>`;
         return string;
       }
     }
-  }
-
-  _handleControlClick(e) {
-    this.controller.handleControlClick(e);
-  }
-
-  _handleDescriptionClick(e) {
-    this.controller.handleDescriptionClick(e);
   }
 }

@@ -49,7 +49,7 @@ export default class HttpClientService extends Service {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          var peer = JSON.parse(xhr.responseText);
+          var peer = JSON.parse(decodeURIComponent(xhr.responseText));
           resolve(peer);
         }
       };

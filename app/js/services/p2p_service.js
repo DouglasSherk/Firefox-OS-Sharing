@@ -4,10 +4,7 @@ import { Service } from 'fxos-mvc/dist/mvc';
 
 import HttpServerService from 'app/js/services/http_server_service';
 import HttpClientService from 'app/js/services/http_client_service';
-
-// Enable this if you want the device to pretend that it's connected to another
-// device and request its own apps.
-window.TEST_MODE = false;
+import IconService from 'app/js/services/icon_service';
 
 var singletonGuard = {};
 var instance;
@@ -17,10 +14,6 @@ export default class P2pService extends Service {
     if (guard !== singletonGuard) {
       console.error('Cannot create singleton class');
       return;
-    }
-
-    if (window.TEST_MODE) {
-      window.p2p = this;
     }
 
     super();
@@ -48,30 +41,6 @@ export default class P2pService extends Service {
     this._proximityApps = [];
     this._proximityAddons = [];
     this._proximityThemes = [];
-
-    /*
-    setTimeout(() => {
-      this._updatePeerInfo('127.0.0.1', {name: 'localhost', apps: [
-        {manifest: {name: 'Sharing', description: 'doo', origin: 'abc'},
-         owner: 'Doug'},
-        {manifest: {name: 'HelloWorld', description: 'too', origin: 'def'},
-         owner: 'Ham'},
-        {manifest: {name: 'Rail Rush', description: 'game', origin: 'ghi'},
-         owner: 'Gamer'},
-        {manifest: {name: 'test', description: 'ham', origin: 'jkl'},
-         owner: 'Hurr'}]});
-    }, 2000);
-
-    setTimeout(() => {
-      this._updatePeerInfo('192.168.100.100', {name: 'garbage', apps: []});
-    }, 4000);
-    */
-
-    /*if (window.TEST_MODE) {
-      setTimeout(() => {
-        this._addPeer('127.0.0.1');
-      }, 2000);
-    }*/
 
     this._enableP2pConnection();
 
@@ -112,14 +81,15 @@ export default class P2pService extends Service {
   }
 
   getProximityApp(filters) {
-    function searchForProximityApp(apps) {
+    function searchForProximityApp(apps, prop) {
       var proximityApp;
       for (var index in apps) {
         var peer = apps[index];
 
-        proximityApp = peer.apps.find((app) => {
+        proximityApp = peer[prop].find((app) => {
           for (var filter in filters) {
-            if (app.manifest[filter] === filters[filter]) {
+            if (app[filter] === filters[filter] ||
+                app.manifest[filter] === filters[filter]) {
               return true;
             }
           }
@@ -133,9 +103,9 @@ export default class P2pService extends Service {
       return proximityApp;
     }
 
-    var retval = searchForProximityApp(this._proximityApps) ||
-                 searchForProximityApp(this._proximityAddons) ||
-                 searchForProximityApp(this._proximityTheme);
+    var retval = searchForProximityApp(this._proximityApps, 'apps') ||
+                 searchForProximityApp(this._proximityAddons, 'addons') ||
+                 searchForProximityApp(this._proximityThemes, 'themes');
     return retval;
   }
 
@@ -199,5 +169,61 @@ export default class P2pService extends Service {
       delete this._proximityThemes[address];
     }
     this._dispatchEvent('proximity');
+  }
+
+  /**
+   * Debug tool. Used only to insert fake data for testing.
+   */
+  insertFakeData() {
+    var icons = IconService.instance.icons;
+
+    setTimeout(() => {
+      this._updatePeerInfo('127.0.0.1', {name: '', apps: [{
+        manifestURL: 'abc',
+        icon: icons[0],
+        manifest: {
+          name: 'Sharing',
+          description: 'doo',
+          developer: {
+            name: 'Dougiashdfihajksdhfkashdfkjhkasjhdfasdffd'
+          }
+        },
+      }, {
+        manifestURL: 'def',
+        icon: icons[1],
+        manifest: {
+          name: 'HelloWorld',
+          description: 'too',
+          developer: {
+            name: 'Hammasjdjkfhakshdfjkhaskjd'
+          }
+        }
+      }, {
+        manifestURL: 'ghi',
+        icon: icons[2],
+        manifest: {
+          name: 'Rail Rush',
+          description: 'game',
+          developer: {
+            name: 'Gamer'
+          }
+        }
+      }], addons: [{
+        manifestURL: 'jkl',
+        icon: icons[3],
+        role: 'addon',
+        manifest: {
+          name: 'test',
+          description: 'ham',
+          developer: {
+            name: 'abcabcacbasdasdasd'
+          }
+        }
+      }]});
+    }, 0);
+
+    setTimeout(() => {
+      this._updatePeerInfo('192.168.100.100', {name: 'garbage', apps: []});
+    }, 2000);
   }
 }

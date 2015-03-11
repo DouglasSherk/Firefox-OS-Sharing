@@ -105,7 +105,8 @@ export default class AppsService extends Service {
         for (var i in apps) {
           var app = apps[i];
           for (var filter in filters) {
-            if (app.manifest[filter] === filters[filter]) {
+            if (app[filter] === filters[filter] ||
+                app.manifest[filter] === filters[filter]) {
               resolve(app);
               return;
             }
@@ -155,8 +156,13 @@ export default class AppsService extends Service {
         type: app.type,
         manifest: {
           name: app.manifest.name,
-          description: app.manifest.description
-        }
+          description: app.manifest.description,
+          developer: {
+            name: (app.manifest.developer && app.manifest.developer.name) || ''
+          }
+        },
+        manifestURL: app.manifestURL,
+        icon: app.icon
       });
     });
     return prettyApps;
@@ -179,10 +185,12 @@ export default class AppsService extends Service {
   }
 
   _getAppsSubset(subsetCallback) {
-    return new Promise((resolve, reject) => {
+    return new Promise((oresolve, reject) => {
       var installedApps = [];
+      var iconPromises = [];
 
-      var req = navigator.mozApps.mgmt.getAll();
+      var mgmt = navigator.mozApps.mgmt;
+      var req = mgmt.getAll();
 
       req.onsuccess = () => {
         var result = req.result;
@@ -191,11 +199,31 @@ export default class AppsService extends Service {
         for (var index in result) {
           var app = result[index];
           if (subsetCallback(app)) {
-            installedApps.push(app);
+            iconPromises.push(new Promise((resolve, reject) => {
+              var _app = app;
+              // XXX/drs: This is higher than we need, but some apps scale have
+              // icons as low as 16px, which look really bad. I'd rather we
+              // scale them down than up.
+              mgmt.getIcon(app, '128').then((icon) => {
+                var fr = new FileReader();
+                fr.addEventListener('loadend', () => {
+                  _app.icon = fr.result;
+                  installedApps.push(_app);
+                  resolve();
+                });
+                fr.readAsDataURL(icon);
+              }, () => {
+                _app.icon = 'icons/default.png';
+                installedApps.push(_app);
+                resolve();
+              });
+            }));
           }
         }
 
-        resolve(installedApps);
+        Promise.all(iconPromises).then(() => {
+          oresolve(installedApps);
+        });
       };
 
       req.onerror = (e) => {

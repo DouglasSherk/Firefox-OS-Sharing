@@ -1,44 +1,65 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import HttpService from 'app/js/services/http_service';
-
 import 'gaia-button/gaia-button';
 
 export default class AppView extends View {
   constructor() {
     this.el = document.createElement('div');
-    this.el.id = 'appView';
+    this.el.id = 'app-view';
+
+    this.render();
   }
 
   template() {
     var string = `
-      <h1 id="appName"></h1>
-      <h3 id="appOwner"></h3>
-      <p id="appDescription"></p>
-      <gaia-button id="appDownload">Download</gaia-button>
+      <gaia-list class="app-list">
+        <li>
+          <img></img>
+          <div class="description">
+            <h3></h3>
+            <h4></h4>
+          </div>
+          <gaia-button class="control primary" data-action="download">
+            <span></span>
+          </gaia-button>
+        </li>
+      </gaia-list>
+      <p></p>
     `;
     return string;
   }
 
-  render(app) {
+  render() {
     super();
 
     setTimeout(() => {
-      var appNameEl = document.getElementById('appName');
-      var appOwnerEl = document.getElementById('appOwner');
-      var appDescriptionEl = document.getElementById('appDescription');
-      var downloadButtonEl = document.getElementById('appDownload');
+      this.on('click', 'gaia-button');
 
-      appNameEl.textContent = app.manifest.name;
-      appOwnerEl.textContent = 'Provided by ' + app.peerName;
-      appDescriptionEl.textContent = app.manifest.description;
-      downloadButtonEl.dataset.url =
-        HttpService.instance.getAppDownloadUrl(app);
-      downloadButtonEl.addEventListener('click', this._handleClick.bind(this));
+      this.els = {};
+      this.els.icon = this.$('img');
+      this.els.name = this.$('h3');
+      this.els.owner = this.$('h4');
+      this.els.description = this.$('p');
+      this.els.button = this.$('gaia-button[data-action="download"]');
+      this.els.buttonText = this.els.button.querySelector('span');
     });
   }
 
-  _handleClick(e) {
-    this.controller._handleClick(e);
+  show(app) {
+    if (!app) {
+      // If we reload the app while the hash is pointed to this view, we won't
+      // have any apps to display, so let's just go back to the main view.
+      window.location.hash = '';
+      return;
+    }
+
+    this.els.icon.src = app.icon || 'icons/default.png';
+    this.els.name.textContent = app.manifest.name;
+    this.els.owner.textContent =
+      app.manifest.developer && app.manifest.developer.name;
+    this.els.description.textContent = app.manifest.description;
+    this.els.button.dataset.id = app.manifestURL;
+    this.els.button.disabled = app.installed;
+    this.els.buttonText.textContent = app.installed ? 'Installed' : 'Download';
   }
 }

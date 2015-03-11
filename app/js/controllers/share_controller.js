@@ -40,6 +40,8 @@ export default class ShareController extends Controller {
       'devicenamechange', this.deviceNameChanged.bind(this), true);
 
     this.appsChanged();
+
+    this.header = 'Share My Apps';
   }
 
   main() {
@@ -90,5 +92,14 @@ export default class ShareController extends Controller {
     var deviceNameController =
       window.routingController.controller('device_name');
     deviceNameController.main();
+  }
+
+  toggle(e) {
+    var el = e.target.querySelector('.control');
+    el.toggle();
+  }
+
+  description(e) {
+    console.log('description!!!');
   }
 }

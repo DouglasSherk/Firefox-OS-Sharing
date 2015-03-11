@@ -69,11 +69,11 @@ export default class HttpServerService extends Service {
         } else {
           AppsService.instance.getInstalledApps().then((apps) => {
             AppsService.instance.getInstalledAddons().then((addons) => {
-              response.send(JSON.stringify({
+              response.send(encodeURIComponent(JSON.stringify({
                 name: this._deviceName,
                 apps: AppsService.instance.pretty(apps),
                 addons: AppsService.instance.pretty(addons)
-              }));
+              })));
             });
           });
         }
