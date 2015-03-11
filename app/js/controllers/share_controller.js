@@ -91,4 +91,13 @@ export default class ShareController extends Controller {
       window.routingController.controller('device_name');
     deviceNameController.main();
   }
+
+  toggle(e) {
+    var el = e.target.querySelector('.control');
+    el.toggle();
+  }
+
+  description(e) {
+    console.log('description!!!');
+  }
 }

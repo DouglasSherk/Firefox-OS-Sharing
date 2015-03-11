@@ -32,6 +32,11 @@ gaia-list li > .description {
   border-bottom: none;
 }
 
+.app-list.download li .description > *,
+.app-list.toggle li * {
+  pointer-events: none;
+}
+
 .app-list li .control {
   width: 100%;
   margin-left: 1rem;
