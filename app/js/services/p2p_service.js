@@ -2,11 +2,13 @@ import /* global DNSSD, IPUtils */ 'dns-sd.js/dist/dns-sd';
 
 import { Service } from 'fxos-mvc/dist/mvc';
 
+import Peer from 'app/js/models/peer';
+
 import AppsService from 'app/js/services/apps_service';
 import DeviceNameService from 'app/js/services/device_name_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import HttpServerService from 'app/js/services/http_server_service';
-import IconService from 'app/js/services/icon_service';
+/*import IconService from 'app/js/services/icon_service';*/
 
 var singletonGuard = {};
 var instance;
@@ -19,6 +21,8 @@ export default class P2pService extends Service {
     }
 
     super();
+
+    window.p2pService = this;
 
     this._initialized = new Promise((resolve, reject) => {
       navigator.mozSettings.addObserver('lightsaber.p2p_broadcast', (e) => {
@@ -40,9 +44,7 @@ export default class P2pService extends Service {
       };
     });
 
-    this._proximityApps = [];
-    this._proximityAddons = [];
-    this._proximityThemes = [];
+    this._peers = [];
 
     this._ipAddresses = new Promise((resolve, reject) => {
       IPUtils.getAddresses((ipAddress) => {
@@ -54,7 +56,13 @@ export default class P2pService extends Service {
     this._enableP2pConnection();
 
     window.addEventListener(
-      'visibilitychange', () => this._enableP2pConnection());
+      'visibilitychange', () => DNSSD.startDiscovery());
+
+    AppsService.instance.addEventListener(
+      'updated', () => this.resendPeerInfo());
+
+    DeviceNameService.instance.addEventListener(
+      'devicenamechange', (e) => this.resendPeerInfo());
   }
 
   static get instance() {
@@ -73,49 +81,67 @@ export default class P2pService extends Service {
      'lightsaber.p2p_broadcast': enable});
   }
 
-  getProximityApps() {
-    return this._proximityApps;
-  }
-
-  getProximityAddons() {
-    return this._proximityAddons;
-  }
-
-  getProximityThemes() {
-    return this._proximityThemes;
-  }
-
-  getProximityApp(filters) {
-    function searchForProximityApp(apps, prop) {
-      var proximityApp;
-      for (var index in apps) {
-        var peer = apps[index];
-
-        proximityApp = peer[prop].find((app) => {
-          for (var filter in filters) {
-            if (app[filter] === filters[filter] ||
-                app.manifest[filter] === filters[filter]) {
-              return true;
-            }
-          }
-          return false;
-        });
-
-        if (proximityApp) {
-          break;
-        }
-      }
-      return proximityApp;
+  // Reduces an array of this format:
+  // [{name: 'Doug\'s Phone', apps: [{manifest: {...}}, {manifest: {...}}]},
+  //  {name: 'Justin\'s Phone, apps: [{manifest: {...}}, {manifest: {...}}]},
+  //  ...]
+  // To:
+  // [{peer: {name: 'Doug\'s Phone'}, manifest: {...}},
+  //  {peer: {name: 'Doug\'s Phone'}, manifest: {...}},
+  //  {peer: {name: 'Justin\'s Phone'}, manifest: {...}},
+  //  {peer: {name: 'Justin\'s Phone'}, manifest: {...}},
+  //  ...]
+  getApps() {
+    if (!this._peers.length) {
+      return [];
     }
 
-    var retval = searchForProximityApp(this._proximityApps, 'apps') ||
-                 searchForProximityApp(this._proximityAddons, 'addons') ||
-                 searchForProximityApp(this._proximityThemes, 'themes');
-    return retval;
+    var reduceApps = (el) => {
+      var apps = el && el.apps || [];
+      return apps.map(app => {
+        app.peer = el;
+        return app;
+      });
+    };
+
+    if (this._peers.length === 1) {
+      return reduceApps(this._peers[0]);
+    }
+
+    return this._peers.reduce((prev, cur) => {
+      return reduceApps(prev).concat(reduceApps(cur));
+    });
   }
 
-  refreshPeers() {
-    DNSSD.startDiscovery();
+  updatePeerInfo(peer) {
+    for (var i = 0; i < this._peers.length; i++) {
+      if (this._peers[i].address === peer.address) {
+        // This peer has started a new session, so we should clear our cache so
+        // that we send our peer info to them again.
+        if (this._peers[i].session !== peer.session) {
+          HttpClientService.instance.clearPeerCache(peer);
+          Peer.getMe().then(me => {
+            HttpClientService.instance.sendPeerInfo(me, peer);
+          });
+        }
+
+        this._peers[i] = peer;
+        this._dispatchEvent('proximity');
+        return;
+      }
+    }
+
+    HttpClientService.instance.clearPeerCache(peer);
+    this._peers.push(peer);
+    this._dispatchEvent('proximity');
+  }
+
+  resendPeerInfo() {
+    Peer.getMe().then(me => {
+      this._peers.forEach(peer => {
+        HttpClientService.instance.sendPeerInfo(me, peer);
+      });
+    });
   }
 
   _broadcastLoaded(val) {
@@ -143,16 +169,15 @@ export default class P2pService extends Service {
           return;
         }
 
-        HttpClientService.instance.requestPeerInfo(address).then((peer) => {
-          this._updatePeerInfo(address, peer);
+        Peer.getMe().then(me => {
+          HttpClientService.instance.sendPeerInfo(
+            me, {name: '', address: address, apps: []});
         });
       });
     });
 
     DNSSD.startDiscovery();
-    setInterval(() => {
-      DNSSD.startDiscovery();
-    }, 300000 /* every 5 minutes */);
+    setInterval(() => DNSSD.startDiscovery(), 300000 /* every 5 minutes */);
 
     /**
      * XXX/drs: Why do we have to do this? We should be able to just get this
@@ -162,83 +187,12 @@ export default class P2pService extends Service {
     HttpServerService.instance.broadcast = () => {
       return this._broadcast;
     };
-
-    // When we receive a notification from a peer that their app list has
-    // changed, we should request the app list again.
-    //
-    // We could have made apps send their app lists instead, but the retrieval
-    // mechanism was designed when we were using WiFi Direct, where a pull model
-    // made more sense.
-    HttpServerService.instance.addEventListener('refresh', (e) => {
-      var peer = this._getPeer(e.peerName);
-      HttpClientService.instance.requestPeerInfo(peer.address).then((peer) => {
-        this._updatePeerInfo(peer.address, peer);
-      });
-    });
-
-    // XXX/drs: We should really switch to a push model for all acquiring of app
-    // lists. This is really gross.
-    AppsService.instance.addEventListener('updated', () => {
-      var deviceName = DeviceNameService.instance.deviceName;
-      if (!deviceName) {
-        return;
-      }
-
-      var peerAddresses = [];
-      [this._proximityApps, this._proximityAddons,
-       this._proximityThemes].forEach((apps) => {
-        for (var address in apps) {
-          if (peerAddresses.indexOf(address) === -1) {
-            peerAddresses.push(address);
-          }
-        }
-      });
-
-      peerAddresses.forEach(peerAddress =>
-        HttpClientService.instance.notifyPeerInfoUpdated(
-          peerAddress, deviceName));
-    });
-  }
-
-  _getPeer(peerName) {
-    var searchAppListForPeer = (apps) => {
-      for (var address in apps) {
-        var peer = apps[address];
-        if (peer.name === peerName) {
-          return peer;
-        }
-      }
-      return null;
-    };
-
-    return searchAppListForPeer(this._proximityApps) ||
-           searchAppListForPeer(this._proximityAddons) ||
-           searchAppListForPeer(this._proximityThemes);
-  }
-
-  _updatePeerInfo(address, peer) {
-    peer.address = address;
-    if (peer.apps !== undefined) {
-      this._proximityApps[address] = peer;
-    } else {
-      delete this._proximityApps[address];
-    }
-    if (peer.addons !== undefined) {
-      this._proximityAddons[address] = peer;
-    } else {
-      delete this._proximityAddons[address];
-    }
-    if (peer.themes !== undefined) {
-      this._proximityThemes[address] = peer;
-    } else {
-      delete this._proximityThemes[address];
-    }
-    this._dispatchEvent('proximity');
   }
 
   /**
    * Debug tool. Used only to insert fake data for testing.
    */
+  /*
   insertFakeData() {
     var icons = IconService.instance.icons;
 
@@ -291,4 +245,5 @@ export default class P2pService extends Service {
       this._updatePeerInfo('192.168.100.100', {name: 'garbage', apps: []});
     }, 2000);
   }
+  */
 }

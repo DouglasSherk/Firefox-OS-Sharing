@@ -1,5 +1,7 @@
 import { Controller } from 'fxos-mvc/dist/mvc';
 
+import App from 'app/js/models/app';
+
 import AppsService from 'app/js/services/apps_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
@@ -34,12 +36,15 @@ export default class ProximityAppsController extends Controller {
     this.proximityThemesView.init(this);
 
     P2pService.instance.addEventListener(
-      'broadcast', this.broadcastChanged.bind(this), true);
+      'broadcast', () => this._broadcastChanged(), true);
 
     P2pService.instance.addEventListener(
-      'proximity', this.proximityChanged.bind(this), true);
+      'proximity', () => this._proximityChanged(), true);
 
-    this.proximityChanged();
+    AppsService.instance.addEventListener(
+      'updated', () => this._proximityChanged(), true);
+
+    this._proximityChanged();
   }
 
   main() {
@@ -58,33 +63,29 @@ export default class ProximityAppsController extends Controller {
     document.body.removeChild(this.proximityThemesView.el);
   }
 
-  broadcastChanged() {
+  _broadcastChanged() {
     this.shareSummaryView.displayBroadcast(P2pService.instance.broadcast);
   }
 
-  proximityChanged() {
-    var proximityApps = P2pService.instance.getProximityApps();
-    AppsService.instance.markInstalledAppsInProximityApps(
-      proximityApps).then((apps) => {
-      this.proximityAppsView.render(AppsService.instance.flatten(apps, 'apps'));
-    });
-    var proximityAddons = P2pService.instance.getProximityAddons();
-    AppsService.instance.markInstalledAppsInProximityApps(
-      proximityAddons).then((addons) => {
+  _proximityChanged() {
+    var proxApps = P2pService.instance.getApps();
+
+    AppsService.instance.getApps().then(installedApps => {
+      this.proximityAppsView.render(
+        App.markInstalledApps(installedApps, App.filterApps(proxApps)));
+
       this.proximityAddonsView.render(
-        AppsService.instance.flatten(addons, 'addons'));
-    });
-    var proximityThemes = P2pService.instance.getProximityThemes();
-    AppsService.instance.markInstalledAppsInProximityApps(
-      proximityThemes).then((themes) => {
+        App.markInstalledApps(installedApps, App.filterAddons(proxApps)));
+
       this.proximityThemesView.render(
-        AppsService.instance.flatten(themes, 'themes'));
+        App.markInstalledApps(installedApps, App.filterThemes(proxApps)));
     });
   }
 
   download(e) {
     var id = e.target.dataset.id;
-    var app = P2pService.instance.getProximityApp({manifestURL: id});
+    var apps = P2pService.instance.getApps();
+    var app = App.getApp(apps, {manifestURL: id});
 
     var confirmDownloadController =
       window.routingController.controller('confirm_download');

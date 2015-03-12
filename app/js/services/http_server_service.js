@@ -4,6 +4,7 @@ import { Service } from 'fxos-mvc/dist/mvc';
 
 import AppsService from 'app/js/services/apps_service';
 import DeviceNameService from 'app/js/services/device_name_service';
+/*import P2pService from 'app/js/services/p2p_service';*/
 
 var singletonGuard = {};
 var instance;
@@ -43,16 +44,34 @@ export default class HttpServerService extends Service {
 
   _serverIndex(evt) {
     var response = evt.response;
+    var request = evt.request;
 
-    Promise.all([AppsService.instance.getInstalledApps(),
-                 AppsService.instance.getInstalledAddons()]).then(results => {
-      var apps = results[0];
-      var addons = results[1];
-      response.send(encodeURIComponent(JSON.stringify({
-        name: this._deviceName,
-        apps: AppsService.instance.pretty(apps),
-        addons: AppsService.instance.pretty(addons)
-      })));
+    window.request = evt;
+    var data = JSON.parse(request.body);
+    data.address = response.socket.host;
+    // XXX/drs: We get "P2pService undefined" errors if we try using it
+    // directly. I'm not sure why, but it's probably some kind of circular
+    // reference issue. For now, this fixes it, but we should figure out why we
+    // have to do this.
+    window.p2pService.updatePeerInfo(data);
+
+    response.send('');
+  }
+
+  _getAppFromRequest(evt) {
+    return new Promise((resolve, reject) => {
+      var request = evt.request;
+
+      var appId = decodeURIComponent(request.params.app || '');
+
+      AppsService.instance.getApps().then(apps => {
+        apps.forEach(app => {
+          if (app.manifestURL === appId) {
+            resolve(app);
+          }
+        });
+        reject();
+      });
     });
   }
 
@@ -60,37 +79,22 @@ export default class HttpServerService extends Service {
   // a description and other info.
   _serverManifest(evt) {
     var response = evt.response;
-    var request = evt.request;
 
-    var appId = decodeURIComponent(request.params.app || '');
-
-    AppsService.instance.getInstalledAppsAndAddons().then((appsAndAddons) => {
-      appsAndAddons.forEach((app) => {
-        if (app.manifestURL === appId) {
-
-          response.headers['Content-Type'] =
-            'application/x-web-app-manifest+json';
-          var manifest = app.manifest;
-          response.send(JSON.stringify(manifest));
-        }
-      });
+    this._getAppFromRequest(evt).then(app => {
+      response.headers['Content-Type'] =
+        'application/x-web-app-manifest+json';
+      var manifest = app.manifest;
+      response.send(JSON.stringify(manifest));
     });
   }
 
   _serverDownload(evt) {
     var response = evt.response;
-    var request = evt.request;
 
-    var appId = decodeURIComponent(request.params.app || '');
-
-    AppsService.instance.getInstalledAppsAndAddons().then((appsAndAddons) => {
-      appsAndAddons.forEach((app) => {
-        if (app.manifestURL === appId) {
-          app.export().then((blob) => {
-            response.headers['Content-Type'] = blob.type;
-            response.sendFile(blob);
-          });
-        }
+    this._getAppFromRequest(evt).then(app => {
+      app.export().then((blob) => {
+        response.headers['Content-Type'] = blob.type;
+        response.sendFile(blob);
       });
     });
   }

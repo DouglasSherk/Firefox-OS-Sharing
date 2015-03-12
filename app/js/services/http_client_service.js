@@ -1,5 +1,7 @@
 import { Service } from 'fxos-mvc/dist/mvc';
 
+import Peer from 'app/js/models/peer';
+
 import AppsService from 'app/js/services/apps_service';
 import HttpService from 'app/js/services/http_service';
 
@@ -12,6 +14,8 @@ export default class HttpClientService extends Service {
       console.error('Cannot create singleton class');
       return;
     }
+
+    this._cache = {};
 
     super();
   }
@@ -44,24 +48,34 @@ export default class HttpClientService extends Service {
     });
   }
 
-  requestPeerInfo(address) {
-    return new Promise((resolve, reject) => {
-      var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          var peer = JSON.parse(decodeURIComponent(xhr.responseText));
-          resolve(peer);
-        }
-      };
-      xhr.open('GET', HttpService.instance.getPeerUrl(address));
-      xhr.send();
-    });
+  clearPeerCache(peer) {
+    var url = HttpService.instance.getPeerUrl(peer);
+    delete this._cache[url];
   }
 
-  notifyPeerInfoUpdated(address, deviceName) {
-    var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
-    xhr.open('GET',
-             HttpService.instance.getNotifyPeerInfoUrl(address, deviceName));
-    xhr.send();
+  sendPeerInfo(fromPeer, toPeer) {
+    return new Promise((resolve, reject) => {
+      var url = HttpService.instance.getPeerUrl(toPeer);
+      var body = Peer.stringify(fromPeer);
+
+      if (this._cache[url] === body) {
+        resolve();
+        return;
+      }
+
+      var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            this._cache[url] = body;
+            resolve();
+          } else {
+            reject({name: 'HTTP error', message: xhr.status});
+          }
+        }
+      };
+      xhr.open('POST', url);
+      xhr.send(body);
+    });
   }
 }

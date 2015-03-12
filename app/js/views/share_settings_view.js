@@ -19,13 +19,13 @@ export default class ShareSettingsView extends View {
 
       this.els.shareEnabled = this.$('#share-enabled');
       this.els.shareEnabled.addEventListener(
-        'change', this._handleShareEnabledChange.bind(this));
+        'change', e => this._handleShareEnabledChange(e));
 
       this.els.shareDescription = this.$('#share-description');
 
       this.els.renameDevice = this.$('#rename-device');
       this.els.renameDevice.addEventListener(
-        'click', this._handleRenameDevice.bind(this));
+        'click', e => this._handleRenameDevice(e));
 
       this.els.deviceName = this.$('#device-name');
     });
