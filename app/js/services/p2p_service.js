@@ -58,11 +58,14 @@ export default class P2pService extends Service {
     window.addEventListener(
       'visibilitychange', () => DNSSD.startDiscovery());
 
+    window.addEventListener(
+      'beforeunload', () => this._beforeUnload());
+
     AppsService.instance.addEventListener(
-      'updated', () => this.resendPeerInfo());
+      'updated', () => this.sendPeersInfo());
 
     DeviceNameService.instance.addEventListener(
-      'devicenamechange', (e) => this.resendPeerInfo());
+      'devicenamechange', (e) => this.sendPeersInfo());
   }
 
   static get instance() {
@@ -113,16 +116,22 @@ export default class P2pService extends Service {
     });
   }
 
-  updatePeerInfo(peer) {
+  // Setting an address only and no other properties will delete this peer.
+  receivePeerInfo(peer) {
     for (var i = 0; i < this._peers.length; i++) {
       if (this._peers[i].address === peer.address) {
+        if (peer.address && Object.keys(peer).length === 1) {
+          HttpClientService.instance.clearPeerCache(peer);
+          this._peers[i].slice(i, 1);
+          this._dispatchEvent('proximity');
+          return;
+        }
+
         // This peer has started a new session, so we should clear our cache so
         // that we send our peer info to them again.
         if (this._peers[i].session !== peer.session) {
           HttpClientService.instance.clearPeerCache(peer);
-          Peer.getMe().then(me => {
-            HttpClientService.instance.sendPeerInfo(me, peer);
-          });
+          Peer.getMe().then(me => this._sendPeerInfo(me, peer));
         }
 
         this._peers[i] = peer;
@@ -136,12 +145,29 @@ export default class P2pService extends Service {
     this._dispatchEvent('proximity');
   }
 
-  resendPeerInfo() {
-    Peer.getMe().then(me => {
-      this._peers.forEach(peer => {
-        HttpClientService.instance.sendPeerInfo(me, peer);
-      });
-    });
+  _sendPeerInfo(me, peer) {
+    HttpClientService.instance.sendPeerInfo(me, peer).then(
+      // If we get an error getting this peer's information, then discard
+      // the peer.
+      () => {}, () => this._deletePeer(peer));
+  }
+
+  sendPeersInfo() {
+    Peer.getMe().then(me =>
+      this._peers.forEach(peer => this._sendPeerInfo(me, peer)));
+  }
+
+  receivePeerDisconnect(peer) {
+    for (var i = 0; i < this._peers.length; i++) {
+      if (this._peers[i].address === peer.address) {
+        this._peers.splice(i, 1);
+        this._dispatchEvent('proximity');
+      }
+    }
+  }
+
+  _deletePeer(peer) {
+    this.receivePeerInfo({address: peer.address});
   }
 
   _broadcastLoaded(val) {
@@ -170,14 +196,14 @@ export default class P2pService extends Service {
         }
 
         Peer.getMe().then(me => {
-          HttpClientService.instance.sendPeerInfo(
-            me, {name: '', address: address, apps: []});
+          var peer = {address: address};
+          this._sendPeerInfo(me, peer);
         });
       });
     });
 
     DNSSD.startDiscovery();
-    setInterval(() => DNSSD.startDiscovery(), 300000 /* every 5 minutes */);
+    setInterval(() => DNSSD.startDiscovery(), 30000 /* every 30 seconds */);
 
     /**
      * XXX/drs: Why do we have to do this? We should be able to just get this
@@ -187,6 +213,12 @@ export default class P2pService extends Service {
     HttpServerService.instance.broadcast = () => {
       return this._broadcast;
     };
+  }
+
+  _beforeUnload() {
+    this._peers.forEach(peer => {
+      HttpClientService.instance.signalDisconnecting(peer);
+    });
   }
 
   /**

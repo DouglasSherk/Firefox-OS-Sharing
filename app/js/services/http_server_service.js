@@ -46,14 +46,13 @@ export default class HttpServerService extends Service {
     var response = evt.response;
     var request = evt.request;
 
-    window.request = evt;
     var data = JSON.parse(request.body);
     data.address = response.socket.host;
     // XXX/drs: We get "P2pService undefined" errors if we try using it
     // directly. I'm not sure why, but it's probably some kind of circular
     // reference issue. For now, this fixes it, but we should figure out why we
     // have to do this.
-    window.p2pService.updatePeerInfo(data);
+    window.p2pService.receivePeerInfo(data);
 
     response.send('');
   }
@@ -99,12 +98,11 @@ export default class HttpServerService extends Service {
     });
   }
 
-  _serverRefresh(evt) {
+  _serverDisconnect(evt) {
     var response = evt.response;
-    var request = evt.request;
 
-    var peerName = request.params.peerName;
-    this._dispatchEvent('refresh', { peerName: peerName });
+    var address = response.socket.host;
+    window.p2pService.receivePeerDisconnect({address: address});
 
     response.send('');
   }
@@ -126,10 +124,10 @@ export default class HttpServerService extends Service {
 
       var path = request.path;
       var routes = {
-        '/manifest.webapp': this._serverManifest.bind(this),
-        '/download': this._serverDownload.bind(this),
-        '/refresh': this._serverRefresh.bind(this),
-        '/': this._serverIndex.bind(this)
+        '/manifest.webapp': (evt) => this._serverManifest(evt),
+        '/download': (evt) => this._serverDownload(evt),
+        '/disconnect': (evt) => this._serverDisconnect(evt),
+        '/': (evt) => this._serverIndex(evt)
       };
       var route = routes[path];
       if (route) {

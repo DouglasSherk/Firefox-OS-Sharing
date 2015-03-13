@@ -24,6 +24,10 @@ export default class HttpClientService extends Service {
     return `http://${peer.address}:8080`;
   }
 
+  getPeerDisconnectUrl(peer) {
+    return `http://${peer.address}:8080/disconnect`;
+  }
+
   getAppDownloadUrl(app) {
     var id = encodeURIComponent(app.manifestURL);
     return `http://${app.peer.address}:8080/download?app=${id}`;

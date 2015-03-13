@@ -49,8 +49,12 @@ export default class HttpClientService extends Service {
   }
 
   clearPeerCache(peer) {
-    var url = HttpService.instance.getPeerUrl(peer);
-    delete this._cache[url];
+    if (peer !== undefined) {
+      var url = HttpService.instance.getPeerUrl(peer);
+      delete this._cache[url];
+    } else {
+      this._cache = [];
+    }
   }
 
   sendPeerInfo(fromPeer, toPeer) {
@@ -76,6 +80,23 @@ export default class HttpClientService extends Service {
       };
       xhr.open('POST', url);
       xhr.send(body);
+    });
+  }
+
+  signalDisconnecting(peer) {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            resolve();
+          } else {
+            reject({name: 'HTTP error', message: xhr.status});
+          }
+        }
+      };
+      xhr.open('GET', HttpService.instance.getPeerDisconnectUrl(peer));
+      xhr.send();
     });
   }
 }
