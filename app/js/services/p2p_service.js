@@ -66,6 +66,9 @@ export default class P2pService extends Service {
 
     DeviceNameService.instance.addEventListener(
       'devicenamechange', (e) => this.sendPeersInfo());
+
+    HttpClientService.instance.addEventListener(
+      'disconnect', (e) => this.receivePeerInfo({address: e.peer.address}));
   }
 
   static get instance() {

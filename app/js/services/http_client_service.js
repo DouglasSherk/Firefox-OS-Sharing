@@ -36,18 +36,13 @@ export default class HttpClientService extends Service {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
       xhr.open('GET', url);
       xhr.responseType = 'blob';
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            AppsService.instance.installAppBlob(
-              xhr.response).then(resolve, reject);
-          } else {
-            reject({name: 'HTTP error', message: xhr.status});
-          }
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          AppsService.instance.installAppBlob(
+            xhr.response).then(resolve, reject);
         }
       };
-      xhr.timeout = TIMEOUT;
-      xhr.ontimeout = () => reject({name: 'Timeout'});
+      this._xhrAttachErrorListeners(xhr, reject, app.peer);
       xhr.send();
     });
   }
@@ -74,18 +69,13 @@ export default class HttpClientService extends Service {
         url = HttpService.instance.getPeerPingUrl(toPeer);
       }
       xhr.open(isCacheHit ? 'GET' : 'POST', url);
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            this._cache[url] = body;
-            resolve();
-          } else {
-            reject({name: 'HTTP error', message: xhr.status});
-          }
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          this._cache[url] = body;
+          resolve();
         }
       };
-      xhr.timeout = TIMEOUT;
-      xhr.ontimeout = () => reject({name: 'Timeout'});
+      this._xhrAttachErrorListeners(xhr, reject, toPeer);
       xhr.send(isCacheHit ? '' : body);
     });
   }
@@ -93,19 +83,26 @@ export default class HttpClientService extends Service {
   signalDisconnecting(peer) {
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            resolve();
-          } else {
-            reject({name: 'HTTP error', message: xhr.status});
-          }
-        }
-      };
       xhr.open('GET', HttpService.instance.getPeerDisconnectUrl(peer));
-      xhr.timeout = TIMEOUT;
-      xhr.ontimeout = () => reject({name: 'Timeout'});
       xhr.send();
+    });
+  }
+
+  _xhrAttachErrorListeners(xhr, reject, peer) {
+    xhr.timeout = TIMEOUT;
+    xhr.ontimeout = () => {
+      reject({name: 'Timeout'});
+      this._dispatchEvent('disconnect', {peer: peer});
+    };
+    xhr.onerror = () => {
+      reject({name: 'Network error'});
+      this._dispatchEvent('disconnect', {peer: peer});
+    };
+    xhr.addEventListener('load', () => {
+      if (xhr.status !== 200) {
+        reject({name: 'HTTP error', message: xhr.status});
+        this._dispatchEvent('disconnect', {peer: peer});
+      }
     });
   }
 }
