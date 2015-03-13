@@ -1,5 +1,7 @@
 import { Controller } from 'fxos-mvc/dist/mvc';
 
+import App from 'app/js/models/app';
+
 import P2pService from 'app/js/services/p2p_service';
 import AppsService from 'app/js/services/apps_service';
 import DeviceNameService from 'app/js/services/device_name_service';
@@ -37,7 +39,7 @@ export default class ShareController extends Controller {
       'broadcast', () => this.broadcastChanged(), true);
 
     DeviceNameService.instance.addEventListener(
-      'devicenamechange', (e) => this.deviceNameChanged(e), true);
+      'devicenamechange', e => this.deviceNameChanged(e), true);
 
     AppsService.instance.addEventListener(
       'updated', () => this.appsChanged(), true);
@@ -60,16 +62,10 @@ export default class ShareController extends Controller {
   }
 
   appsChanged() {
-    AppsService.instance.getInstalledApps().then((apps) => {
-      this.sharedAppsView.render(apps);
-    });
-
-    AppsService.instance.getInstalledAddons().then((addons) => {
-      this.sharedAddonsView.render(addons);
-    });
-
-    AppsService.instance.getInstalledThemes().then((themes) => {
-      this.sharedThemesView.render(themes);
+    AppsService.instance.getApps().then(apps => {
+      this.sharedAppsView.render(App.filterApps(apps));
+      this.sharedAddonsView.render(App.filterAddons(apps));
+      this.sharedThemesView.render(App.filterThemes(apps));
     });
   }
 
@@ -101,6 +97,6 @@ export default class ShareController extends Controller {
   }
 
   description(e) {
-    console.log('description!!!');
+    // Everything gets handled by `toggle()`.
   }
 }

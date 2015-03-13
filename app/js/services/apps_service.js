@@ -1,5 +1,7 @@
 import { Service } from 'fxos-mvc/dist/mvc';
 
+import App from 'app/js/models/app';
+
 var singletonGuard = {};
 var instance;
 
@@ -12,6 +14,7 @@ export default class AppsService extends Service {
 
     super();
 
+    this._apps = [];
     this._getApps();
 
     var mgmt = navigator.mozApps.mgmt;
@@ -24,41 +27,6 @@ export default class AppsService extends Service {
       instance = new this(singletonGuard);
     }
     return instance;
-  }
-
-  getInstalledApps() {
-    var excludedApps = ['Marketplace', 'In-app Payment Tester', 'Membuster',
-      'Share Receiver', 'Template', 'Test Agent', 'Test receiver#1',
-      'Test Receiver#2', 'Test receiver (inline)', 'Test Shared CSS',
-      'UI tests - Privileged App', 'Sheet app 1', 'Sheet app 2', 'Sheet app 3',
-      'NFC API tests'];
-
-    return this._getAppsSubset(app => {
-      return app.manifest.role !== 'system' &&
-             app.manifest.role !== 'addon' &&
-             app.manifest.role !== 'theme' &&
-             app.manifest.type !== 'certified' &&
-             excludedApps.indexOf(app.manifest.name) === -1;
-    });
-  }
-
-  getInstalledAddons() {
-    return this._getAppsSubset(app => {
-      return app.manifest.role === 'addon';
-    });
-  }
-
-  getInstalledThemes() {
-    var excludedThemes =
-      ['Default Theme', 'Test theme 1', 'Test theme 2', 'Broken theme 3'];
-
-    return this._getAppsSubset(app =>
-      app.manifest.role === 'theme' &&
-      excludedThemes.indexOf(app.manifest.name) === -1);
-  }
-
-  getInstalledAppsAndAddons() {
-    return this._getAppsSubset(() => true);
   }
 
   installAppBlob(appData) {
@@ -104,29 +72,13 @@ export default class AppsService extends Service {
     });
   }
 
-  getInstalledApp(filters) {
-    return new Promise((resolve, reject) => {
-      this.getInstalledAppsAndAddons().then(apps => {
-        for (var i in apps) {
-          var app = apps[i];
-          for (var filter in filters) {
-            if (app[filter] === filters[filter] ||
-                app.manifest[filter] === filters[filter]) {
-              resolve(app);
-              return;
-            }
-          }
-        }
-        console.error('No app found by filters', JSON.stringify(filters));
-        reject();
-        return;
-      }, reject);
-    });
-  }
-
   markInstalledAppsInProximityApps(peers) {
     return new Promise((resolve, reject) => {
-      this.getInstalledAppsAndAddons().then(installedApps => {
+      this._getApps().then(() => {
+        resolve(peers);
+      });
+    });
+    /*
         for (var peerIndex in peers) {
           var peer = peers[peerIndex];
 
@@ -137,7 +89,7 @@ export default class AppsService extends Service {
 
             for (var i = peer[appType].length - 1; i >= 0; i--) {
               var app = peer[appType][i];
-              var matchingApp = installedApps.find((installedApp) => {
+              var matchingApp = this._apps.find((installedApp) => {
                 return installedApp.manifest.name === app.manifest.name;
               });
 
@@ -150,79 +102,14 @@ export default class AppsService extends Service {
         resolve(peers);
       });
     });
+    */
   }
 
-  // Helper method to flatten an app manifest down to only the fields necessary
-  // for networking.
-  pretty(apps) {
-    var prettyApps = [];
-    apps.forEach((app) => {
-      prettyApps.push({
-        type: app.type,
-        manifest: {
-          name: app.manifest.name,
-          description: app.manifest.description,
-          developer: {
-            name: (app.manifest.developer && app.manifest.developer.name) || ''
-          }
-        },
-        manifestURL: app.manifestURL,
-        icon: app.icon
-      });
-    });
-    return prettyApps;
-  }
-
-  // Adds the address and name fields into each app element.
-  flatten(addresses, attr) {
-    var apps = [];
-    for (var address in addresses) {
-      var peerApps = addresses[address][attr];
-      var peerName = addresses[address].name;
-      for (var i = 0; i < peerApps.length; i++) {
-        var app = peerApps[i];
-        app.address = address;
-        app.peerName = peerName;
-        apps.push(app);
-      }
-    }
-    return apps;
-  }
-
-  _getAppsSubset(subsetCallback) {
+  getApps() {
     return new Promise((resolve, reject) => {
-      this._initialized.then(() =>
-        resolve(this._installedApps.filter(app => subsetCallback(app))));
-    });
-  }
-
-  _getApps() {
-    this._initialized = new Promise((oresolve, reject) => {
-      this._installedApps = [];
-
-      var iconPromises = [];
-
-      var req = navigator.mozApps.mgmt.getAll();
-      req.onsuccess = () => {
-        var result = req.result;
-
-        for (var index in result) {
-          var app = result[index];
-          iconPromises.push(new Promise((resolve, reject) =>
-            this._getApp(app, resolve)
-          ));
-        }
-
-        Promise.all(iconPromises).then(() => {
-          oresolve();
-          this._dispatchEvent('updated');
-        });
-      };
-
-      req.onerror = (e) => {
-        console.error('error fetching installed apps: ', e);
-        reject(e);
-      };
+      this._getApps().then(() => {
+        resolve(this._apps);
+      }, reject);
     });
   }
 
@@ -234,35 +121,79 @@ export default class AppsService extends Service {
       var fr = new FileReader();
       fr.addEventListener('loadend', () => {
         app.icon = fr.result;
-        this._installedApps.push(app);
+        this._apps.push(app);
         if (resolve) { resolve(); }
       });
       fr.readAsDataURL(icon);
     }, () => {
       app.icon = 'icons/default.png';
-      this._installedApps.push(app);
+      this._apps.push(app);
       if (resolve) { resolve(); }
     });
   }
 
+  _getApps() {
+    if (!this._initialized) {
+      this._initialized = new Promise((oresolve, reject) => {
+        this._apps = [];
+
+        var iconPromises = [];
+
+        var req = navigator.mozApps.mgmt.getAll();
+        req.onsuccess = () => {
+          var result = req.result;
+
+          for (var index in result) {
+            var app = result[index];
+            iconPromises.push(new Promise((resolve, reject) =>
+              this._getApp(app, resolve)
+            ));
+          }
+
+          Promise.all(iconPromises).then(() => {
+            this._apps = App.filterDefaults(this._apps);
+            oresolve(this._apps);
+            this._dispatchEvent('updated');
+          });
+        };
+
+        req.onerror = (e) => {
+          console.error('error fetching installed apps: ', e);
+          reject(e);
+        };
+      });
+    }
+
+    return this._initialized;
+  }
+
   _handleInstall(e) {
     var app = e.application;
+
+    var updateApp = () => {
+      (new Promise((resolve, reject) => {
+        this._apps = this._apps.filter((installedApp) =>
+          app.manifestURL !== installedApp.manifestURL);
+        this._getApp(app, resolve);
+      })).then(() => {
+        this._dispatchEvent('updated');
+      });
+    };
+
     if (app.downloading) {
       var downloaded = () => {
         app.removeEventListener('downloadsuccess', downloaded);
-        (new Promise((resolve, reject) => {
-          this._getApp(app, resolve);
-        })).then(() => {
-          this._dispatchEvent('updated');
-        });
+        updateApp();
       };
       app.addEventListener('downloadsuccess', downloaded);
+    } else {
+      updateApp();
     }
   }
 
   _handleUninstall(e) {
     var app = e.application;
-    this._installedApps = this._installedApps.filter((installedApp) =>
+    this._apps = this._apps.filter((installedApp) =>
       app.manifestURL !== installedApp.manifestURL);
     this._dispatchEvent('updated');
   }

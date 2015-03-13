@@ -47,7 +47,7 @@ export default class ListView extends View {
     // loading indicator when we get any networked apps.
     this.controller._everRendered = true;
 
-    var desc = app.peerName ||
+    var desc = (app.peer && app.peer.name) ||
                (app.manifest.developer && app.manifest.developer.name) ||
                app.manifest.description || 'No information available';
     var toggle = (this.type === 'toggle' && 'data-action="toggle"') || '';

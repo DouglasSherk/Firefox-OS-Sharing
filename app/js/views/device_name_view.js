@@ -16,19 +16,15 @@ export default class DeviceNameView extends View {
       this.inputEl = this.el.els.input;
 
       this.submitButtonEl.addEventListener(
-        'click', this.controller.handleSubmit.bind(this.controller));
+        'click', e => this.controller.handleSubmit(e));
 
       this.el.addEventListener(
-        'opened', this.controller.handleOpened.bind(this.controller));
+        'opened', e => this.controller.handleOpened(e));
       this.el.addEventListener(
-        'closed', this.controller.handleClosed.bind(this.controller));
+        'closed', e => this.controller.handleClosed(e));
 
       this.inputEl.placeholder = 'Name your device';
     });
-  }
-
-  _handleSubmit(e) {
-    this.controller.handleSubmit();
   }
 
   get value() {

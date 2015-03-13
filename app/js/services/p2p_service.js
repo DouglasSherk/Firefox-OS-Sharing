@@ -2,9 +2,13 @@ import /* global DNSSD, IPUtils */ 'dns-sd.js/dist/dns-sd';
 
 import { Service } from 'fxos-mvc/dist/mvc';
 
-import HttpServerService from 'app/js/services/http_server_service';
+import Peer from 'app/js/models/peer';
+
+import AppsService from 'app/js/services/apps_service';
+import DeviceNameService from 'app/js/services/device_name_service';
 import HttpClientService from 'app/js/services/http_client_service';
-import IconService from 'app/js/services/icon_service';
+import HttpServerService from 'app/js/services/http_server_service';
+/*import IconService from 'app/js/services/icon_service';*/
 
 var singletonGuard = {};
 var instance;
@@ -17,6 +21,8 @@ export default class P2pService extends Service {
     }
 
     super();
+
+    window.p2pService = this;
 
     this._initialized = new Promise((resolve, reject) => {
       navigator.mozSettings.addObserver('lightsaber.p2p_broadcast', (e) => {
@@ -38,11 +44,7 @@ export default class P2pService extends Service {
       };
     });
 
-    this._proximityApps = [];
-    this._proximityAddons = [];
-    this._proximityThemes = [];
-
-    this._enableP2pConnection();
+    this._peers = [];
 
     this._ipAddresses = new Promise((resolve, reject) => {
       IPUtils.getAddresses((ipAddress) => {
@@ -50,6 +52,17 @@ export default class P2pService extends Service {
         resolve([ipAddress]);
       });
     });
+
+    this._enableP2pConnection();
+
+    window.addEventListener(
+      'visibilitychange', () => DNSSD.startDiscovery());
+
+    AppsService.instance.addEventListener(
+      'updated', () => this.resendPeerInfo());
+
+    DeviceNameService.instance.addEventListener(
+      'devicenamechange', (e) => this.resendPeerInfo());
   }
 
   static get instance() {
@@ -68,54 +81,71 @@ export default class P2pService extends Service {
      'lightsaber.p2p_broadcast': enable});
   }
 
-  getProximityApps() {
-    return this._proximityApps;
-  }
-
-  getProximityAddons() {
-    return this._proximityAddons;
-  }
-
-  getProximityThemes() {
-    return this._proximityThemes;
-  }
-
-  getProximityApp(filters) {
-    function searchForProximityApp(apps, prop) {
-      var proximityApp;
-      for (var index in apps) {
-        var peer = apps[index];
-
-        proximityApp = peer[prop].find((app) => {
-          for (var filter in filters) {
-            if (app[filter] === filters[filter] ||
-                app.manifest[filter] === filters[filter]) {
-              return true;
-            }
-          }
-          return false;
-        });
-
-        if (proximityApp) {
-          break;
-        }
-      }
-      return proximityApp;
+  // Reduces an array of this format:
+  // [{name: 'Doug\'s Phone', apps: [{manifest: {...}}, {manifest: {...}}]},
+  //  {name: 'Justin\'s Phone, apps: [{manifest: {...}}, {manifest: {...}}]},
+  //  ...]
+  // To:
+  // [{peer: {name: 'Doug\'s Phone'}, manifest: {...}},
+  //  {peer: {name: 'Doug\'s Phone'}, manifest: {...}},
+  //  {peer: {name: 'Justin\'s Phone'}, manifest: {...}},
+  //  {peer: {name: 'Justin\'s Phone'}, manifest: {...}},
+  //  ...]
+  getApps() {
+    if (!this._peers.length) {
+      return [];
     }
 
-    var retval = searchForProximityApp(this._proximityApps, 'apps') ||
-                 searchForProximityApp(this._proximityAddons, 'addons') ||
-                 searchForProximityApp(this._proximityThemes, 'themes');
-    return retval;
+    var reduceApps = (el) => {
+      var apps = el && el.apps || [];
+      return apps.map(app => {
+        app.peer = el;
+        return app;
+      });
+    };
+
+    if (this._peers.length === 1) {
+      return reduceApps(this._peers[0]);
+    }
+
+    return this._peers.reduce((prev, cur) => {
+      return reduceApps(prev).concat(reduceApps(cur));
+    });
+  }
+
+  updatePeerInfo(peer) {
+    for (var i = 0; i < this._peers.length; i++) {
+      if (this._peers[i].address === peer.address) {
+        // This peer has started a new session, so we should clear our cache so
+        // that we send our peer info to them again.
+        if (this._peers[i].session !== peer.session) {
+          HttpClientService.instance.clearPeerCache(peer);
+          Peer.getMe().then(me => {
+            HttpClientService.instance.sendPeerInfo(me, peer);
+          });
+        }
+
+        this._peers[i] = peer;
+        this._dispatchEvent('proximity');
+        return;
+      }
+    }
+
+    HttpClientService.instance.clearPeerCache(peer);
+    this._peers.push(peer);
+    this._dispatchEvent('proximity');
+  }
+
+  resendPeerInfo() {
+    Peer.getMe().then(me => {
+      this._peers.forEach(peer => {
+        HttpClientService.instance.sendPeerInfo(me, peer);
+      });
+    });
   }
 
   _broadcastLoaded(val) {
     this._broadcast = val;
-    if (this._broadcast) {
-      HttpServerService.instance.activate();
-    } else {
-      HttpServerService.instance.deactivate();
-    }
     this._dispatchEvent('broadcast');
   }
 
@@ -139,41 +169,30 @@ export default class P2pService extends Service {
           return;
         }
 
-        HttpClientService.instance.requestPeerInfo(address).then((peer) => {
-          this._updatePeerInfo(address, peer);
+        Peer.getMe().then(me => {
+          HttpClientService.instance.sendPeerInfo(
+            me, {name: '', address: address, apps: []});
         });
       });
     });
 
     DNSSD.startDiscovery();
-    setInterval(() => {
-      DNSSD.startDiscovery();
-    }, 10000);
-  }
+    setInterval(() => DNSSD.startDiscovery(), 300000 /* every 5 minutes */);
 
-  _updatePeerInfo(address, peer) {
-    peer.address = address;
-    if (peer.apps !== undefined) {
-      this._proximityApps[address] = peer;
-    } else {
-      delete this._proximityApps[address];
-    }
-    if (peer.addons !== undefined) {
-      this._proximityAddons[address] = peer;
-    } else {
-      delete this._proximityAddons[address];
-    }
-    if (peer.themes !== undefined) {
-      this._proximityThemes[address] = peer;
-    } else {
-      delete this._proximityThemes[address];
-    }
-    this._dispatchEvent('proximity');
+    /**
+     * XXX/drs: Why do we have to do this? We should be able to just get this
+     * from HttpServerService, but it keeps getting 'P2pService undefined'
+     * errors when this reference is made.
+     */
+    HttpServerService.instance.broadcast = () => {
+      return this._broadcast;
+    };
   }
 
   /**
    * Debug tool. Used only to insert fake data for testing.
    */
+  /*
   insertFakeData() {
     var icons = IconService.instance.icons;
 
@@ -226,4 +245,5 @@ export default class P2pService extends Service {
       this._updatePeerInfo('192.168.100.100', {name: 'garbage', apps: []});
     }, 2000);
   }
+  */
 }
