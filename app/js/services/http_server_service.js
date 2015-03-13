@@ -42,7 +42,7 @@ export default class HttpServerService extends Service {
     this._broadcast = val;
   }
 
-  _serverIndex(evt) {
+  _serverPeer(evt) {
     var response = evt.response;
     var request = evt.request;
 
@@ -127,7 +127,8 @@ export default class HttpServerService extends Service {
         '/manifest.webapp': (evt) => this._serverManifest(evt),
         '/download': (evt) => this._serverDownload(evt),
         '/disconnect': (evt) => this._serverDisconnect(evt),
-        '/': (evt) => this._serverIndex(evt)
+        '/peer': (evt) => this._serverPeer(evt),
+        '/': (evt) => evt.response.send('')
       };
       var route = routes[path];
       if (route) {

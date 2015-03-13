@@ -21,6 +21,10 @@ export default class HttpClientService extends Service {
   }
 
   getPeerUrl(peer) {
+    return `http://${peer.address}:8080/peer`;
+  }
+
+  getPeerPingUrl(peer) {
     return `http://${peer.address}:8080`;
   }
 

@@ -8,6 +8,8 @@ import HttpService from 'app/js/services/http_service';
 var singletonGuard = {};
 var instance;
 
+const TIMEOUT = 2000;
+
 export default class HttpClientService extends Service {
   constructor(guard) {
     if (guard !== singletonGuard) {
@@ -44,6 +46,8 @@ export default class HttpClientService extends Service {
           }
         }
       };
+      xhr.timeout = TIMEOUT;
+      xhr.ontimeout = () => reject({name: 'Timeout'});
       xhr.send();
     });
   }
@@ -61,13 +65,15 @@ export default class HttpClientService extends Service {
     return new Promise((resolve, reject) => {
       var url = HttpService.instance.getPeerUrl(toPeer);
       var body = Peer.stringify(fromPeer);
-
-      if (this._cache[url] === body) {
-        resolve();
-        return;
-      }
+      var isCacheHit = this._cache[url] === body;
 
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
+      if (isCacheHit) {
+        // We got a cache hit, so just ping the peer instead of sending our full
+        // info.
+        url = HttpService.instance.getPeerPingUrl(toPeer);
+      }
+      xhr.open(isCacheHit ? 'GET' : 'POST', url);
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
@@ -78,8 +84,9 @@ export default class HttpClientService extends Service {
           }
         }
       };
-      xhr.open('POST', url);
-      xhr.send(body);
+      xhr.timeout = TIMEOUT;
+      xhr.ontimeout = () => reject({name: 'Timeout'});
+      xhr.send(isCacheHit ? '' : body);
     });
   }
 
@@ -96,6 +103,8 @@ export default class HttpClientService extends Service {
         }
       };
       xhr.open('GET', HttpService.instance.getPeerDisconnectUrl(peer));
+      xhr.timeout = TIMEOUT;
+      xhr.ontimeout = () => reject({name: 'Timeout'});
       xhr.send();
     });
   }

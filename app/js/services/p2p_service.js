@@ -122,7 +122,7 @@ export default class P2pService extends Service {
       if (this._peers[i].address === peer.address) {
         if (peer.address && Object.keys(peer).length === 1) {
           HttpClientService.instance.clearPeerCache(peer);
-          this._peers[i].slice(i, 1);
+          this._peers.splice(i, 1);
           this._dispatchEvent('proximity');
           return;
         }
@@ -195,8 +195,9 @@ export default class P2pService extends Service {
           return;
         }
 
+        var peer = {address: address};
+
         Peer.getMe().then(me => {
-          var peer = {address: address};
           this._sendPeerInfo(me, peer);
         });
       });
@@ -204,6 +205,7 @@ export default class P2pService extends Service {
 
     DNSSD.startDiscovery();
     setInterval(() => DNSSD.startDiscovery(), 30000 /* every 30 seconds */);
+    setInterval(() => this.sendPeersInfo(), 30000 /* every 30 seconds */);
 
     /**
      * XXX/drs: Why do we have to do this? We should be able to just get this
