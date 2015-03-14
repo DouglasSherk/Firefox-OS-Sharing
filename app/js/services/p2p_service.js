@@ -124,16 +124,13 @@ export default class P2pService extends Service {
     for (var i = 0; i < this._peers.length; i++) {
       if (this._peers[i].address === peer.address) {
         if (peer.address && Object.keys(peer).length === 1) {
-          HttpClientService.instance.clearPeerCache(peer);
+          HttpServerService.instance.clearPeerCache(peer);
           this._peers.splice(i, 1);
           this._dispatchEvent('proximity');
           return;
         }
 
-        // This peer has started a new session, so we should clear our cache so
-        // that we send our peer info to them again.
         if (this._peers[i].session !== peer.session) {
-          HttpClientService.instance.clearPeerCache(peer);
           Peer.getMe().then(me => this._sendPeerInfo(me, peer));
         }
 
@@ -143,16 +140,12 @@ export default class P2pService extends Service {
       }
     }
 
-    HttpClientService.instance.clearPeerCache(peer);
     this._peers.push(peer);
     this._dispatchEvent('proximity');
   }
 
   _sendPeerInfo(me, peer) {
-    HttpClientService.instance.sendPeerInfo(me, peer).then(
-      // If we get an error getting this peer's information, then discard
-      // the peer.
-      () => {}, () => this._deletePeer(peer));
+    HttpClientService.instance.sendPeerInfo(me, peer);
   }
 
   sendPeersInfo() {

@@ -17,8 +17,6 @@ export default class HttpClientService extends Service {
       return;
     }
 
-    this._cache = {};
-
     super();
   }
 
@@ -47,36 +45,20 @@ export default class HttpClientService extends Service {
     });
   }
 
-  clearPeerCache(peer) {
-    if (peer !== undefined) {
-      var url = HttpService.instance.getPeerUrl(peer);
-      delete this._cache[url];
-    } else {
-      this._cache = [];
-    }
-  }
-
   sendPeerInfo(fromPeer, toPeer) {
     return new Promise((resolve, reject) => {
       var url = HttpService.instance.getPeerUrl(toPeer);
       var body = Peer.stringify(fromPeer);
-      var isCacheHit = this._cache[url] === body;
 
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
-      if (isCacheHit) {
-        // We got a cache hit, so just ping the peer instead of sending our full
-        // info.
-        url = HttpService.instance.getPeerPingUrl(toPeer);
-      }
-      xhr.open(isCacheHit ? 'GET' : 'POST', url);
+      xhr.open('POST', url);
       xhr.onload = () => {
         if (xhr.status === 200) {
-          this._cache[url] = body;
           resolve();
         }
       };
       this._xhrAttachErrorListeners(xhr, reject, toPeer);
-      xhr.send(isCacheHit ? '' : body);
+      xhr.send(body);
     });
   }
 

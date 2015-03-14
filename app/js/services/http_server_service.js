@@ -18,6 +18,8 @@ export default class HttpServerService extends Service {
 
     super();
 
+    this._cache = {};
+
     window.addEventListener('beforeunload', this._deactivate.bind(this));
 
     DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
@@ -42,17 +44,25 @@ export default class HttpServerService extends Service {
     this._broadcast = val;
   }
 
+  clearPeerCache(peer) {
+    delete this._cache[peer.address];
+  }
+
   _serverPeer(evt) {
     var response = evt.response;
     var request = evt.request;
 
-    var data = JSON.parse(request.body);
+    var body = request.body;
+    var data = JSON.parse(body);
     data.address = response.socket.host;
-    // XXX/drs: We get "P2pService undefined" errors if we try using it
-    // directly. I'm not sure why, but it's probably some kind of circular
-    // reference issue. For now, this fixes it, but we should figure out why we
-    // have to do this.
-    window.p2pService.receivePeerInfo(data);
+    if (this._cache[data.address] !== body) {
+      this._cache[data.address] = body;
+      // XXX/drs: We get "P2pService undefined" errors if we try using it
+      // directly. I'm not sure why, but it's probably some kind of circular
+      // reference issue. For now, this fixes it, but we should figure out why
+      // we have to do this.
+      window.p2pService.receivePeerInfo(data);
+    }
 
     response.send('');
   }
@@ -101,8 +111,10 @@ export default class HttpServerService extends Service {
   _serverDisconnect(evt) {
     var response = evt.response;
 
-    var address = response.socket.host;
-    window.p2pService.receivePeerDisconnect({address: address});
+    var peer = {address: response.socket.host};
+    window.p2pService.receivePeerDisconnect(peer);
+
+    this.clearPeerCache(peer);
 
     response.send('');
   }
