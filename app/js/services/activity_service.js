@@ -1,15 +1,7 @@
 import { Service } from 'fxos-mvc/dist/mvc';
 
-var singletonGuard = {};
-var instance;
-
-export default class ActivityService extends Service {
+class ActivityService extends Service {
   constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
     super();
 
     navigator.mozSetMessageHandler('activity', (req) => {
@@ -22,11 +14,6 @@ export default class ActivityService extends Service {
       }
     });
   }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
-  }
 }
+
+export default new ActivityService();

@@ -19,6 +19,8 @@ import DeviceNameView from 'app/js/views/device_name_view';
 import ActivityService from 'app/js/services/activity_service';
 import P2pService from 'app/js/services/p2p_service';
 
+/* exported ActivityService */
+
 export default class MainController extends RoutingController {
   constructor() {
     this.view = new MainView({ el: document.body });
@@ -40,9 +42,6 @@ export default class MainController extends RoutingController {
       'progress_dialog': new ProgressDialogController(),
       'share': new ShareController()
     });
-
-    var stub = function() {};
-    stub(ActivityService.instance);
   }
 
   main() {
