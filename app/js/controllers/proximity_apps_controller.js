@@ -3,6 +3,7 @@ import { Controller } from 'fxos-mvc/dist/mvc';
 import App from 'app/js/models/app';
 
 import AppsService from 'app/js/services/apps_service';
+import BroadcastService from 'app/js/services/broadcast_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
 
@@ -35,8 +36,8 @@ export default class ProximityAppsController extends Controller {
     });
     this.proximityThemesView.init(this);
 
-    P2pService.instance.addEventListener(
-      'broadcast', () => this._broadcastChanged(), true);
+    BroadcastService.addEventListener(
+      'broadcast', e => this._broadcastChanged(e), true);
 
     P2pService.instance.addEventListener(
       'proximity', () => this._proximityChanged(), true);
@@ -63,8 +64,8 @@ export default class ProximityAppsController extends Controller {
     document.body.removeChild(this.proximityThemesView.el);
   }
 
-  _broadcastChanged() {
-    this.shareSummaryView.displayBroadcast(P2pService.instance.broadcast);
+  _broadcastChanged(e) {
+    this.shareSummaryView.displayBroadcast(e.broadcast);
   }
 
   _proximityChanged() {

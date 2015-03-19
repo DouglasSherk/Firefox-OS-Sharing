@@ -24,26 +24,6 @@ export default class P2pService extends Service {
 
     window.p2pService = this;
 
-    this._initialized = new Promise((resolve, reject) => {
-      navigator.mozSettings.addObserver('lightsaber.p2p_broadcast', (e) => {
-        this._broadcastLoaded(e.settingValue);
-      });
-
-      var broadcastSetting = navigator.mozSettings.createLock().get(
-        'lightsaber.p2p_broadcast', false);
-
-      broadcastSetting.onsuccess = () => {
-        this._broadcastLoaded(
-          broadcastSetting.result['lightsaber.p2p_broadcast']);
-        resolve();
-      };
-
-      broadcastSetting.onerror = () => {
-        console.error('error getting `lightsaber.p2p_broadcast` setting');
-        reject();
-      };
-    });
-
     this._peers = [];
 
     this._ipAddresses = new Promise((resolve, reject) => {
@@ -76,15 +56,6 @@ export default class P2pService extends Service {
       instance = new this(singletonGuard);
     }
     return instance;
-  }
-
-  get broadcast() {
-    return this._broadcast;
-  }
-
-  set broadcast(enable) {
-    navigator.mozSettings.createLock().set({
-     'lightsaber.p2p_broadcast': enable});
   }
 
   // Reduces an array of this format:
@@ -166,11 +137,6 @@ export default class P2pService extends Service {
     this.receivePeerInfo({address: peer.address});
   }
 
-  _broadcastLoaded(val) {
-    this._broadcast = val;
-    this._dispatchEvent('broadcast');
-  }
-
   _enableP2pConnection() {
     DNSSD.registerService('_fxos-sharing._tcp.local', 8080, {});
 
@@ -203,14 +169,8 @@ export default class P2pService extends Service {
     setInterval(() => DNSSD.startDiscovery(), 30000 /* every 30 seconds */);
     setInterval(() => this.sendPeersInfo(), 30000 /* every 30 seconds */);
 
-    /**
-     * XXX/drs: Why do we have to do this? We should be able to just get this
-     * from HttpServerService, but it keeps getting 'P2pService undefined'
-     * errors when this reference is made.
-     */
-    HttpServerService.instance.broadcast = () => {
-      return this._broadcast;
-    };
+    var stub = function() {};
+    stub(HttpServerService.instance);
   }
 
   _beforeUnload() {
