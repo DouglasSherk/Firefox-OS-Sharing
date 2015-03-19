@@ -10,16 +10,8 @@ import HttpClientService from 'app/js/services/http_client_service';
 import HttpServerService from 'app/js/services/http_server_service';
 /*import IconService from 'app/js/services/icon_service';*/
 
-var singletonGuard = {};
-var instance;
-
-export default class P2pService extends Service {
+class P2pService extends Service {
   constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
     super();
 
     window.p2pService = this;
@@ -49,13 +41,6 @@ export default class P2pService extends Service {
 
     HttpClientService.addEventListener(
       'disconnect', (e) => this.receivePeerInfo({address: e.peer.address}));
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
   }
 
   // Reduces an array of this format:
@@ -237,3 +222,5 @@ export default class P2pService extends Service {
   }
   */
 }
+
+export default new P2pService();

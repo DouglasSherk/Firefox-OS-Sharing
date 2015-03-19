@@ -16,7 +16,7 @@ export default class AppController extends Controller {
   main() {
     var appId = window.history.state;
 
-    var proxApps = P2pService.instance.getApps();
+    var proxApps = P2pService.getApps();
 
     this._app = App.getApp(proxApps, {manifestURL: appId});
     this.header = this._app && this._app.manifest.name;

@@ -39,7 +39,7 @@ export default class ProximityAppsController extends Controller {
     BroadcastService.addEventListener(
       'broadcast', e => this._broadcastChanged(e), true);
 
-    P2pService.instance.addEventListener(
+    P2pService.addEventListener(
       'proximity', () => this._proximityChanged(), true);
 
     AppsService.instance.addEventListener(
@@ -69,7 +69,7 @@ export default class ProximityAppsController extends Controller {
   }
 
   _proximityChanged() {
-    var proxApps = P2pService.instance.getApps();
+    var proxApps = P2pService.getApps();
 
     AppsService.instance.getApps().then(installedApps => {
       this.proximityAppsView.render(
@@ -85,7 +85,7 @@ export default class ProximityAppsController extends Controller {
 
   download(e) {
     var id = e.target.dataset.id;
-    var apps = P2pService.instance.getApps();
+    var apps = P2pService.getApps();
     var app = App.getApp(apps, {manifestURL: id});
 
     var confirmDownloadController =

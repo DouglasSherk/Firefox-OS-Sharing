@@ -73,6 +73,6 @@ export default class MainController extends RoutingController {
   }
 
   developer(e) {
-    P2pService.instance.insertFakeData();
+    P2pService.insertFakeData();
   }
 }
