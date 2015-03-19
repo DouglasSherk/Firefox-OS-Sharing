@@ -77,7 +77,7 @@ class P2pService extends Service {
     for (var i = 0; i < this._peers.length; i++) {
       if (this._peers[i].address === peer.address) {
         if (peer.address && Object.keys(peer).length === 1) {
-          HttpServerService.instance.clearPeerCache(peer);
+          HttpServerService.clearPeerCache(peer);
           this._peers.splice(i, 1);
           this._dispatchEvent('proximity');
           return;
@@ -150,9 +150,6 @@ class P2pService extends Service {
     DNSSD.startDiscovery();
     setInterval(() => DNSSD.startDiscovery(), 30000 /* every 30 seconds */);
     setInterval(() => this.sendPeersInfo(), 30000 /* every 30 seconds */);
-
-    var stub = function() {};
-    stub(HttpServerService.instance);
   }
 
   _beforeUnload() {

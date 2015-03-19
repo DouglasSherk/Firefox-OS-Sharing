@@ -7,16 +7,8 @@ import BroadcastService from 'app/js/services/broadcast_service';
 import DeviceNameService from 'app/js/services/device_name_service';
 /*import P2pService from 'app/js/services/p2p_service';*/
 
-var singletonGuard = {};
-var instance;
-
-export default class HttpServerService extends Service {
-  constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
+class HttpServerService extends Service {
+  constructor() {
     super();
 
     this._cache = {};
@@ -28,13 +20,6 @@ export default class HttpServerService extends Service {
     }, true);
 
     this._activate();
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
   }
 
   clearPeerCache(peer) {
@@ -154,3 +139,5 @@ export default class HttpServerService extends Service {
     this.httpServer = null;
   }
 }
+
+export default new HttpServerService();
