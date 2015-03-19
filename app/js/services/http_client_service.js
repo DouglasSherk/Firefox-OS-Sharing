@@ -9,7 +9,7 @@ const TIMEOUT = 2000;
 
 class HttpClientService extends Service {
   downloadApp(app) {
-    var url = HttpService.instance.getAppDownloadUrl(app);
+    var url = HttpService.getAppDownloadUrl(app);
 
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
@@ -28,7 +28,7 @@ class HttpClientService extends Service {
 
   sendPeerInfo(fromPeer, toPeer) {
     return new Promise((resolve, reject) => {
-      var url = HttpService.instance.getPeerUrl(toPeer);
+      var url = HttpService.getPeerUrl(toPeer);
       var body = Peer.stringify(fromPeer);
 
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
@@ -46,7 +46,7 @@ class HttpClientService extends Service {
   signalDisconnecting(peer) {
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
-      xhr.open('GET', HttpService.instance.getPeerDisconnectUrl(peer));
+      xhr.open('GET', HttpService.getPeerDisconnectUrl(peer));
       xhr.send();
     });
   }

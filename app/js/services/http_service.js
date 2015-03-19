@@ -1,25 +1,6 @@
 import { Service } from 'fxos-mvc/dist/mvc';
 
-var singletonGuard = {};
-var instance;
-
-export default class HttpService extends Service {
-  constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
-    super();
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
-  }
-
+class HttpService extends Service {
   getPeerUrl(peer) {
     return `http://${peer.address}:8080/peer`;
   }
@@ -42,3 +23,5 @@ export default class HttpService extends Service {
     return `http://${app.peer.address}:8080/manifest?app=${id}`;
   }
 }
+
+export default new HttpService();
