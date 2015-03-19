@@ -66,7 +66,7 @@ export default class HttpServerService extends Service {
 
       var appId = decodeURIComponent(request.params.app || '');
 
-      AppsService.instance.getApps().then(apps => {
+      AppsService.getApps().then(apps => {
         apps.forEach(app => {
           if (app.manifestURL === appId) {
             resolve(app);

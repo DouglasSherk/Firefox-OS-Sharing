@@ -41,7 +41,7 @@ export default class ShareController extends Controller {
     DeviceNameService.instance.addEventListener(
       'devicenamechange', e => this.deviceNameChanged(e), true);
 
-    AppsService.instance.addEventListener(
+    AppsService.addEventListener(
       'updated', () => this.appsChanged(), true);
 
     this.header = 'Share My Apps';
@@ -62,7 +62,7 @@ export default class ShareController extends Controller {
   }
 
   appsChanged() {
-    AppsService.instance.getApps().then(apps => {
+    AppsService.getApps().then(apps => {
       this.sharedAppsView.render(App.filterApps(apps));
       this.sharedAddonsView.render(App.filterAddons(apps));
       this.sharedThemesView.render(App.filterThemes(apps));

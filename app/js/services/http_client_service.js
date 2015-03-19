@@ -17,8 +17,7 @@ class HttpClientService extends Service {
       xhr.responseType = 'blob';
       xhr.onload = () => {
         if (xhr.status === 200) {
-          AppsService.instance.installAppBlob(
-            xhr.response).then(resolve, reject);
+          AppsService.installAppBlob(xhr.response).then(resolve, reject);
         }
       };
       this._xhrAttachErrorListeners(xhr, reject, app.peer);

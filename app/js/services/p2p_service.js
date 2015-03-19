@@ -11,7 +11,7 @@ import HttpServerService from 'app/js/services/http_server_service';
 /*import IconService from 'app/js/services/icon_service';*/
 
 class P2pService extends Service {
-  constructor(guard) {
+  constructor() {
     super();
 
     window.p2pService = this;
@@ -27,14 +27,11 @@ class P2pService extends Service {
 
     this._enableP2pConnection();
 
-    window.addEventListener(
-      'visibilitychange', () => DNSSD.startDiscovery());
+    window.addEventListener('visibilitychange', () => DNSSD.startDiscovery());
 
-    window.addEventListener(
-      'beforeunload', () => this._beforeUnload());
+    window.addEventListener('beforeunload', () => this._beforeUnload());
 
-    AppsService.instance.addEventListener(
-      'updated', () => this.sendPeersInfo());
+    AppsService.addEventListener('updated', () => this.sendPeersInfo());
 
     DeviceNameService.instance.addEventListener(
       'devicenamechange', (e) => this.sendPeersInfo());

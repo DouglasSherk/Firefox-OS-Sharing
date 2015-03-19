@@ -42,7 +42,7 @@ export default class ProximityAppsController extends Controller {
     P2pService.addEventListener(
       'proximity', () => this._proximityChanged(), true);
 
-    AppsService.instance.addEventListener(
+    AppsService.addEventListener(
       'updated', () => this._proximityChanged(), true);
 
     this._proximityChanged();
@@ -71,7 +71,7 @@ export default class ProximityAppsController extends Controller {
   _proximityChanged() {
     var proxApps = P2pService.getApps();
 
-    AppsService.instance.getApps().then(installedApps => {
+    AppsService.getApps().then(installedApps => {
       this.proximityAppsView.render(
         App.markInstalledApps(installedApps, App.filterApps(proxApps)));
 
