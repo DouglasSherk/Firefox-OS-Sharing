@@ -95,7 +95,7 @@ export default class ProximityAppsController extends Controller {
         window.routingController.controller('progress_dialog');
       progressDialogController.main();
 
-      HttpClientService.instance.downloadApp(app).then(
+      HttpClientService.downloadApp(app).then(
         progressDialogController.success.bind(progressDialogController),
         progressDialogController.error.bind(progressDialogController));
     });

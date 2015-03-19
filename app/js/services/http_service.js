@@ -3,7 +3,7 @@ import { Service } from 'fxos-mvc/dist/mvc';
 var singletonGuard = {};
 var instance;
 
-export default class HttpClientService extends Service {
+export default class HttpService extends Service {
   constructor(guard) {
     if (guard !== singletonGuard) {
       console.error('Cannot create singleton class');

@@ -48,7 +48,7 @@ export default class AppController extends Controller {
         window.routingController.controller('progress_dialog');
       progressDialogController.main();
 
-      HttpClientService.instance.downloadApp(this._app).then(
+      HttpClientService.downloadApp(this._app).then(
         progressDialogController.success.bind(progressDialogController),
         progressDialogController.error.bind(progressDialogController));
     });

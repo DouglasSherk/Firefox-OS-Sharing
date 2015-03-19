@@ -5,28 +5,9 @@ import Peer from 'app/js/models/peer';
 import AppsService from 'app/js/services/apps_service';
 import HttpService from 'app/js/services/http_service';
 
-var singletonGuard = {};
-var instance;
-
 const TIMEOUT = 2000;
 
-export default class HttpClientService extends Service {
-  constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
-    super();
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
-  }
-
+class HttpClientService extends Service {
   downloadApp(app) {
     var url = HttpService.instance.getAppDownloadUrl(app);
 
@@ -88,3 +69,5 @@ export default class HttpClientService extends Service {
     });
   }
 }
+
+export default new HttpClientService();

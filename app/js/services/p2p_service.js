@@ -47,7 +47,7 @@ export default class P2pService extends Service {
     DeviceNameService.instance.addEventListener(
       'devicenamechange', (e) => this.sendPeersInfo());
 
-    HttpClientService.instance.addEventListener(
+    HttpClientService.addEventListener(
       'disconnect', (e) => this.receivePeerInfo({address: e.peer.address}));
   }
 
@@ -116,7 +116,7 @@ export default class P2pService extends Service {
   }
 
   _sendPeerInfo(me, peer) {
-    HttpClientService.instance.sendPeerInfo(me, peer);
+    HttpClientService.sendPeerInfo(me, peer);
   }
 
   sendPeersInfo() {
@@ -175,7 +175,7 @@ export default class P2pService extends Service {
 
   _beforeUnload() {
     this._peers.forEach(peer => {
-      HttpClientService.instance.signalDisconnecting(peer);
+      HttpClientService.signalDisconnecting(peer);
     });
   }
 
