@@ -23,7 +23,7 @@ export default class HttpServerService extends Service {
 
     window.addEventListener('beforeunload', this._deactivate.bind(this));
 
-    DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
+    DeviceNameService.addEventListener('devicenamechange', e => {
       this._deviceName = e.deviceName;
     }, true);
 

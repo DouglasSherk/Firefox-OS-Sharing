@@ -33,11 +33,11 @@ class P2pService extends Service {
 
     AppsService.addEventListener('updated', () => this.sendPeersInfo());
 
-    DeviceNameService.instance.addEventListener(
-      'devicenamechange', (e) => this.sendPeersInfo());
+    DeviceNameService.addEventListener(
+      'devicenamechange', (/* e */) => this.sendPeersInfo());
 
     HttpClientService.addEventListener(
-      'disconnect', (e) => this.receivePeerInfo({address: e.peer.address}));
+      'disconnect', e => this.receivePeerInfo({address: e.peer.address}));
   }
 
   // Reduces an array of this format:

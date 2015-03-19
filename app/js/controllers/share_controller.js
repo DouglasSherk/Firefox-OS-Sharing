@@ -38,7 +38,7 @@ export default class ShareController extends Controller {
     BroadcastService.addEventListener(
       'broadcast', e => this.broadcastChanged(e), true);
 
-    DeviceNameService.instance.addEventListener(
+    DeviceNameService.addEventListener(
       'devicenamechange', e => this.deviceNameChanged(e), true);
 
     AppsService.addEventListener(
