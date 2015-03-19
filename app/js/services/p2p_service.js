@@ -5,6 +5,7 @@ import { Service } from 'fxos-mvc/dist/mvc';
 import Peer from 'app/js/models/peer';
 
 import AppsService from 'app/js/services/apps_service';
+import BroadcastService from 'app/js/services/broadcast_service';
 import DeviceNameService from 'app/js/services/device_name_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import HttpServerService from 'app/js/services/http_server_service';
@@ -38,6 +39,8 @@ class P2pService extends Service {
 
     HttpClientService.addEventListener(
       'disconnect', e => this.receivePeerInfo({address: e.peer.address}));
+
+    BroadcastService.addEventListener('broadcast', () => this.sendPeersInfo());
   }
 
   // Reduces an array of this format:
