@@ -29,7 +29,7 @@ class BroadcastService extends Service {
     return new Promise((resolve, reject) => {
       this._initialized.then(() => {
         resolve(this._broadcast);
-      });
+      }, reject);
     });
   }
 

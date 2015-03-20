@@ -16,10 +16,8 @@ import AppView from 'app/js/views/app_view';
 import ConfirmDownloadView from 'app/js/views/confirm_download_view';
 import DeviceNameView from 'app/js/views/device_name_view';
 
-import ActivityService from 'app/js/services/activity_service';
+import /* ActivityService from */ 'app/js/services/activity_service';
 import P2pService from 'app/js/services/p2p_service';
-
-/* exported ActivityService */
 
 export default class MainController extends RoutingController {
   constructor() {

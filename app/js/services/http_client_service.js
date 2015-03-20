@@ -3,13 +3,13 @@ import { Service } from 'fxos-mvc/dist/mvc';
 import Peer from 'app/js/models/peer';
 
 import AppsService from 'app/js/services/apps_service';
-import HttpService from 'app/js/services/http_service';
+import UrlService from 'app/js/services/url_service';
 
 const TIMEOUT = 2000;
 
 class HttpClientService extends Service {
   downloadApp(app) {
-    var url = HttpService.getAppDownloadUrl(app);
+    var url = UrlService.getAppDownloadUrl(app);
 
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
@@ -27,7 +27,7 @@ class HttpClientService extends Service {
 
   sendPeerInfo(fromPeer, toPeer) {
     return new Promise((resolve, reject) => {
-      var url = HttpService.getPeerUrl(toPeer);
+      var url = UrlService.getPeerUrl(toPeer);
       var body = Peer.stringify(fromPeer);
 
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
@@ -45,7 +45,7 @@ class HttpClientService extends Service {
   signalDisconnecting(peer) {
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({ mozAnon: true, mozSystem: true });
-      xhr.open('GET', HttpService.getPeerDisconnectUrl(peer));
+      xhr.open('GET', UrlService.getPeerDisconnectUrl(peer));
       xhr.send();
     });
   }
