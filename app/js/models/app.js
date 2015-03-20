@@ -22,6 +22,15 @@ export default class App extends Model {
     });
   }
 
+  static markSharedApps(sharedApps, apps) {
+    return apps.map(app => {
+      if (App.getApp(sharedApps, {manifestURL: app.manifestURL})) {
+        app.shared = true;
+      }
+      return app;
+    });
+  }
+
   static filterDefaults(apps) {
     var excludedApps = ['Marketplace', 'In-app Payment Tester', 'Membuster',
       'Share Receiver', 'Template', 'Test Agent', 'Test receiver#1',

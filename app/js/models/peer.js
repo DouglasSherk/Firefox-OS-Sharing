@@ -1,12 +1,12 @@
 import { Model } from 'fxos-mvc/dist/mvc';
 
-import AppsService from 'app/js/services/apps_service';
+import ShareService from 'app/js/services/share_service';
 import DeviceNameService from 'app/js/services/device_name_service';
 
 export default class Peer extends Model {
   static getMe() {
     return new Promise((resolve, reject) => {
-      Promise.all([AppsService.getApps(),
+      Promise.all([ShareService.getApps(),
                    DeviceNameService.getDeviceName()]).then(result => {
         var apps = result[0];
         var deviceName = result[1];

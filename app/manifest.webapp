@@ -55,5 +55,11 @@
       "disposition": "inline",
       "href": "/index.html?share"
     }
+  },
+  "datastores-owned": {
+    "p2p_shares": {
+      "access": "readwrite",
+      "description": "A list of all apps, add-ons, and themes being shared."
+    }
   }
 }

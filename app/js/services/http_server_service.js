@@ -2,9 +2,10 @@ import /* global HTTPServer */ 'fxos-web-server/dist/fxos-web-server';
 
 import { Service } from 'fxos-mvc/dist/mvc';
 
-import AppsService from 'app/js/services/apps_service';
-import BroadcastService from 'app/js/services/broadcast_service';
+import App from 'app/js/models/app';
+
 import DeviceNameService from 'app/js/services/device_name_service';
+import ShareService from 'app/js/services/share_service';
 /*import P2pService from 'app/js/services/p2p_service';*/
 
 class HttpServerService extends Service {
@@ -51,14 +52,14 @@ class HttpServerService extends Service {
 
       var appId = decodeURIComponent(request.params.app || '');
 
-      AppsService.getApps().then(apps => {
-        apps.forEach(app => {
-          if (app.manifestURL === appId) {
-            resolve(app);
-          }
-        });
-        reject();
-      });
+      ShareService.getApps().then(apps => {
+        var app = App.getApp(apps, {manifestURL: appId});
+        if (app) {
+          resolve(app);
+        } else {
+          reject();
+        }
+      }, reject);
     });
   }
 
@@ -72,7 +73,7 @@ class HttpServerService extends Service {
         'application/x-web-app-manifest+json';
       var manifest = app.manifest;
       response.send(JSON.stringify(manifest));
-    });
+    }, () => response.send(''));
   }
 
   _serverDownload(evt) {
@@ -83,7 +84,7 @@ class HttpServerService extends Service {
         response.headers['Content-Type'] = blob.type;
         response.sendFile(blob);
       });
-    });
+    }, () => response.send(''));
   }
 
   _serverDisconnect(evt) {
@@ -104,28 +105,20 @@ class HttpServerService extends Service {
 
     this.httpServer = new HTTPServer(8080);
     this.httpServer.addEventListener('request', (evt) => {
-      var response = evt.response;
       var request = evt.request;
 
-      BroadcastService.getBroadcast().then(broadcast => {
-        if (!broadcast) {
-          response.send('');
-          return;
-        }
-
-        var path = request.path;
-        var routes = {
-          '/manifest.webapp': (evt) => this._serverManifest(evt),
-          '/download': (evt) => this._serverDownload(evt),
-          '/disconnect': (evt) => this._serverDisconnect(evt),
-          '/peer': (evt) => this._serverPeer(evt),
-          '/': (evt) => evt.response.send('')
-        };
-        var route = routes[path];
-        if (route) {
-          route(evt);
-        }
-      });
+      var path = request.path;
+      var routes = {
+        '/manifest.webapp': (evt) => this._serverManifest(evt),
+        '/download': (evt) => this._serverDownload(evt),
+        '/disconnect': (evt) => this._serverDisconnect(evt),
+        '/peer': (evt) => this._serverPeer(evt),
+        '/': (evt) => evt.response.send('')
+      };
+      var route = routes[path];
+      if (route) {
+        route(evt);
+      }
     });
     this.httpServer.start();
   }
