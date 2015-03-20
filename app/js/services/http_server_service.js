@@ -59,7 +59,7 @@ class HttpServerService extends Service {
         } else {
           reject();
         }
-      });
+      }, reject);
     });
   }
 

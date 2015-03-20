@@ -86,8 +86,8 @@ export default class ListView extends View {
       if (app.installed) {
         return '<a class="control" disabled>Installed</a>';
       } else {
-        string = `
-          <a data-id="${app.manifestURL}" data-action="download"
+        string =
+          `<a data-id="${app.manifestURL}" data-action="download"
            class="control">
             Download
           </a>`;
