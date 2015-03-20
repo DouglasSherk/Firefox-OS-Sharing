@@ -32,6 +32,10 @@ export default class DeviceNameController extends Controller {
     DeviceNameService.setDeviceName(this.view.value);
   }
 
+  handleInput() {
+    this.view.el.els.submit.disabled = !this.view.value;
+  }
+
   _updateDeviceName(e) {
     this.view.value = e.deviceName;
   }

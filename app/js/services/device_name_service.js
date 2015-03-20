@@ -35,6 +35,11 @@ class DeviceNameService extends Service {
 
   setDeviceName(deviceName) {
     return new Promise((resolve, reject) => {
+      if (!deviceName) {
+        reject();
+        return;
+      }
+
       var request = navigator.mozSettings.createLock().set({
         'lightsaber.device_name': deviceName});
 

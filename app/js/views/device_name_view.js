@@ -4,6 +4,8 @@ import 'gaia-icons/gaia-icons';
 import 'gaia-text-input/gaia-text-input';
 import 'gaia-dialog/gaia-dialog-prompt';
 
+import DeviceNameService from 'app/js/services/device_name_service';
+
 export default class DeviceNameView extends View {
   render() {
     this.el = document.createElement('gaia-dialog-prompt');
@@ -11,19 +13,25 @@ export default class DeviceNameView extends View {
     super();
 
     setTimeout(() => {
-      this.cancelButtonEl = this.el.els.cancel;
-      this.submitButtonEl = this.el.els.submit;
-      this.inputEl = this.el.els.input;
-
-      this.submitButtonEl.addEventListener(
+      this.el.els.submit.addEventListener(
         'click', e => this.controller.handleSubmit(e));
+      this.el.els.submit.disabled = true;
 
       this.el.addEventListener(
         'opened', e => this.controller.handleOpened(e));
       this.el.addEventListener(
         'closed', e => this.controller.handleClosed(e));
 
-      this.inputEl.placeholder = 'Name your device';
+      this.el.els.input.placeholder = 'Name your device';
+      this.el.els.input.addEventListener(
+        'input', e => this.controller.handleInput(e));
+
+      DeviceNameService.getDeviceName().then(deviceName => {
+        this.value = deviceName;
+        if (deviceName) {
+          this.el.els.submit.disabled = false;
+        }
+      });
     });
   }
 
