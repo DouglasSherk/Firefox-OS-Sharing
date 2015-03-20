@@ -25,6 +25,7 @@ export default class DeviceNameController extends Controller {
 
   handleClosed() {
     document.body.removeChild(this.view.el);
+    DeviceNameService.signalDeviceNameCanceled();
   }
 
   handleSubmit() {
