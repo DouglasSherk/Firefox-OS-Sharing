@@ -20,7 +20,7 @@ class DeviceNameService extends Service {
           this._deviceName = result;
           resolve();
         } else {
-          this._setDeviceNameToDefault(resolve, reject);
+          this._isDefault = true;
         }
       };
 
@@ -35,10 +35,16 @@ class DeviceNameService extends Service {
 
   setDeviceName(deviceName) {
     return new Promise((resolve, reject) => {
+      if (!deviceName) {
+        reject();
+        return;
+      }
+
       var request = navigator.mozSettings.createLock().set({
         'lightsaber.device_name': deviceName});
 
       request.onsuccess = () => {
+        this._isDefault = false;
         this._dispatchEvent('devicenamechange', {deviceName: deviceName});
         resolve();
       };
@@ -58,19 +64,14 @@ class DeviceNameService extends Service {
     });
   }
 
-  _setDeviceNameToDefault(resolve, reject) {
-    var request =
-      navigator.mozSettings.createLock().get('deviceinfo.product_model');
+  isDefault() {
+    return this._isDefault;
+  }
 
-    request.onsuccess = () => {
-      this._deviceName = request.result['deviceinfo.product_model'];
-      resolve();
-    };
-
-    request.onerror = (e) => {
-      console.error('error getting deviceinfo.product_model', e);
-      reject(e);
-    };
+  signalDeviceNameCanceled() {
+    if (this._isDefault) {
+      this._dispatchEvent('devicenamechange-cancel');
+    }
   }
 }
 

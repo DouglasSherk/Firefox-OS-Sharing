@@ -37,12 +37,15 @@ export default class ShareController extends Controller {
     this.sharedThemesView.init(this);
 
     BroadcastService.addEventListener(
-      'broadcast', e => this.broadcastChanged(e), true);
+      'broadcast', e => this._broadcastChanged(e), true);
 
     DeviceNameService.addEventListener(
-      'devicenamechange', e => this.deviceNameChanged(e), true);
+      'devicenamechange', e => this._deviceNameChanged(e), true);
 
-    AppsService.addEventListener('updated', () => this.appsChanged(), true);
+    DeviceNameService.addEventListener(
+      'devicenamechange-cancel', () => this._deviceNameChangedCancel());
+
+    AppsService.addEventListener('updated', () => this._appsChanged(), true);
 
     this.header = 'Share My Apps';
   }
@@ -52,6 +55,10 @@ export default class ShareController extends Controller {
     document.body.appendChild(this.sharedAppsView.el);
     document.body.appendChild(this.sharedAddonsView.el);
     document.body.appendChild(this.sharedThemesView.el);
+
+    if (DeviceNameService.isDefault()) {
+      this.handleRenameDevice();
+    }
   }
 
   teardown() {
@@ -61,7 +68,7 @@ export default class ShareController extends Controller {
     document.body.removeChild(this.sharedThemesView.el);
   }
 
-  appsChanged() {
+  _appsChanged() {
     // We want to fetch all of our apps, even if we're not broadcasting them, so
     // that we can show them greyed out.
     var options = { ignoreBroadcast: true };
@@ -82,7 +89,7 @@ export default class ShareController extends Controller {
     BroadcastService.setBroadcast(toggle);
   }
 
-  broadcastChanged(e) {
+  _broadcastChanged(e) {
     var broadcast = e.broadcast;
     this.shareSettingsView.displayBroadcast(broadcast);
     this.sharedAppsView.toggle(!broadcast);
@@ -90,8 +97,12 @@ export default class ShareController extends Controller {
     this.sharedThemesView.toggle(!broadcast);
   }
 
-  deviceNameChanged(e) {
+  _deviceNameChanged(e) {
     this.shareSettingsView.deviceName = e.deviceName;
+  }
+
+  _deviceNameChangedCancel() {
+    window.location.hash = '';
   }
 
   handleRenameDevice() {

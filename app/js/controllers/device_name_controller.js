@@ -25,10 +25,15 @@ export default class DeviceNameController extends Controller {
 
   handleClosed() {
     document.body.removeChild(this.view.el);
+    DeviceNameService.signalDeviceNameCanceled();
   }
 
   handleSubmit() {
     DeviceNameService.setDeviceName(this.view.value);
+  }
+
+  handleInput() {
+    this.view.el.els.submit.disabled = !this.view.value;
   }
 
   _updateDeviceName(e) {
