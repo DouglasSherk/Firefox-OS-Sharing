@@ -13,33 +13,35 @@ export default class DeviceNameView extends View {
     super();
 
     setTimeout(() => {
-      this.el.els.submit.addEventListener(
+      this.els = this.el.els;
+
+      this.els.submit.addEventListener(
         'click', e => this.controller.handleSubmit(e));
-      this.el.els.submit.disabled = true;
+      this.els.submit.disabled = true;
 
       this.el.addEventListener(
         'opened', e => this.controller.handleOpened(e));
       this.el.addEventListener(
         'closed', e => this.controller.handleClosed(e));
 
-      this.el.els.input.placeholder = 'Name your device';
-      this.el.els.input.addEventListener(
+      this.els.input.placeholder = 'Name your device';
+      this.els.input.addEventListener(
         'input', e => this.controller.handleInput(e));
 
       DeviceNameService.getDeviceName().then(deviceName => {
         this.value = deviceName;
         if (deviceName) {
-          this.el.els.submit.disabled = false;
+          this.els.submit.disabled = false;
         }
       });
     });
   }
 
   get value() {
-    return this.el.els.input.value;
+    return this.els.input.value;
   }
 
   set value(val) {
-    this.el.els.input.value = val;
+    this.els.input.value = val;
   }
 }
