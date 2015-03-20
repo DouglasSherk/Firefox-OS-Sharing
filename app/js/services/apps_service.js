@@ -2,31 +2,16 @@ import { Service } from 'fxos-mvc/dist/mvc';
 
 import App from 'app/js/models/app';
 
-var singletonGuard = {};
-var instance;
-
-export default class AppsService extends Service {
-  constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
+class AppsService extends Service {
+  constructor() {
     super();
 
     this._apps = [];
     this._getApps();
 
     var mgmt = navigator.mozApps.mgmt;
-    mgmt.addEventListener('install', (app) => this._handleInstall(app));
-    mgmt.addEventListener('uninstall', (app) => this._handleUninstall(app));
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
+    mgmt.addEventListener('install', app => this._handleInstall(app));
+    mgmt.addEventListener('uninstall', app => this._handleUninstall(app));
   }
 
   installAppBlob(appData) {
@@ -50,7 +35,7 @@ export default class AppsService extends Service {
 
           getReq.onsuccess = () => {
             var file = getReq.result;
-            navigator.mozApps.mgmt.import(file).then((app) => {
+            navigator.mozApps.mgmt.import(file).then(app => {
               resolve(app);
             }, (e) => {
               console.error('error installing app', e);
@@ -64,7 +49,7 @@ export default class AppsService extends Service {
           };
         };
 
-        req.onerror = (e) => {
+        req.onerror = e => {
           console.error('error saving blob', e);
           reject(e);
         };
@@ -198,3 +183,5 @@ export default class AppsService extends Service {
     this._dispatchEvent('updated');
   }
 }
+
+export default new AppsService();

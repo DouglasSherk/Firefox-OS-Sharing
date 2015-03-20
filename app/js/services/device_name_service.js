@@ -1,15 +1,7 @@
 import { Service } from 'fxos-mvc/dist/mvc';
 
-var singletonGuard = {};
-var instance;
-
-export default class DeviceNameService extends Service {
-  constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
+class DeviceNameService extends Service {
+  constructor() {
     super();
 
     navigator.mozSettings.addObserver('lightsaber.device_name', (e) => {
@@ -39,13 +31,6 @@ export default class DeviceNameService extends Service {
     }).then(() => {
       this._dispatchEvent('devicenamechange', {deviceName: this._deviceName});
     });
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
   }
 
   setDeviceName(deviceName) {
@@ -88,3 +73,5 @@ export default class DeviceNameService extends Service {
     };
   }
 }
+
+export default new DeviceNameService();

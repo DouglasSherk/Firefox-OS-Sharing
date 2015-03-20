@@ -10,39 +10,11 @@ import HttpClientService from 'app/js/services/http_client_service';
 import HttpServerService from 'app/js/services/http_server_service';
 /*import IconService from 'app/js/services/icon_service';*/
 
-var singletonGuard = {};
-var instance;
-
-export default class P2pService extends Service {
-  constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
+class P2pService extends Service {
+  constructor() {
     super();
 
     window.p2pService = this;
-
-    this._initialized = new Promise((resolve, reject) => {
-      navigator.mozSettings.addObserver('lightsaber.p2p_broadcast', (e) => {
-        this._broadcastLoaded(e.settingValue);
-      });
-
-      var broadcastSetting = navigator.mozSettings.createLock().get(
-        'lightsaber.p2p_broadcast', false);
-
-      broadcastSetting.onsuccess = () => {
-        this._broadcastLoaded(
-          broadcastSetting.result['lightsaber.p2p_broadcast']);
-        resolve();
-      };
-
-      broadcastSetting.onerror = () => {
-        console.error('error getting `lightsaber.p2p_broadcast` setting');
-        reject();
-      };
-    });
 
     this._peers = [];
 
@@ -55,36 +27,17 @@ export default class P2pService extends Service {
 
     this._enableP2pConnection();
 
-    window.addEventListener(
-      'visibilitychange', () => DNSSD.startDiscovery());
+    window.addEventListener('visibilitychange', () => DNSSD.startDiscovery());
 
-    window.addEventListener(
-      'beforeunload', () => this._beforeUnload());
+    window.addEventListener('beforeunload', () => this._beforeUnload());
 
-    AppsService.instance.addEventListener(
-      'updated', () => this.sendPeersInfo());
+    AppsService.addEventListener('updated', () => this.sendPeersInfo());
 
-    DeviceNameService.instance.addEventListener(
-      'devicenamechange', (e) => this.sendPeersInfo());
+    DeviceNameService.addEventListener(
+      'devicenamechange', (/* e */) => this.sendPeersInfo());
 
-    HttpClientService.instance.addEventListener(
-      'disconnect', (e) => this.receivePeerInfo({address: e.peer.address}));
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
-  }
-
-  get broadcast() {
-    return this._broadcast;
-  }
-
-  set broadcast(enable) {
-    navigator.mozSettings.createLock().set({
-     'lightsaber.p2p_broadcast': enable});
+    HttpClientService.addEventListener(
+      'disconnect', e => this.receivePeerInfo({address: e.peer.address}));
   }
 
   // Reduces an array of this format:
@@ -124,7 +77,7 @@ export default class P2pService extends Service {
     for (var i = 0; i < this._peers.length; i++) {
       if (this._peers[i].address === peer.address) {
         if (peer.address && Object.keys(peer).length === 1) {
-          HttpServerService.instance.clearPeerCache(peer);
+          HttpServerService.clearPeerCache(peer);
           this._peers.splice(i, 1);
           this._dispatchEvent('proximity');
           return;
@@ -145,7 +98,7 @@ export default class P2pService extends Service {
   }
 
   _sendPeerInfo(me, peer) {
-    HttpClientService.instance.sendPeerInfo(me, peer);
+    HttpClientService.sendPeerInfo(me, peer);
   }
 
   sendPeersInfo() {
@@ -164,11 +117,6 @@ export default class P2pService extends Service {
 
   _deletePeer(peer) {
     this.receivePeerInfo({address: peer.address});
-  }
-
-  _broadcastLoaded(val) {
-    this._broadcast = val;
-    this._dispatchEvent('broadcast');
   }
 
   _enableP2pConnection() {
@@ -202,20 +150,11 @@ export default class P2pService extends Service {
     DNSSD.startDiscovery();
     setInterval(() => DNSSD.startDiscovery(), 30000 /* every 30 seconds */);
     setInterval(() => this.sendPeersInfo(), 30000 /* every 30 seconds */);
-
-    /**
-     * XXX/drs: Why do we have to do this? We should be able to just get this
-     * from HttpServerService, but it keeps getting 'P2pService undefined'
-     * errors when this reference is made.
-     */
-    HttpServerService.instance.broadcast = () => {
-      return this._broadcast;
-    };
   }
 
   _beforeUnload() {
     this._peers.forEach(peer => {
-      HttpClientService.instance.signalDisconnecting(peer);
+      HttpClientService.signalDisconnecting(peer);
     });
   }
 
@@ -277,3 +216,5 @@ export default class P2pService extends Service {
   }
   */
 }
+
+export default new P2pService();

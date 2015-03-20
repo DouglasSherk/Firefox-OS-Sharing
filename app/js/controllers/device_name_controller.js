@@ -8,7 +8,7 @@ export default class DeviceNameController extends Controller {
 
     this.view.render();
 
-    DeviceNameService.instance.addEventListener(
+    DeviceNameService.addEventListener(
       'devicenamechange', (e) => this._updateDeviceName(e), true);
   }
 
@@ -28,7 +28,7 @@ export default class DeviceNameController extends Controller {
   }
 
   handleSubmit() {
-    DeviceNameService.instance.setDeviceName(this.view.value);
+    DeviceNameService.setDeviceName(this.view.value);
   }
 
   _updateDeviceName(e) {

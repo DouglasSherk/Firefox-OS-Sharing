@@ -3,45 +3,23 @@ import /* global HTTPServer */ 'fxos-web-server/dist/fxos-web-server';
 import { Service } from 'fxos-mvc/dist/mvc';
 
 import AppsService from 'app/js/services/apps_service';
+import BroadcastService from 'app/js/services/broadcast_service';
 import DeviceNameService from 'app/js/services/device_name_service';
 /*import P2pService from 'app/js/services/p2p_service';*/
 
-var singletonGuard = {};
-var instance;
-
-export default class HttpServerService extends Service {
-  constructor(guard) {
-    if (guard !== singletonGuard) {
-      console.error('Cannot create singleton class');
-      return;
-    }
-
+class HttpServerService extends Service {
+  constructor() {
     super();
 
     this._cache = {};
 
     window.addEventListener('beforeunload', this._deactivate.bind(this));
 
-    DeviceNameService.instance.addEventListener('devicenamechange', (e) => {
+    DeviceNameService.addEventListener('devicenamechange', e => {
       this._deviceName = e.deviceName;
     }, true);
 
     this._activate();
-  }
-
-  static get instance() {
-    if (!instance) {
-      instance = new this(singletonGuard);
-    }
-    return instance;
-  }
-
-  get broadcast() {
-    return null;
-  }
-
-  set broadcast(val) {
-    this._broadcast = val;
   }
 
   clearPeerCache(peer) {
@@ -73,7 +51,7 @@ export default class HttpServerService extends Service {
 
       var appId = decodeURIComponent(request.params.app || '');
 
-      AppsService.instance.getApps().then(apps => {
+      AppsService.getApps().then(apps => {
         apps.forEach(app => {
           if (app.manifestURL === appId) {
             resolve(app);
@@ -129,23 +107,25 @@ export default class HttpServerService extends Service {
       var response = evt.response;
       var request = evt.request;
 
-      if (!this._broadcast) {
-        response.send('');
-        return;
-      }
+      BroadcastService.getBroadcast().then(broadcast => {
+        if (!broadcast) {
+          response.send('');
+          return;
+        }
 
-      var path = request.path;
-      var routes = {
-        '/manifest.webapp': (evt) => this._serverManifest(evt),
-        '/download': (evt) => this._serverDownload(evt),
-        '/disconnect': (evt) => this._serverDisconnect(evt),
-        '/peer': (evt) => this._serverPeer(evt),
-        '/': (evt) => evt.response.send('')
-      };
-      var route = routes[path];
-      if (route) {
-        route(evt);
-      }
+        var path = request.path;
+        var routes = {
+          '/manifest.webapp': (evt) => this._serverManifest(evt),
+          '/download': (evt) => this._serverDownload(evt),
+          '/disconnect': (evt) => this._serverDisconnect(evt),
+          '/peer': (evt) => this._serverPeer(evt),
+          '/': (evt) => evt.response.send('')
+        };
+        var route = routes[path];
+        if (route) {
+          route(evt);
+        }
+      });
     });
     this.httpServer.start();
   }
@@ -159,3 +139,5 @@ export default class HttpServerService extends Service {
     this.httpServer = null;
   }
 }
+
+export default new HttpServerService();

@@ -2,8 +2,8 @@ import { Controller } from 'fxos-mvc/dist/mvc';
 
 import App from 'app/js/models/app';
 
-import P2pService from 'app/js/services/p2p_service';
 import AppsService from 'app/js/services/apps_service';
+import BroadcastService from 'app/js/services/broadcast_service';
 import DeviceNameService from 'app/js/services/device_name_service';
 
 import ShareSettingsView from 'app/js/views/share_settings_view';
@@ -35,13 +35,13 @@ export default class ShareController extends Controller {
     });
     this.sharedThemesView.init(this);
 
-    P2pService.instance.addEventListener(
-      'broadcast', () => this.broadcastChanged(), true);
+    BroadcastService.addEventListener(
+      'broadcast', e => this.broadcastChanged(e), true);
 
-    DeviceNameService.instance.addEventListener(
+    DeviceNameService.addEventListener(
       'devicenamechange', e => this.deviceNameChanged(e), true);
 
-    AppsService.instance.addEventListener(
+    AppsService.addEventListener(
       'updated', () => this.appsChanged(), true);
 
     this.header = 'Share My Apps';
@@ -62,7 +62,7 @@ export default class ShareController extends Controller {
   }
 
   appsChanged() {
-    AppsService.instance.getApps().then(apps => {
+    AppsService.getApps().then(apps => {
       this.sharedAppsView.render(App.filterApps(apps));
       this.sharedAddonsView.render(App.filterAddons(apps));
       this.sharedThemesView.render(App.filterThemes(apps));
@@ -70,11 +70,11 @@ export default class ShareController extends Controller {
   }
 
   toggleBroadcasting(toggle) {
-    P2pService.instance.broadcast = toggle;
+    BroadcastService.setBroadcast(toggle);
   }
 
-  broadcastChanged() {
-    var broadcast = P2pService.instance.broadcast;
+  broadcastChanged(e) {
+    var broadcast = e.broadcast;
     this.shareSettingsView.displayBroadcast(broadcast);
     this.sharedAppsView.toggle(!broadcast);
     this.sharedAddonsView.toggle(!broadcast);

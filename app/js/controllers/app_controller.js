@@ -16,12 +16,12 @@ export default class AppController extends Controller {
   main() {
     var appId = window.history.state;
 
-    var proxApps = P2pService.instance.getApps();
+    var proxApps = P2pService.getApps();
 
     this._app = App.getApp(proxApps, {manifestURL: appId});
     this.header = this._app && this._app.manifest.name;
 
-    AppsService.instance.getApps().then(installedApps => {
+    AppsService.getApps().then(installedApps => {
       this._app = App.markInstalledApps(installedApps, [this._app])[0];
       this._show();
     });
@@ -31,13 +31,13 @@ export default class AppController extends Controller {
     this.view.show(this._app);
     document.body.appendChild(this.view.el);
 
-    AppsService.instance.addEventListener('updated', this._appsUpdated);
+    AppsService.addEventListener('updated', this._appsUpdated);
   }
 
   teardown() {
     document.body.removeChild(this.view.el);
 
-    AppsService.instance.removeEventListener('updated', this._appsUpdated);
+    AppsService.removeEventListener('updated', this._appsUpdated);
   }
 
   download(e) {
@@ -48,7 +48,7 @@ export default class AppController extends Controller {
         window.routingController.controller('progress_dialog');
       progressDialogController.main();
 
-      HttpClientService.instance.downloadApp(this._app).then(
+      HttpClientService.downloadApp(this._app).then(
         progressDialogController.success.bind(progressDialogController),
         progressDialogController.error.bind(progressDialogController));
     });

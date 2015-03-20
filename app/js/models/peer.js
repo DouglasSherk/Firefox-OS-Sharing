@@ -6,8 +6,8 @@ import DeviceNameService from 'app/js/services/device_name_service';
 export default class Peer extends Model {
   static getMe() {
     return new Promise((resolve, reject) => {
-      Promise.all([AppsService.instance.getApps(),
-                   DeviceNameService.instance.getDeviceName()]).then(result => {
+      Promise.all([AppsService.getApps(),
+                   DeviceNameService.getDeviceName()]).then(result => {
         var apps = result[0];
         var deviceName = result[1];
         resolve({
