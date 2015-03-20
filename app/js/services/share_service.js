@@ -33,13 +33,15 @@ class ShareService extends Service {
     }).then(() => this._dispatchEvent('share'));
   }
 
-  getApps() {
+  getApps(options) {
+    options = options || {};
+
     return new Promise((resolve, reject) => {
       Promise.all([BroadcastService.getBroadcast(),
                    AppsService.getApps(),
                    this._initialized]).then(results => {
         var broadcast = results[0];
-        if (!broadcast) {
+        if (!broadcast && !options.ignoreBroadcast) {
           resolve([]);
           return;
         }

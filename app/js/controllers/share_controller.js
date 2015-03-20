@@ -62,7 +62,11 @@ export default class ShareController extends Controller {
   }
 
   appsChanged() {
-    Promise.all([AppsService.getApps(), ShareService.getApps()]).then(
+    // We want to fetch all of our apps, even if we're not broadcasting them, so
+    // that we can show them greyed out.
+    var options = { ignoreBroadcast: true };
+
+    Promise.all([AppsService.getApps(), ShareService.getApps(options)]).then(
     results => {
       var installedApps = results[0];
       var sharedApps = results[1];
