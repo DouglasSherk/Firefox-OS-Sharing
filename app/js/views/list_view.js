@@ -74,14 +74,19 @@ export default class ListView extends View {
   }
 
   _control(app) {
+    var string;
     if (this.type === 'toggle') {
-      return '<gaia-checkbox data-action="toggle" class="control">' +
-             '</gaia-checkbox>';
+      var enabled = app.shared && 'checked' || '';
+      string =
+        `<gaia-checkbox data-action="toggle" data-id="${app.manifestURL}"
+          class="control" ${enabled}>
+         </gaia-checkbox>`;
+      return string;
     } else if (this.type === 'download') {
       if (app.installed) {
         return '<a class="control" disabled>Installed</a>';
       } else {
-        var string = `
+        string = `
           <a data-id="${app.manifestURL}" data-action="download"
            class="control">
             Download
