@@ -42,7 +42,8 @@
     "browser": {}
   },
   "icons": {
-    "128": "/icons/Icon_P2P_Sharing.png"
+    "128": "/icons/P2P_sharing_icon_x1.5.png",
+    "200": "/icons/P2P_sharing_icon_x2.25.png"
   },
   "activities": {
     "share": {
