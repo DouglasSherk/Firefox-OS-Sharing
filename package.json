@@ -7,12 +7,13 @@
     "url": "git@github.com/fxos/sharing.git"
   },
   "scripts": {
+    "build": "npm run apm && gulp build",
     "apm": "adapt-pkg-main app/components configFileNames=bower.json,.bower.json,package.json"
   },
   "author": "FxOS Developers <dev-gaia@lists.mozilla.com>",
   "license": "MPL",
   "dependencies": {
-    "fxos-build": "0.3.x",
+    "fxos-build": "0.7.x",
     "gulp": "3.8.x",
     "adapt-pkg-main": "^1.0.0"
   }
