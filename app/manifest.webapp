@@ -39,7 +39,10 @@
     "systemXHR": {
       "description": "For getting data from connected devices"
     },
-    "browser": {}
+    "browser": {},
+    "desktop-notification": {
+      "description": "For sending achievements notifications to Gaia::System"
+    }
   },
   "icons": {
     "128": "/icons/P2P_sharing_icon_x1.5.png",
