@@ -17,6 +17,7 @@ import ConfirmDownloadView from 'app/js/views/confirm_download_view';
 import DeviceNameView from 'app/js/views/device_name_view';
 
 import /* ActivityService from */ 'app/js/services/activity_service';
+import /* AchievementsService from */ 'app/js/services/achievements_service';
 import P2pService from 'app/js/services/p2p_service';
 
 export default class MainController extends RoutingController {

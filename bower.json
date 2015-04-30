@@ -10,6 +10,7 @@
     "dns-sd.js": "justindarc/dns-sd.js",
     "fxos-web-server": "justindarc/fxos-web-server",
     "fxos-mvc": "fxos/mvc",
+    "fxos-achievements-service": "fxos/achievements-service",
     "gaia-theme": " gaia-components/gaia-theme",
     "gaia-header" : "gaia-components/gaia-header",
     "gaia-list": "gaia-components/gaia-list",
