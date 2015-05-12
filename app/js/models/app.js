@@ -32,19 +32,13 @@ export default class App extends Model {
   }
 
   static filterDefaults(apps) {
-    var excludedApps = ['Marketplace', 'In-app Payment Tester', 'Membuster',
-      'Share Receiver', 'Template', 'Test Agent', 'Test receiver#1',
-      'Test Receiver#2', 'Test receiver (inline)', 'Test Shared CSS',
-      'UI tests - Privileged App', 'Sheet app 1', 'Sheet app 2', 'Sheet app 3',
-      'NFC API tests'];
-
-    var excludedThemes =
-      ['Default Theme', 'Test theme 1', 'Test theme 2', 'Broken theme 3'];
+    var filterOrigins = ['app://marketplace-dev.allizom.org',
+                         'app://marketplace.allizom.org',
+                         'http://mochi.test:8888'];
 
     return apps.filter(app => app.manifest.role !== 'system' &&
-                              app.manifest.type !== 'certified' &&
-                              excludedApps.indexOf(app.manifest.name) === -1 &&
-                              excludedThemes.indexOf(app.manifest.name) === -1);
+                              app.removable === true &&
+                              filterOrigins.indexOf(app.origin) === -1);
   }
 
   static filterApps(apps) {
