@@ -4,20 +4,13 @@ import AchievementsService from
   'fxos-achievements-service/dist/achievements-service';
 import BroadcastService from 'app/js/services/broadcast_service';
 
-const ACHIEVEMENT_CRITERIA = '/enable_sharing.html';
-const EVIDENCE = 'urn:sharing:p2p_broadcast:true';
+const ACHIEVEMENT_CRITERIA = 'achievements/sharing-is-caring';
+const ACHIEVEMENT_EVIDENCE = 'urn:sharing:p2p_broadcast:true';
 
 class AchievementsServiceWrapper {
   constructor() {
     // Create an achievements service
     var achievementsService = new AchievementsService();
-
-    // Register an achievement class for enabling sharing
-    achievementsService.register({
-      name: 'Enable sharing',
-      description: 'Share your apps, addons and themes',
-      criteria: ACHIEVEMENT_CRITERIA
-    });
 
     // When sharing is enabled, reward an achievement
     BroadcastService.addEventListener('broadcast', ({broadcast}) => {
@@ -25,7 +18,12 @@ class AchievementsServiceWrapper {
         // Do nothing if sharing is disabled
         return;
       }
-      achievementsService.reward(ACHIEVEMENT_CRITERIA, EVIDENCE);
+      achievementsService.reward({
+        criteria: ACHIEVEMENT_CRITERIA,
+        evidence: ACHIEVEMENT_EVIDENCE,
+        name: 'Sharing is Caring',
+        description: 'Share your apps and add-ons in Sharing app.'
+      });
     });
   }
 }
