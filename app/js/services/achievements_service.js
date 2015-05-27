@@ -1,14 +1,17 @@
 'use strict';
 
+/*
 import AchievementsService from
   'fxos-achievements-service/dist/achievements-service';
 import BroadcastService from 'app/js/services/broadcast_service';
 
 const ACHIEVEMENT_CRITERIA = '/enable_sharing.html';
 const EVIDENCE = 'urn:sharing:p2p_broadcast:true';
+*/
 
 class AchievementsServiceWrapper {
   constructor() {
+    /*
     // Create an achievements service
     var achievementsService = new AchievementsService();
 
@@ -27,6 +30,7 @@ class AchievementsServiceWrapper {
       }
       achievementsService.reward(ACHIEVEMENT_CRITERIA, EVIDENCE);
     });
+    */
   }
 }
 

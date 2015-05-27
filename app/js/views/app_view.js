@@ -1,6 +1,6 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import 'gaia-button/gaia-button';
+import 'gaia-button';
 
 export default class AppView extends View {
   constructor() {

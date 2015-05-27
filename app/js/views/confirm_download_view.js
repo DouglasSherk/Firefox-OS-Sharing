@@ -1,6 +1,6 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import 'gaia-dialog/gaia-dialog';
+import 'gaia-dialog';
 
 export default class ConfirmDownloadView extends View {
   template() {

@@ -1,8 +1,8 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import 'gaia-dialog/gaia-dialog';
-import 'gaia-progress/gaia-progress';
-import 'gaia-button/gaia-button';
+import 'gaia-dialog';
+import 'gaia-progress';
+import 'gaia-button';
 
 export default class ProgressDialogView extends View {
   template() {

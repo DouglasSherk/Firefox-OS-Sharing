@@ -1,9 +1,9 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import 'gaia-list/gaia-list';
-import 'gaia-checkbox/gaia-checkbox';
-import 'gaia-sub-header/gaia-sub-header';
-import 'gaia-loading/gaia-loading';
+import 'gaia-list';
+import 'gaia-checkbox';
+import 'gaia-sub-header';
+import 'gaia-loading';
 
 export default class ListView extends View {
   constructor(options) {
