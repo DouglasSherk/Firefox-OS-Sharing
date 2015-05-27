@@ -1,7 +1,6 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import 'gaia-icons/gaia-icons';
-import 'gaia-text-input/gaia-text-input';
+import 'gaia-icons';
 import 'gaia-dialog/gaia-dialog-prompt';
 
 import DeviceNameService from 'app/js/services/device_name_service';
