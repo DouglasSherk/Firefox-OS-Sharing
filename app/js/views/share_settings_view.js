@@ -1,7 +1,7 @@
 import { View } from 'fxos-mvc/dist/mvc';
 
-import 'gaia-button/gaia-button';
-import 'gaia-switch/gaia-switch';
+import 'gaia-button';
+import 'gaia-switch';
 
 export default class ShareSettingsView extends View {
   constructor() {
