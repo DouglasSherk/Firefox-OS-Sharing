@@ -48,9 +48,9 @@ export default class ShareSettingsView extends View {
         <i class="forward-light"></i>
       </li>
       <li class="borderless">
-        <button disabled id="rename-device" class="button">
+        <div aria-disabled="true" id="rename-device" class="button">
           Rename Device
-        </button>
+        </div>
       </li>
     `;
 
@@ -77,7 +77,7 @@ export default class ShareSettingsView extends View {
 
   set deviceName(deviceName) {
     setTimeout(() => {
-      this.els.renameDevice.removeAttribute('disabled');
+      this.els.renameDevice.removeAttribute('aria-disabled');
       this.els.deviceName.textContent = deviceName;
     });
   }
