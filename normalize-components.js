@@ -1,7 +1,7 @@
 'use strict';
 /*global require, __dirname, console */
 
-var requirejs = require('./r'),
+var requirejs = require('requirejs'),
     glob = require('glob'),
     fs = require('fs'),
     path = require('path'),
