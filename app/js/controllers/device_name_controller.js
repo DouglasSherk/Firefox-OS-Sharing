@@ -7,24 +7,20 @@ export default class DeviceNameController extends Controller {
     super(options);
 
     this.view.render();
+    document.body.appendChild(this.view.el);
 
     DeviceNameService.addEventListener(
       'devicenamechange', (e) => this._updateDeviceName(e), true);
   }
 
   main() {
-    document.body.appendChild(this.view.el);
-
-    setTimeout(() => {
-      this.view.el.open();
-    });
+    this.view.el.open();
   }
 
   handleOpened() {
   }
 
   handleClosed() {
-    document.body.removeChild(this.view.el);
     DeviceNameService.signalDeviceNameCanceled();
   }
 

@@ -5,44 +5,18 @@ import 'gaia-icons';
 import 'fxos-dev-mode-dialog';
 
 export default class MainView extends View {
-  template() {
-    var string = `
-      <fxos-dev-mode-dialog></fxos-dev-mode-dialog>
-      <gaia-header data-action="back">
-        <h1 data-action="developer">P2P Sharing</h1>
-      </gaia-header>`;
+  constructor(options) {
+    super(options);
 
-    return string;
-  }
-
-  render() {
-    super();
+    this.els = {};
+    this.els.devModeDialog = document.createElement('fxos-dev-mode-dialog');
+    this.el.appendChild(this.els.devModeDialog);
 
     this.on('action', 'gaia-header');
     this.on('contextmenu', 'gaia-header h1');
-
-    setTimeout(() => {
-      this.els = {};
-      this.els.header = this.$('gaia-header');
-      this.els.headerText = this.$('gaia-header h1');
-    });
   }
 
-  setHeader(text) {
-    if (!this.els || !this.els.headerText) {
-      return;
-    }
+  render() {
 
-    if (text) {
-      this.els.headerText.textContent = text;
-    } else {
-      this.els.headerText.textContent = 'P2P Sharing';
-    }
-  }
-
-  toggleBackButton(enable) {
-    if (this.els && this.els.header) {
-      this.els.header.setAttribute('action', enable ? 'back' : '');
-    }
   }
 }

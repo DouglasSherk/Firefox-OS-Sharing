@@ -4,9 +4,12 @@ import 'gaia-button';
 import 'gaia-switch';
 
 export default class ShareSettingsView extends View {
-  constructor() {
+  constructor(options) {
+    super(options);
+
     this.el = document.createElement('gaia-list');
     this.el.id = 'share-settings';
+    this.el.classList.add('app-list');
 
     this.render();
   }
@@ -24,35 +27,31 @@ export default class ShareSettingsView extends View {
       this.els.shareDescription = this.$('#share-description');
 
       this.els.renameDevice = this.$('#rename-device');
-      this.els.renameDevice.addEventListener(
-        'click', e => this._handleRenameDevice(e));
 
       this.els.deviceName = this.$('#device-name');
+
+      this.on('click', '#rename-device');
     });
   }
 
   template() {
-    var string = `
-      <li>
-        <div>
+    var string =
+      `<li>
+        <div flex>
           <h3>Share My Apps</h3>
           <h4 id="share-description">Turn on to share apps</h4>
         </div>
         <gaia-switch id="share-enabled"></gaia-switch>
       </li>
       <li>
-        <div>
+        <div flex>
           <h3>Device Name</h3>
           <h4 id="device-name">Loading...</h4>
         </div>
-        <i class="forward-light"></i>
-      </li>
-      <li class="borderless">
-        <div aria-disabled="true" id="rename-device" class="button">
-          Rename Device
-        </div>
-      </li>
-    `;
+        <a aria-disabled="true" data-action="rename" id="rename-device">
+          Rename
+        </a>
+      </li>`;
 
     return string;
   }
@@ -84,9 +83,5 @@ export default class ShareSettingsView extends View {
 
   _handleShareEnabledChange(e) {
     this.controller.toggleBroadcasting(e.target.checked);
-  }
-
-  _handleRenameDevice(e) {
-    this.controller.handleRenameDevice();
   }
 }

@@ -1,3 +1,5 @@
+/* global Sharing */
+
 import { Controller } from 'fxos-mvc/dist/mvc';
 
 import App from 'app/js/models/app';
@@ -9,32 +11,37 @@ import ShareService from 'app/js/services/share_service';
 
 import ShareSettingsView from 'app/js/views/share_settings_view';
 import ListView from 'app/js/views/list_view';
+import ShareView from 'app/js/views/share_view';
 
 export default class ShareController extends Controller {
   constructor() {
-    this.shareSettingsView = new ShareSettingsView();
-    this.shareSettingsView.init(this);
+    this.shareSettingsView = new ShareSettingsView({
+      controller: this
+    });
     this.sharedAppsView = new ListView({
+      controller: this,
       id: 'shared-apps',
       title: 'My apps',
       type: 'toggle',
       disabled: true
     });
-    this.sharedAppsView.init(this);
     this.sharedAddonsView = new ListView({
+      controller: this,
       id: 'shared-addons',
       title: 'My add-ons',
       type: 'toggle',
       disabled: true
     });
-    this.sharedAddonsView.init(this);
     this.sharedThemesView = new ListView({
+      controller: this,
       id: 'shared-themes',
       title: 'My themes',
       type: 'toggle',
       disabled: true
     });
-    this.sharedThemesView.init(this);
+    this.view = new ShareView({
+      controller: this
+    });
 
     BroadcastService.addEventListener(
       'broadcast', e => this._broadcastChanged(e), true);
@@ -43,29 +50,25 @@ export default class ShareController extends Controller {
       'devicenamechange', e => this._deviceNameChanged(e), true);
 
     DeviceNameService.addEventListener(
-      'devicenamechange-cancel', () => this._deviceNameChangedCancel());
+      'devicenamechange-cancel', () => this.back());
 
     AppsService.addEventListener('updated', () => this._appsChanged(), true);
 
-    this.header = 'Share My Apps';
+    DeviceNameService.getDeviceName().then(deviceName => {
+      this._deviceNameChanged({deviceName: deviceName});
+    });
   }
 
   main() {
-    document.body.appendChild(this.shareSettingsView.el);
-    document.body.appendChild(this.sharedAppsView.el);
-    document.body.appendChild(this.sharedAddonsView.el);
-    document.body.appendChild(this.sharedThemesView.el);
+    this.view.el.classList.add('active');
 
     if (DeviceNameService.isDefault()) {
-      this.handleRenameDevice();
+      Sharing.DeviceNameController.main();
     }
   }
 
   teardown() {
-    document.body.removeChild(this.shareSettingsView.el);
-    document.body.removeChild(this.sharedAppsView.el);
-    document.body.removeChild(this.sharedAddonsView.el);
-    document.body.removeChild(this.sharedThemesView.el);
+    this.view.el.classList.remove('active');
   }
 
   _appsChanged() {
@@ -101,14 +104,9 @@ export default class ShareController extends Controller {
     this.shareSettingsView.deviceName = e.deviceName;
   }
 
-  _deviceNameChangedCancel() {
-    window.location.hash = '';
-  }
-
-  handleRenameDevice() {
-    var deviceNameController =
-      window.routingController.controller('device_name');
-    deviceNameController.main();
+  back() {
+    this.teardown();
+    Sharing.ProximityAppsController.main();
   }
 
   toggle(e) {
@@ -120,6 +118,10 @@ export default class ShareController extends Controller {
   }
 
   description(e) {
-    // Everything gets handled by `toggle()`.
+    this.toggle({target: e.target.parentNode});
+  }
+
+  rename() {
+    Sharing.DeviceNameController.main();
   }
 }

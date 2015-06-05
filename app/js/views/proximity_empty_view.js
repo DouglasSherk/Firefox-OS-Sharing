@@ -19,7 +19,7 @@ export default class ProximityEmptyView extends View {
       </li>
       <li id="proximity-empty" class="hide">
         <div>
-          There is nobody nearby on your WiFi network who is sharing anything.
+          No users found sharing on your WiFi network.
           <gaia-loading></gaia-loading>
         </div>
       </li>`;
