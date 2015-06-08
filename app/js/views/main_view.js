@@ -2,10 +2,12 @@ import { View } from 'fxos-mvc/dist/mvc';
 
 import 'gaia-header';
 import 'gaia-icons';
+import 'fxos-dev-mode-dialog';
 
 export default class MainView extends View {
   template() {
     var string = `
+      <fxos-dev-mode-dialog></fxos-dev-mode-dialog>
       <gaia-header data-action="back">
         <h1 data-action="developer">P2P Sharing</h1>
       </gaia-header>`;
