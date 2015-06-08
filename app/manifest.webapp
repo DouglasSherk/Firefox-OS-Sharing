@@ -45,6 +45,9 @@
     },
     "wifi-manage": {
       "description": "To check if the device is connected to a network"
+    },
+    "feature-detection": {
+      "description": "For dev mode pref"
     }
   },
   "icons": {
