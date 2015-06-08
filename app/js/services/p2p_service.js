@@ -10,6 +10,7 @@ import DeviceNameService from 'app/js/services/device_name_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import HttpServerService from 'app/js/services/http_server_service';
 import ShareService from 'app/js/services/share_service';
+import WifiService from 'app/js/services/wifi_service';
 /*import IconService from 'app/js/services/icon_service';*/
 
 class P2pService extends Service {
@@ -44,6 +45,9 @@ class P2pService extends Service {
     BroadcastService.addEventListener('broadcast', () => this.sendPeersInfo());
 
     ShareService.addEventListener('share', () => this.sendPeersInfo());
+
+    WifiService.addEventListener(
+      'statuschange', (status) => this._wifiStatusChange(status));
   }
 
   // Reduces an array of this format:
@@ -162,6 +166,13 @@ class P2pService extends Service {
     this._peers.forEach(peer => {
       HttpClientService.signalDisconnecting(peer);
     });
+  }
+
+  _wifiStatusChange(status) {
+    if (status !== 'connected') {
+      this._peers = [];
+      this._dispatchEvent('proximity');
+    }
   }
 
   /**

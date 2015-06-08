@@ -21,18 +21,20 @@ export default class ListView extends View {
   }
 
   layout(template) {
-    var loading = this.controller._everRendered ?
-      '' : '<gaia-loading></gaia-loading>';
     var string = `
       <gaia-sub-header>${this.title}</gaia-sub-header>
       <gaia-list>
-        ${loading}
         ${template}
       </gaia-list>`;
     return string;
   }
 
   render(params) {
+    if (!params.length) {
+      this.el.innerHTML = '';
+      return;
+    }
+
     super(params);
 
     if (this.type === 'toggle') {
@@ -43,10 +45,6 @@ export default class ListView extends View {
   }
 
   template(app) {
-    // Hack! Write this to the controller so that all categories lose the
-    // loading indicator when we get any networked apps.
-    this.controller._everRendered = true;
-
     var desc = (app.peer && app.peer.name) ||
                (app.manifest.developer && app.manifest.developer.name) ||
                app.manifest.description || 'No information available';

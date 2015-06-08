@@ -6,14 +6,18 @@ import AppsService from 'app/js/services/apps_service';
 import BroadcastService from 'app/js/services/broadcast_service';
 import HttpClientService from 'app/js/services/http_client_service';
 import P2pService from 'app/js/services/p2p_service';
+import WifiService from 'app/js/services/wifi_service';
 
 import ShareSummaryView from 'app/js/views/share_summary_view';
 import ListView from 'app/js/views/list_view';
+import ProximityEmptyView from 'app/js/views/proximity_empty_view';
 
 export default class ProximityAppsController extends Controller {
   constructor() {
     this.shareSummaryView = new ShareSummaryView();
     this.shareSummaryView.init(this);
+    this.proximityEmptyView = new ProximityEmptyView();
+    this.proximityEmptyView.init(this);
     this.proximityAppsView = new ListView({
       id: 'proximity-apps',
       title: 'Available apps',
@@ -40,17 +44,20 @@ export default class ProximityAppsController extends Controller {
       'broadcast', e => this._broadcastChanged(e), true);
 
     P2pService.addEventListener(
-      'proximity', () => this._proximityChanged(), true);
+      'proximity', () => this._renderList(), true);
 
     AppsService.addEventListener(
-      'updated', () => this._proximityChanged(), true);
+      'updated', () => this._renderList(), true);
 
-    this._proximityChanged();
+    WifiService.addEventListener('statuschange', () => this._renderList());
+
+    this._renderList();
   }
 
   main() {
     document.body.appendChild(this.shareSummaryView.el);
 
+    document.body.appendChild(this.proximityEmptyView.el);
     document.body.appendChild(this.proximityAppsView.el);
     document.body.appendChild(this.proximityAddonsView.el);
     document.body.appendChild(this.proximityThemesView.el);
@@ -59,6 +66,7 @@ export default class ProximityAppsController extends Controller {
   teardown() {
     document.body.removeChild(this.shareSummaryView.el);
 
+    document.body.removeChild(this.proximityEmptyView.el);
     document.body.removeChild(this.proximityAppsView.el);
     document.body.removeChild(this.proximityAddonsView.el);
     document.body.removeChild(this.proximityThemesView.el);
@@ -68,18 +76,31 @@ export default class ProximityAppsController extends Controller {
     this.shareSummaryView.displayBroadcast(e.broadcast);
   }
 
-  _proximityChanged() {
+  _renderList() {
     var proxApps = P2pService.getApps();
 
     AppsService.getApps().then(installedApps => {
+      var apps = App.filterApps(proxApps);
+      var addons = App.filterAddons(proxApps);
+      var themes = App.filterThemes(proxApps);
+
+      var proximityEmpty =
+        apps.length === 0 && addons.length === 0 && themes.length === 0;
+      var noNetwork = !WifiService.isConnected();
+      this.proximityEmptyView.render();
+      this.proximityEmptyView.show({
+        proximityEmpty: proximityEmpty,
+        noNetwork: noNetwork
+      });
+
       this.proximityAppsView.render(
-        App.markInstalledApps(installedApps, App.filterApps(proxApps)));
+        App.markInstalledApps(installedApps, apps));
 
       this.proximityAddonsView.render(
-        App.markInstalledApps(installedApps, App.filterAddons(proxApps)));
+        App.markInstalledApps(installedApps, addons));
 
       this.proximityThemesView.render(
-        App.markInstalledApps(installedApps, App.filterThemes(proxApps)));
+        App.markInstalledApps(installedApps, themes));
     });
   }
 
