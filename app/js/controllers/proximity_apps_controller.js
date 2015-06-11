@@ -13,7 +13,8 @@ import WifiService from 'app/js/services/wifi_service';
 import ShareSummaryView from 'app/js/views/share_summary_view';
 import ListView from 'app/js/views/list_view';
 import ProximityEmptyView from 'app/js/views/proximity_empty_view';
-import ProximityAppsView from 'app/js/views/proximity_apps_view';
+
+import CompositeTemplate from 'app/js/views/templates/composite';
 
 export default class ProximityAppsController extends Controller {
   constructor() {
@@ -44,8 +45,28 @@ export default class ProximityAppsController extends Controller {
       type: 'download',
       attr: 'themes'
     });
-    this.view = new ProximityAppsView({
-      controller: this
+    this.marketplacesView = new ListView({
+      controller: this,
+      id: 'marketplaces',
+      title: 'Marketplaces',
+      type: 'link',
+      attr: 'marketplaces'
+    });
+    this.view = new CompositeTemplate({
+      controller: this,
+      header: {
+        title: 'P2P Sharing'
+      },
+      active: true,
+      id: 'proximity-apps-container',
+      views: [
+        this.shareSummaryView,
+        this.proximityEmptyView,
+        this.proximityAppsView,
+        this.proximityAddonsView,
+        this.proximityThemesView,
+        this.marketplacesView
+      ]
     });
 
     BroadcastService.addEventListener(
@@ -101,7 +122,12 @@ export default class ProximityAppsController extends Controller {
     // In case the tap hit a child node of the <div> element with the data-id
     // attribute set.
     var appId = e.target.dataset.id || e.target.parentNode.dataset.id;
-    Sharing.AppController.main(appId);
+    var list = e.target.closest('.app-list');
+    if (list.classList.contains('link')) {
+      this.open(e);
+    } else {
+      Sharing.AppController.main(appId);
+    }
   }
 
   openSharePanel() {
@@ -116,10 +142,11 @@ export default class ProximityAppsController extends Controller {
   _renderList() {
     var proxApps = P2pService.getApps();
 
-    AppsService.getApps().then(installedApps => {
+    AppsService.getApps(true /* include defaults */).then(installedApps => {
       var apps = App.filterApps(proxApps);
       var addons = App.filterAddons(proxApps);
       var themes = App.filterThemes(proxApps);
+      var marketplaces = App.filterMarketplaces(installedApps);
 
       var proximityEmpty =
         apps.length === 0 && addons.length === 0 && themes.length === 0;
@@ -138,6 +165,8 @@ export default class ProximityAppsController extends Controller {
 
       this.proximityThemesView.render(
         App.markInstalledApps(installedApps, themes));
+
+      this.marketplacesView.render(marketplaces);
     });
   }
 }

@@ -11,7 +11,8 @@ import ShareService from 'app/js/services/share_service';
 
 import ShareSettingsView from 'app/js/views/share_settings_view';
 import ListView from 'app/js/views/list_view';
-import ShareView from 'app/js/views/share_view';
+
+import CompositeTemplate from 'app/js/views/templates/composite';
 
 export default class ShareController extends Controller {
   constructor() {
@@ -39,8 +40,19 @@ export default class ShareController extends Controller {
       type: 'toggle',
       disabled: true
     });
-    this.view = new ShareView({
-      controller: this
+    this.view = new CompositeTemplate({
+      controller: this,
+      header: {
+        title: 'Share My Apps',
+        action: 'back'
+      },
+      id: 'share-apps-container',
+      views: [
+        this.shareSettingsView,
+        this.sharedAppsView,
+        this.sharedAddonsView,
+        this.sharedThemesView
+      ]
     });
 
     BroadcastService.addEventListener(

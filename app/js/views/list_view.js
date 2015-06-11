@@ -5,6 +5,7 @@ import 'gaia-checkbox';
 import 'gaia-sub-header';
 import 'gaia-loading';
 import 'gaia-button';
+import 'gaia-icons';
 
 export default class ListView extends View {
   constructor(options) {
@@ -47,6 +48,11 @@ export default class ListView extends View {
     var desc = (app.peer && app.peer.name) ||
                (app.manifest.developer && app.manifest.developer.name) ||
                app.manifest.description || 'No information available';
+    desc = `<h4>${desc}</h4>`;
+    if (this.type === 'link') {
+      desc = '';
+    }
+
     var toggle = (this.type === 'toggle' && 'data-action="toggle"') || '';
     var string = `
       <li tabindex="0" ${toggle}>
@@ -55,7 +61,7 @@ export default class ListView extends View {
         <div flex class="description" data-action="description"
          data-id="${app.manifestURL}">
           <h3>${app.manifest.name}</h3>
-          <h4>${desc}</h4>
+          ${desc}
         </div>
         ${this._control(app)}
       </li>`;
@@ -78,7 +84,6 @@ export default class ListView extends View {
         `<gaia-checkbox data-id="${app.manifestURL}" data-action="toggle"
           class="control" ${enabled}>
          </gaia-checkbox>`;
-      return string;
     } else if (this.type === 'download') {
       if (app.installed) {
         string =
@@ -86,15 +91,18 @@ export default class ListView extends View {
            class="control">
             Open
           </gaia-button>`;
-        return string;
       } else {
         string =
           `<gaia-button data-id="${app.manifestURL}" data-action="download"
            class="control">
             Install
           </gaia-button>`;
-        return string;
       }
+    } else if (this.type === 'link') {
+      string =
+        `<i data-id="${app.manifestURL}" data-action="open"
+          aria-hidden="true" data-icon="forward-light"></i>`;
     }
+    return string;
   }
 }
