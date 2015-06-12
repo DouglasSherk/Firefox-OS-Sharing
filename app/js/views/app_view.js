@@ -62,7 +62,17 @@ export default class AppView extends View {
     this.els.description.textContent = app.manifest.description;
     this.els.button.dataset.id = app.manifestURL;
     this.els.button.dataset.action = app.installed ? 'open' : 'download';
-    this.els.buttonText.textContent = app.installed ? 'Open' : 'Install';
+    this.els.button.disabled = false;
+    if (app.installed) {
+      if (app.manifest.role === 'addon' || app.manifest.role === 'theme') {
+        this.els.buttonText.textContent = 'Installed';
+        this.els.button.disabled = true;
+      } else {
+        this.els.buttonText.textContent = 'Open';
+      }
+    } else {
+      this.els.buttonText.textContent = 'Install';
+    }
   }
 
   hide() {

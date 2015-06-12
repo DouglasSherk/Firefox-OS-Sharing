@@ -86,11 +86,15 @@ export default class ListView extends View {
          </gaia-checkbox>`;
     } else if (this.type === 'download') {
       if (app.installed) {
-        string =
-          `<gaia-button data-id="${app.manifestURL}" data-action="open"
-           class="control">
-            Open
-          </gaia-button>`;
+        if (app.manifest.role === 'addon' || app.manifest.role === 'theme') {
+          string = `<gaia-button disabled>Installed</gaia-button>`;
+        } else {
+          string =
+            `<gaia-button data-id="${app.manifestURL}" data-action="open"
+             class="control">
+              Open
+            </gaia-button>`;
+        }
       } else {
         string =
           `<gaia-button data-id="${app.manifestURL}" data-action="download"
