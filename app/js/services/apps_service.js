@@ -90,10 +90,10 @@ class AppsService extends Service {
     */
   }
 
-  getApps() {
+  getApps(noFilter) {
     return new Promise((resolve, reject) => {
       this._getApps().then(() => {
-        resolve(this._apps);
+        resolve(noFilter ? this._apps : App.filterDefaults(this._apps));
       }, reject);
     });
   }
@@ -136,7 +136,6 @@ class AppsService extends Service {
           }
 
           Promise.all(iconPromises).then(() => {
-            this._apps = App.filterDefaults(this._apps);
             oresolve(this._apps);
             this._dispatchEvent('updated');
           });

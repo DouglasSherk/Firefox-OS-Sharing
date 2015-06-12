@@ -54,4 +54,13 @@ export default class App extends Model {
   static filterThemes(apps) {
     return apps.filter(app => app.manifest.role === 'theme');
   }
+
+  static filterMarketplaces(apps) {
+    var filterManifestURLs = [
+      'https://marketplace.firefox.com/packaged.webapp',
+      'app://directory.gaiamobile.org/manifest.webapp'
+    ];
+    return apps.filter(
+      app => filterManifestURLs.indexOf(app.manifestURL) !== -1);
+  }
 }
