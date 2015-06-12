@@ -15,13 +15,13 @@ class DeviceNameService extends Service {
 
       request.onsuccess = () => {
         var result = request.result['lightsaber.device_name'];
-
-        if (result) {
-          this._deviceName = result;
-          resolve();
-        } else {
+        if (!result) {
           this._isDefault = true;
         }
+
+        this._deviceName = result || '';
+
+        resolve();
       };
 
       request.onerror = (e) => {
