@@ -3,10 +3,13 @@ import { View } from 'fxos-mvc/dist/mvc';
 import 'gaia-list';
 
 export default class ShareSummaryView extends View {
-  constructor() {
+  constructor(options) {
+    super(options);
+
     this.el = document.createElement('gaia-list');
     this.el.id = 'sharing-summary';
     this.el.addEventListener('click', this._handleClick.bind(this));
+    this.el.classList.add('app-list');
 
     this.render();
   }
@@ -14,11 +17,12 @@ export default class ShareSummaryView extends View {
   template() {
     var string = `
       <li>
-        <div>
+        <div flex>
           <h3>Share My Apps</h3>
           <h4 id="sharing-summary-status">Sharing Off</h4>
         </div>
-        <i id="sharing-summary-caret" data-icon="forward-light"></i>
+        <i id="sharing-summary-caret" data-icon="forward-light"
+         aria-hidden="true"></i>
       </li>`;
     return string;
   }

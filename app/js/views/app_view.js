@@ -3,7 +3,9 @@ import { View } from 'fxos-mvc/dist/mvc';
 import 'gaia-button';
 
 export default class AppView extends View {
-  constructor() {
+  constructor(options) {
+    super(options);
+
     this.el = document.createElement('div');
     this.el.id = 'app-view';
 
@@ -12,14 +14,17 @@ export default class AppView extends View {
 
   template() {
     var string = `
+      <gaia-header action="close" data-action="close">
+        <h1></h1>
+      </gaia-header>
       <gaia-list class="app-list">
         <li>
           <img></img>
-          <div class="description">
+          <div flex class="description">
             <h3></h3>
             <h4></h4>
           </div>
-          <gaia-button class="control primary" data-action="download">
+          <gaia-button class="control">
             <span></span>
           </gaia-button>
         </li>
@@ -33,33 +38,34 @@ export default class AppView extends View {
     super();
 
     setTimeout(() => {
+      this.on('action', 'gaia-header');
       this.on('click', 'gaia-button');
 
       this.els = {};
+      this.els.title = this.$('h1');
       this.els.icon = this.$('img');
       this.els.name = this.$('h3');
       this.els.owner = this.$('h4');
       this.els.description = this.$('p');
-      this.els.button = this.$('gaia-button[data-action="download"]');
+      this.els.button = this.$('gaia-button');
       this.els.buttonText = this.els.button.querySelector('span');
     });
   }
 
   show(app) {
-    if (!app) {
-      // If we reload the app while the hash is pointed to this view, we won't
-      // have any apps to display, so let's just go back to the main view.
-      window.location.hash = '';
-      return;
-    }
-
+    this.el.classList.add('active');
     this.els.icon.src = app.icon || 'icons/default.png';
+    this.els.title.textContent = app.manifest.name;
     this.els.name.textContent = app.manifest.name;
     this.els.owner.textContent =
       app.manifest.developer && app.manifest.developer.name;
     this.els.description.textContent = app.manifest.description;
     this.els.button.dataset.id = app.manifestURL;
-    this.els.button.disabled = app.installed;
-    this.els.buttonText.textContent = app.installed ? 'Installed' : 'Download';
+    this.els.button.dataset.action = app.installed ? 'open' : 'download';
+    this.els.buttonText.textContent = app.installed ? 'Open' : 'Install';
+  }
+
+  hide() {
+    this.el.classList.remove('active');
   }
 }

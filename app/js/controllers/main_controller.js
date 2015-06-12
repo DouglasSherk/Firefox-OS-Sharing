@@ -1,4 +1,4 @@
-import { RoutingController } from 'fxos-mvc/dist/mvc';
+import { Controller } from 'fxos-mvc/dist/mvc';
 
 import MainView from 'app/js/views/main_view';
 
@@ -15,63 +15,34 @@ import ShareController from 'app/js/controllers/share_controller';
 import AppView from 'app/js/views/app_view';
 import ConfirmDownloadView from 'app/js/views/confirm_download_view';
 import DeviceNameView from 'app/js/views/device_name_view';
+import ProgressDialogView from 'app/js/views/progress_dialog_view';
 
 import /* ActivityService from */ 'app/js/services/activity_service';
 import /* AchievementsService from */ 'app/js/services/achievements_service';
-import P2pService from 'app/js/services/p2p_service';
 
-export default class MainController extends RoutingController {
+export default class MainController extends Controller {
   constructor() {
-    this.view = new MainView({ el: document.body });
-
-    var indexController = new ProximityAppsController();
-
-    super({
-      '': indexController,
-      'app': new AppController({
-        view: new AppView()
-      }),
-      'confirm_download': new ConfirmDownloadController({
-        view: new ConfirmDownloadView()
-      }),
-      'device_name': new DeviceNameController({
-        view: new DeviceNameView()
-      }),
-      'proximity_apps': indexController,
-      'progress_dialog': new ProgressDialogController(),
-      'share': new ShareController()
-    });
-  }
-
-  main() {
-    this.view.render();
     super();
-    this.route();
-    document.documentElement.classList.remove('loading');
-  }
 
-  route() {
-    super();
-    setTimeout(() => {
-      this.view.setHeader(this.activeController.header);
-      this.view.toggleBackButton(
-        this.activeController !== this._controllers['']);
+    this.view = new MainView({
+      controller: this,
+      el: document.body
     });
-  }
 
-  back(e) {
-    if (e.detail.type !== 'back') {
-      return;
-    }
+    window.Sharing = {
+      'AppController': new AppController({view: new AppView()}),
+      'ConfirmDownloadController':
+        new ConfirmDownloadController({view: new ConfirmDownloadView()}),
+      'DeviceNameController':
+        new DeviceNameController({view: new DeviceNameView()}),
+      'ProgressDialogController':
+        new ProgressDialogController({view: new ProgressDialogView()}),
+      'ProximityAppsController': new ProximityAppsController(),
+      'ShareController': new ShareController()
+    };
 
-    if (window.location.hash === '' && window.activityHandled) {
-      window.close();
-    }
-
-    window.location.hash = '';
-  }
-
-  developer(e) {
-    P2pService.insertFakeData();
+    window.requestAnimationFrame(() => {
+      document.documentElement.classList.remove('loading');
+    });
   }
 }
